@@ -135,16 +135,10 @@ map_write_to_file(char const *file, char const *name)
 		        name);
 		
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
-		{
-			fprintf(fp,
-			        "\t{\n"
-			        "\t\t.type = %u,\n"
-			        "\t},\n",
-			        g_map.data[i].type);
-		}
+			fprintf(fp, "{%u},", g_map.data[i].type);
 		
 		fprintf(fp,
-		        "};\n"
+		        "\n};\n"
 		        "static map_t %s =\n"
 		        "{\n"
 		        "\t.size_x = %u,\n"
@@ -174,6 +168,7 @@ map_tile_color(map_tile_type_t type)
 		CONF_COLOR_GROUND,
 		CONF_COLOR_KILL,
 		CONF_COLOR_BOUNCE,
+		CONF_COLOR_LAUNCH,
 	};
 	
 	return colors[type];
@@ -185,6 +180,7 @@ map_tile_collision(map_tile_type_t type)
 	static bool collision[MTT_END__] =
 	{
 		false,
+		true,
 		true,
 		true,
 		true,

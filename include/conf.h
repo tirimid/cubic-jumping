@@ -38,6 +38,8 @@
 #define CONF_GRAVITY 0.01f
 #define CONF_GROUND_THRESHOLD 0.05f
 #define CONF_RESTITUTION 0.85f
+#define CONF_LAUNCH_FORCE_X 0.4f
+#define CONF_LAUNCH_FORCE_Y 0.8f
 
 // visual options.
 #define CONF_DRAW_SCALE 50
@@ -51,6 +53,7 @@
 #define CONF_COLOR_GROUND {0, 0, 0}
 #define CONF_COLOR_KILL {100, 0, 0}
 #define CONF_COLOR_BOUNCE {0, 150, 200}
+#define CONF_COLOR_LAUNCH {0, 255, 130}
 #define CONF_BG_SQUARE_SIZE 128
 #define CONF_BG_SQUARE_GAP 16
 #define CONF_BG_SQUARE_SPEED_X 0.2f

@@ -12,6 +12,7 @@ typedef enum map_tile_type
 	MTT_GROUND,
 	MTT_KILL,
 	MTT_BOUNCE,
+	MTT_LAUNCH,
 	
 	MTT_END__,
 } map_tile_type_t;

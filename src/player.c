@@ -350,6 +350,11 @@ collide_left(void)
 		g_player.pos_x -= g_player.dist_left - 0.001f;
 		g_player.vel_x *= -CONF_RESTITUTION;
 		break;
+	case MTT_LAUNCH:
+		g_player.pos_x -= g_player.dist_left - 0.001f;
+		g_player.vel_x = CONF_LAUNCH_FORCE_X;
+		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		break;
 	}
 }
 
@@ -372,6 +377,11 @@ collide_right(void)
 	case MTT_BOUNCE:
 		g_player.pos_x += g_player.dist_right - 0.001f;
 		g_player.vel_x *= -CONF_RESTITUTION;
+		break;
+	case MTT_LAUNCH:
+		g_player.pos_x += g_player.dist_right - 0.001f;
+		g_player.vel_x = -CONF_LAUNCH_FORCE_X;
+		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
 		break;
 	}
 }
@@ -396,6 +406,10 @@ collide_bottom(void)
 		g_player.pos_y += g_player.dist_bottom - 0.001f;
 		g_player.vel_y *= -CONF_RESTITUTION;
 		break;
+	case MTT_LAUNCH:
+		g_player.pos_y += g_player.dist_bottom - 0.001f;
+		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		break;
 	}
 }
 
@@ -418,6 +432,10 @@ collide_top(void)
 	case MTT_BOUNCE:
 		g_player.pos_y -= g_player.dist_top - 0.001f;
 		g_player.vel_y *= -CONF_RESTITUTION;
+		break;
+	case MTT_LAUNCH:
+		g_player.pos_y -= g_player.dist_top - 0.001f;
+		g_player.vel_y = 0.0f;
 		break;
 	}
 }
