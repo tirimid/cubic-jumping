@@ -8,12 +8,10 @@
 #include "conf.h"
 #include "keybd.h"
 #include "map.h"
+#include "map_list.h"
 #include "player.h"
 #include "util.h"
 #include "vfx.h"
-
-#define WND_FLAGS 0
-#define REND_FLAGS 0
 
 static void draw_bg(void);
 
@@ -30,19 +28,21 @@ game_init(void)
 	                       SDL_WINDOWPOS_UNDEFINED,
 	                       CONF_WND_WIDTH,
 	                       CONF_WND_HEIGHT,
-	                       WND_FLAGS);
+	                       CONF_WND_FLAGS);
 	if (!wnd)
 	{
-		log_err("main: failed to create window: %s\n", SDL_GetError());
+		log_err("game: failed to create window: %s\n", SDL_GetError());
 		return 1;
 	}
 	
-	rend = SDL_CreateRenderer(wnd, -1, REND_FLAGS);
+	rend = SDL_CreateRenderer(wnd, -1, CONF_REND_FLAGS);
 	if (!rend)
 	{
-		log_err("main: failed to create renderer: %s\n", SDL_GetError());
+		log_err("game: failed to create renderer: %s\n", SDL_GetError());
 		return 1;
 	}
+	
+	map_list_load(MLI_CTE0);
 	
 	return 0;
 }

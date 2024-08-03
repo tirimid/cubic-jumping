@@ -7,11 +7,7 @@
 #include "util.h"
 #include "vfx.h"
 
-player_t g_player =
-{
-	.pos_x = 4.0f,
-	.pos_y = 2.5f,
-};
+player_t g_player;
 
 void
 player_update(void)
@@ -47,7 +43,7 @@ player_update(void)
 				break;
 		}
 		
-		int cxl = MIN(cxtl, cxbl);
+		int cxl = MAX(cxtl, cxbl);
 		g_player.dist_left = g_player.pos_x - cxl - 1.0f;
 	}
 	
@@ -91,7 +87,7 @@ player_update(void)
 				break;
 		}
 		
-		int cyt = MIN(cytl, cytr);
+		int cyt = MAX(cytl, cytr);
 		g_player.dist_top = g_player.pos_y - cyt - 1.0f;
 	}
 	
@@ -123,19 +119,30 @@ player_update(void)
 		mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
 		g_player.vel_x += mv_horiz;
 		
+		if (key_down(K_FALL))
+			g_player.vel_y += CONF_PLAYER_FALL_ACCEL;
+		
 		if (player_grounded() && key_down(K_JUMP))
 			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
+		else if (player_grounded() && key_down(K_POWERJUMP))
+		{
+			if (g_player.vel_x > 0.0f)
+				g_player.vel_x = CONF_PLAYER_POWERJUMP_FORCE_X;
+			else if (g_player.vel_x < 0.0f)
+				g_player.vel_x = -CONF_PLAYER_POWERJUMP_FORCE_X;
+			g_player.vel_y = -CONF_PLAYER_POWERJUMP_FORCE_Y;
+		}
 		
 		if (player_walled_left() && key_down(K_JUMP))
 		{
-			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
-			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE;
+			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
+			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
 		
 		if (player_walled_right() && key_down(K_JUMP))
 		{
-			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
-			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE;
+			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
+			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
 	}
 	
