@@ -24,6 +24,7 @@ map_list_load(map_list_item_t item)
 {
 	g_map = *items[item];
 	
+	g_player_state = PS_PLAYING;
 	g_player = (player_t)
 	{
 		.pos_x = g_map.player_spawn_x,
@@ -40,4 +41,17 @@ map_list_load(map_list_item_t item)
 	};
 	
 	cur_item = item;
+}
+
+void
+map_list_reload(void)
+{
+	g_player_state = PS_PLAYING;
+	g_player = (player_t)
+	{
+		.pos_x = g_map.player_spawn_x,
+		.pos_y = g_map.player_spawn_y,
+		.vel_x = 0.0f,
+		.vel_y = 0.0f,
+	};
 }

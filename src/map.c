@@ -168,13 +168,29 @@ map_write_to_file(char const *file, char const *name)
 float const *
 map_tile_color(map_tile_type_t type)
 {
-	static float colors[][3] =
+	static float colors[MTT_END__][3] =
 	{
 		{0, 0, 0}, // ignore, air is not drawn.
 		CONF_COLOR_GROUND,
+		CONF_COLOR_KILL,
+		CONF_COLOR_BOUNCE,
 	};
 	
 	return colors[type];
+}
+
+bool
+map_tile_collision(map_tile_type_t type)
+{
+	static bool collision[MTT_END__] =
+	{
+		false,
+		true,
+		true,
+		true,
+	};
+	
+	return collision[type];
 }
 
 void

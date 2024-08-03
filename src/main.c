@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include <SDL.h>
 
@@ -15,6 +17,8 @@ typedef enum game_mode
 int
 main(int argc, char *argv[])
 {
+	srand(time(NULL));
+	
 	game_mode_t mode;
 	if (argc == 1)
 		mode = GM_GAME;

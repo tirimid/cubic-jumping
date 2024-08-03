@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <sys/time.h>
 
@@ -56,4 +57,16 @@ relative_draw_rect(SDL_Renderer *rend, float x, float y, float w, float h)
 		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
 	};
 	SDL_RenderFillRect(rend, &rect);
+}
+
+float
+rand_float(float max)
+{
+	return (float)rand() / (float)(RAND_MAX / max);
+}
+
+int
+rand_int(int max)
+{
+	return rand() % max;
 }

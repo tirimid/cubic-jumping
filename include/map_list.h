@@ -10,5 +10,6 @@ typedef enum map_list_item
 
 map_list_item_t map_list_cur_item(void);
 void map_list_load(map_list_item_t item);
+void map_list_reload(void);
 
 #endif

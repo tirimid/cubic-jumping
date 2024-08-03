@@ -12,5 +12,7 @@ void log_err(char const *fmt, ...);
 uint64_t get_unix_time_ms(void);
 float lerp(float a, float b, float t);
 void relative_draw_rect(SDL_Renderer *rend, float x, float y, float w, float h);
+float rand_float(float max); // ranges from [0, max].
+int rand_int(int max); // ranges from [0, max).
 
 #endif
