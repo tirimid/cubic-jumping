@@ -25,7 +25,7 @@ log_err(char const *fmt, ...)
 	// stderr is backup so that error can still be processed in case a message
 	// box can't be opened.
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, ERR_TITLE, msg, NULL))
-		fprintf(stderr, msg);
+		fprintf(stderr, "%s", msg);
 	
 	va_end(args);
 }
