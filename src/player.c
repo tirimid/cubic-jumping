@@ -9,6 +9,8 @@
 #include "util.h"
 #include "vfx.h"
 
+#define COL_THRESHOLD 0.05f
+
 player_t g_player;
 player_state_t g_player_state;
 
@@ -50,19 +52,19 @@ player_draw(SDL_Renderer *rend)
 bool
 player_grounded(void)
 {
-	return g_player.dist_bottom < CONF_GROUND_THRESHOLD;
+	return g_player.dist_bottom < COL_THRESHOLD;
 }
 
 bool
 player_walled_left(void)
 {
-	return g_player.dist_left < CONF_GROUND_THRESHOLD;
+	return g_player.dist_left < COL_THRESHOLD;
 }
 
 bool
 player_walled_right(void)
 {
-	return g_player.dist_right < CONF_GROUND_THRESHOLD;
+	return g_player.dist_right < COL_THRESHOLD;
 }
 
 void

@@ -10,6 +10,7 @@
 #include "map.h"
 #include "map_list.h"
 #include "player.h"
+#include "triggers.h"
 #include "util.h"
 #include "vfx.h"
 
@@ -85,6 +86,7 @@ game_main_loop(void)
 		
 		// update game.
 		player_update();
+		triggers_update();
 		vfx_update();
 		cam_update();
 		keybd_post_update();
@@ -94,6 +96,9 @@ game_main_loop(void)
 		map_draw(rend);
 		vfx_draw(rend);
 		player_draw(rend);
+#if CONF_SHOW_TRIGGERS
+		triggers_draw(rend);
+#endif
 		SDL_RenderPresent(rend);
 		
 		uint64_t tick_end = get_unix_time_ms();
