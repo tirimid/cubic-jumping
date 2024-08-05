@@ -15,6 +15,74 @@ static void wr_uint_8(FILE *fp, uint8_t u8);
 static void wr_uint_32(FILE *fp, uint32_t u32);
 
 int
+map_create_file(char const *file, char const *name)
+{
+	unsigned name_len = strlen(name);
+	if (name_len > MAP_MAX_NAME_LEN)
+	{
+		log_err("map: map name is too long (>%u)!", name_len);
+		return 1;
+	}
+	
+	FILE *fp = fopen(file, "wb");
+	if (!fp)
+	{
+		log_err("map: failed to create file: %s!", file);
+		return 1;
+	}
+	
+	// write out header for dummy map.
+	{
+		fprintf(fp, "//CJ");
+		
+		char name_buf[9] = {0};
+		strcpy(name_buf, name);
+		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
+			wr_uint_8(fp, name_buf[i]);
+		
+		wr_uint_32(fp, 1);
+		wr_uint_32(fp, 1);
+		wr_uint_32(fp, 0);
+		wr_uint_32(fp, 0);
+	}
+	
+	// write out data for dummy map.
+	{
+		wr_uint_8(fp, MTT_GROUND);
+	}
+	
+	// write out inclusion target header.
+	{
+		fprintf(fp,
+		        "\n#ifndef %s_HFM\n"
+		        "#define %s_HFM\n"
+		        "#include \"map.h\"\n"
+		        "static map_tile_t %s_data[] =\n"
+		        "{\n"
+		        "{1},\n"
+		        "};\n"
+		        "static map_t %s =\n"
+		        "{\n"
+		        "\t.size_x = 1,\n"
+		        "\t.size_y = 1,\n"
+		        "\t.data = %s_data,\n"
+		        "\t.player_spawn_x = 0,\n"
+		        "\t.player_spawn_y = 0,\n"
+		        "\t.name = \"%s\\0\",\n"
+		        "};\n"
+		        "#endif\n",
+		        name,
+		        name,
+		        name,
+		        name,
+		        name,
+		        name);
+	}
+	
+	return 0;
+}
+
+int
 map_load_from_file(char const *file)
 {
 	FILE *fp = fopen(file, "rb");
@@ -24,41 +92,49 @@ map_load_from_file(char const *file)
 		return 1;
 	}
 	
-	if (fgetc(fp) != '/'
-	    || fgetc(fp) != '/'
-	    || fgetc(fp) != 'C'
-	    || fgetc(fp) != 'J')
+	// read map header data.
 	{
-		log_err("map: file contains invalid header: %s!", file);
-		return 1;
-	}
-	
-	uint32_t size_x, size_y;
-	uint32_t player_spawn_x, player_spawn_y;
-	if (rd_uint_32(&size_x, fp)
-	    || rd_uint_32(&size_y, fp)
-	    || rd_uint_32(&player_spawn_x, fp)
-	    || rd_uint_32(&player_spawn_y, fp))
-	{
-		return 1;
-	}
-	
-	g_map.size_x = size_x;
-	g_map.size_y = size_y;
-	g_map.player_spawn_x = player_spawn_x;
-	g_map.player_spawn_y = player_spawn_y;
-	g_map.data = malloc(sizeof(map_tile_t) * size_x * size_y);
-	
-	for (size_t i = 0; i < size_x * size_y; ++i)
-	{
-		uint8_t type;
-		if (rd_uint_8(&type, fp))
-			return 1;
-		
-		g_map.data[i] = (map_tile_t)
+		if (fgetc(fp) != '/'
+		    || fgetc(fp) != '/'
+		    || fgetc(fp) != 'C'
+		    || fgetc(fp) != 'J')
 		{
-			.type = type,
-		};
+			log_err("map: file contains invalid header: %s!", file);
+			return 1;
+		}
+		
+		memset(g_map.name, 0, sizeof(g_map.name));
+		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
+		{
+			uint8_t ch;
+			if (rd_uint_8(&ch, fp))
+				return 1;
+			g_map.name[i] = ch;
+		}
+		
+		if (rd_uint_32(&g_map.size_x, fp)
+		    || rd_uint_32(&g_map.size_y, fp)
+		    || rd_uint_32(&g_map.player_spawn_x, fp)
+		    || rd_uint_32(&g_map.player_spawn_y, fp))
+		{
+			return 1;
+		}
+	}
+	
+	// read main map data.
+	{
+		g_map.data = malloc(sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
+		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
+		{
+			uint8_t type;
+			if (rd_uint_8(&type, fp))
+				return 1;
+			
+			g_map.data[i] = (map_tile_t)
+			{
+				.type = type,
+			};
+		}
 	}
 	
 	return 0;
@@ -71,8 +147,7 @@ map_grow(uint32_t dx, uint32_t dy)
 	g_map.size_x += dx;
 	g_map.size_y += dy;
 	
-	g_map.data = realloc(g_map.data,
-	                     sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
+	g_map.data = realloc(g_map.data, sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
 	
 	// create new air cells (horizontal).
 	{
@@ -87,6 +162,10 @@ map_grow(uint32_t dx, uint32_t dy)
 			mv_len -= old_size_x;
 			mv_ind += g_map.size_x;
 		}
+		
+		// need to zero new tiles on last row to prevent phantom tiles from
+		// randomly appearing upon map grow.
+		memset(&g_map.data[mv_ind], 0, sizeof(map_tile_t) * dx);
 	}
 	
 	// create new air cells (vertical).
@@ -98,7 +177,7 @@ map_grow(uint32_t dx, uint32_t dy)
 }
 
 int
-map_write_to_file(char const *file, char const *name)
+map_write_to_file(char const *file)
 {
 	FILE *fp = fopen(file, "wb");
 	if (!fp)
@@ -110,6 +189,9 @@ map_write_to_file(char const *file, char const *name)
 	// write out map data header.
 	{
 		fprintf(fp, "//CJ");
+		
+		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
+			wr_uint_8(fp, g_map.name[i]);
 		
 		wr_uint_32(fp, g_map.size_x);
 		wr_uint_32(fp, g_map.size_y);
@@ -130,9 +212,9 @@ map_write_to_file(char const *file, char const *name)
 		        "#include \"map.h\"\n"
 		        "static map_tile_t %s_data[] =\n"
 		        "{\n",
-		        name,
-		        name,
-		        name);
+		        g_map.name,
+		        g_map.name,
+		        g_map.name);
 		
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
 			fprintf(fp, "{%u},", g_map.data[i].type);
@@ -146,14 +228,16 @@ map_write_to_file(char const *file, char const *name)
 		        "\t.data = %s_data,\n"
 		        "\t.player_spawn_x = %u,\n"
 		        "\t.player_spawn_y = %u,\n"
+		        "\t.name = \"%s\\0\",\n"
 		        "};\n"
 		        "#endif\n",
-		        name,
+		        g_map.name,
 		        g_map.size_x,
 		        g_map.size_y,
-		        name,
+		        g_map.name,
 		        g_map.player_spawn_x,
-		        g_map.player_spawn_y);
+		        g_map.player_spawn_y,
+		        g_map.name);
 	}
 	
 	return 0;

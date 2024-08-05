@@ -17,11 +17,11 @@ static void draw_editor_state(void);
 static SDL_Window *wnd;
 static SDL_Renderer *rend;
 static map_tile_type_t cur_type = MTT_GROUND;
-static char const *map_file, *map_name;
+static char const *map_file;
 static bool unsaved = false;
 
 int
-editor_init(char const *file, char const *name)
+editor_init(char const *file)
 {
 	atexit(editor_quit);
 	
@@ -48,7 +48,6 @@ editor_init(char const *file, char const *name)
 		return 1;
 	
 	map_file = file;
-	map_name = name;
 	
 	return 0;
 }
@@ -65,7 +64,7 @@ editor_quit(void)
 void
 editor_update(void)
 {
-	if (key_down(K_PRESS) && key_down(K_POWERJUMP))
+	if (key_down(K_ACT) && key_down(K_POWERJUMP))
 	{
 		if (key_pressed(K_JUMP)
 		    && g_cam.pos_x >= 0.0f
@@ -73,9 +72,10 @@ editor_update(void)
 		{
 			g_map.player_spawn_x = g_cam.pos_x;
 			g_map.player_spawn_y = g_cam.pos_y;
+			unsaved = true;
 		}
 	}
-	else if (key_down(K_PRESS))
+	else if (key_down(K_ACT))
 	{
 		float zoom_dir = key_down(K_JUMP) - key_down(K_FALL);
 		g_cam.zoom += CONF_CAM_ZOOM_SPEED * zoom_dir;
@@ -87,7 +87,7 @@ editor_update(void)
 		}
 		else if (key_pressed(K_RIGHT))
 		{
-			map_write_to_file(map_file, map_name);
+			map_write_to_file(map_file);
 			unsaved = false;
 		}
 	}
@@ -106,8 +106,7 @@ editor_update(void)
 		if ((int)g_cam.pos_y >= g_map.size_y)
 			map_grow(0, (int)g_cam.pos_y - g_map.size_y + 1);
 		
-		map_tile_t *tile = map_get((int)g_cam.pos_x, (int)g_cam.pos_y);
-		*tile = (map_tile_t)
+		*map_get((int)g_cam.pos_x, (int)g_cam.pos_y) = (map_tile_t)
 		{
 			.type = cur_type,
 		};
