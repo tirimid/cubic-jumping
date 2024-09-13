@@ -25,12 +25,8 @@ main(int argc, char *argv[])
 	game_mode_t mode;
 	{
 		if (argc < 2)
-		{
-			usage(argv[0]);
-			return 1;
-		}
-		
-		if (!strcmp(argv[1], "play"))
+			mode = GM_GAME;
+		else if (!strcmp(argv[1], "play"))
 		{
 			if (argc != 2)
 			{
@@ -105,9 +101,11 @@ usage(char const *p_name)
 	fprintf(stderr,
 	        "main: invalid usage!\n"
 	        "usage:\n"
+	        "\t%s                    launch game\n"
 	        "\t%s play               launch game\n"
 	        "\t%s edit <file>        edit HFM map\n"
 	        "\t%s hfm <file> <name>  create new HFM map\n",
+	        p_name,
 	        p_name,
 	        p_name,
 	        p_name);

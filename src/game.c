@@ -10,6 +10,7 @@
 #include "map.h"
 #include "map_list.h"
 #include "player.h"
+#include "text.h"
 #include "triggers.h"
 #include "util.h"
 #include "vfx.h"
@@ -43,6 +44,7 @@ game_init(void)
 		return 1;
 	}
 	
+	SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
 	map_list_load(MLI_CTE0);
 	
 	return 0;
@@ -60,6 +62,8 @@ game_quit(void)
 void
 game_main_loop(void)
 {
+	text_box_show("hello world, hello text box", 500);
+	
 	for (;;)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
@@ -89,6 +93,7 @@ game_main_loop(void)
 		triggers_update();
 		vfx_update();
 		cam_update();
+		text_box_update();
 		keybd_post_update();
 		
 		// draw game.
@@ -99,6 +104,7 @@ game_main_loop(void)
 #if CONF_SHOW_TRIGGERS
 		triggers_draw(rend);
 #endif
+		text_box_draw(rend);
 		SDL_RenderPresent(rend);
 		
 		uint64_t tick_end = get_unix_time_ms();
