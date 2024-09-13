@@ -1,4 +1,4 @@
-#ifndef TEXT_ITEM_H
-#define TEXT_ITEM_H
+#ifndef TEXT_LIST_H
+#define TEXT_LIST_H
 
 #endif
