@@ -1,6 +1,5 @@
 #include "editor.h"
 
-#include <stdbool.h>
 #include <stdlib.h>
 
 #include <SDL.h>
@@ -9,16 +8,31 @@
 #include "conf.h"
 #include "keybd.h"
 #include "map.h"
+#include "triggers.h"
+#include "ui.h"
 #include "util.h"
 
+typedef enum edit_mode
+{
+	EM_TILE = 0,
+	EM_TRIGGER,
+} edit_mode_t;
+
+static void update_editor(void);
 static void draw_bg(void);
-static void draw_editor_state(void);
+static void draw_indicators(void);
+static void btn_mode_tile(void);
+static void btn_mode_trigger(void);
+static void btn_type_next(void);
+static void btn_type_prev(void);
+static void btn_zoom_in(void);
+static void btn_zoom_out(void);
 
 static SDL_Window *wnd;
 static SDL_Renderer *rend;
-static map_tile_type_t cur_type = MTT_GROUND;
 static char const *map_file;
-static bool unsaved = false;
+static edit_mode_t mode = EM_TILE;
+static int type = 0;
 
 int
 editor_init(char const *file)
@@ -44,6 +58,8 @@ editor_init(char const *file)
 		return 1;
 	}
 	
+	SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+	
 	if (map_load_from_file(file))
 		return 1;
 	
@@ -62,71 +78,15 @@ editor_quit(void)
 }
 
 void
-editor_update(void)
-{
-	if (key_down(K_ACT) && key_down(K_POWERJUMP))
-	{
-		if (key_pressed(K_JUMP)
-		    && g_cam.pos_x >= 0.0f
-		    && g_cam.pos_y >= 0.0f)
-		{
-			g_map.player_spawn_x = g_cam.pos_x;
-			g_map.player_spawn_y = g_cam.pos_y;
-			unsaved = true;
-		}
-	}
-	else if (key_down(K_ACT))
-	{
-		float zoom_dir = key_down(K_JUMP) - key_down(K_FALL);
-		g_cam.zoom += CONF_CAM_ZOOM_SPEED * zoom_dir;
-		
-		if (key_pressed(K_LEFT))
-		{
-			++cur_type;
-			cur_type %= MTT_END__;
-		}
-		else if (key_pressed(K_RIGHT))
-		{
-			map_write_to_file(map_file);
-			unsaved = false;
-		}
-	}
-	else if (key_down(K_POWERJUMP))
-	{
-		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
-		float mv_vert = key_down(K_FALL) - key_down(K_JUMP);
-		g_cam.pos_x += 0.1f * mv_horiz;
-		g_cam.pos_y += 0.1f * mv_vert;
-		
-		if (g_cam.pos_x < 0.0f || g_cam.pos_y < 0.0f)
-			return;
-		
-		if ((int)g_cam.pos_x >= g_map.size_x)
-			map_grow((int)g_cam.pos_x - g_map.size_x + 1, 0);
-		if ((int)g_cam.pos_y >= g_map.size_y)
-			map_grow(0, (int)g_cam.pos_y - g_map.size_y + 1);
-		
-		*map_get((int)g_cam.pos_x, (int)g_cam.pos_y) = (map_tile_t)
-		{
-			.type = cur_type,
-		};
-		unsaved = true;
-	}
-	else
-	{
-		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
-		float mv_vert = key_down(K_FALL) - key_down(K_JUMP);
-		g_cam.pos_x += 0.1f * mv_horiz;
-		g_cam.pos_y += 0.1f * mv_vert;
-	}
-	
-	g_cam.zoom = MAX(g_cam.zoom, 0.25f);
-	g_cam.zoom = MIN(g_cam.zoom, 1.0f);
-}
-
-void
 editor_main_loop(void)
 {
+	ui_button_t b_mode_tile = ui_button_create(10, 10, "Tile", btn_mode_tile);
+	ui_button_t b_mode_trigger = ui_button_create(115, 10, "Trigger", btn_mode_trigger);
+	ui_button_t b_type_next = ui_button_create(285, 10, "Type>", btn_type_next);
+	ui_button_t b_type_prev = ui_button_create(410, 10, "Type<", btn_type_prev);
+	ui_button_t b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
+	ui_button_t b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
+	
 	for (;;)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
@@ -146,25 +106,72 @@ editor_main_loop(void)
 				if (!e.key.repeat)
 					keybd_set_key_state(&e, false);
 				break;
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEBUTTONDOWN:
+				ui_button_proc_event(&b_mode_tile, &e);
+				ui_button_proc_event(&b_mode_trigger, &e);
+				ui_button_proc_event(&b_zoom_in, &e);
+				ui_button_proc_event(&b_zoom_out, &e);
+				ui_button_proc_event(&b_type_next, &e);
+				ui_button_proc_event(&b_type_prev, &e);
+				break;
 			default:
 				break;
 			}
 		}
 		
 		// update editor.
-		editor_update();
-		keybd_post_update();
+		{
+			// update UI.
+			{
+				ui_button_update(&b_mode_tile);
+				ui_button_update(&b_mode_trigger);
+				ui_button_update(&b_zoom_in);
+				ui_button_update(&b_zoom_out);
+				ui_button_update(&b_type_next);
+				ui_button_update(&b_type_prev);
+			}
+			
+			update_editor();
+			keybd_post_update();
+		}
 		
 		// draw editor.
-		draw_bg();
-		map_draw(rend);
-		draw_editor_state();
-		SDL_RenderPresent(rend);
+		{
+			draw_bg();
+			map_draw(rend);
+			map_draw_outlines(rend);
+			draw_indicators();
+			
+			// draw UI.
+			{
+				ui_button_draw(rend, &b_mode_tile);
+				ui_button_draw(rend, &b_mode_trigger);
+				ui_button_draw(rend, &b_zoom_in);
+				ui_button_draw(rend, &b_zoom_out);
+				ui_button_draw(rend, &b_type_next);
+				ui_button_draw(rend, &b_type_prev);
+			}
+			
+			SDL_RenderPresent(rend);
+		}
 		
 		uint64_t tick_end = get_unix_time_ms();
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
+	}
+}
+
+static void
+update_editor(void)
+{
+	// move camera.
+	{
+		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
+		float mv_vert = key_down(K_FALL) - key_down(K_JUMP);
+		g_cam.pos_x += CONF_EDITOR_CAM_SPEED * mv_horiz;
+		g_cam.pos_y += CONF_EDITOR_CAM_SPEED * mv_vert;
 	}
 }
 
@@ -177,60 +184,123 @@ draw_bg(void)
 }
 
 static void
-draw_editor_state(void)
+draw_indicators(void)
 {
-	// draw player spawn point.
+	// draw hover / selection boundary.
 	{
-		SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
-		relative_draw_rect(rend,
-		                   g_map.player_spawn_x,
-		                   g_map.player_spawn_y,
-		                   1.0f,
-		                   1.0f);
-	}
-	
-	// draw current highlight indicator.
-	{
-		SDL_SetRenderDrawColor(rend, 0, 255, 0, 255);
-		relative_draw_rect(rend,
-		                   (int)g_cam.pos_x,
-		                   (int)g_cam.pos_y,
-		                   1.0f,
-		                   1.0f);
-	}
-	
-	// draw unsaved progress indicator.
-	{
-		if (unsaved)
-			SDL_SetRenderDrawColor(rend, 200, 0, 0, 255);
-		else
-			SDL_SetRenderDrawColor(rend, 0, 200, 0, 255);
+		static uint8_t cb[] = CONF_COLOR_EDITOR_BOUNDARY;
 		
-		SDL_Rect rect =
+		SDL_SetRenderDrawColor(rend,
+		                       cb[0],
+		                       cb[1],
+		                       cb[2],
+		                       CONF_COLOR_EDITOR_BOUNDARY_OPACITY);
+		
+		switch (mode)
 		{
-			.x = 0,
-			.y = CONF_WND_HEIGHT - 10,
-			.w = CONF_WND_WIDTH,
-			.h = 10,
-		};
-		SDL_RenderFillRect(rend, &rect);
+		case EM_TILE:
+		{
+			int mouse_x, mouse_y;
+			SDL_GetMouseState(&mouse_x, &mouse_y);
+			
+			float sel_x, sel_y;
+			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
+			sel_x = (int)sel_x;
+			sel_y = (int)sel_y;
+			
+			relative_draw_rect(rend, sel_x, sel_y, 1.0f, 1.0f);
+			
+			break;
+		}
+		case EM_TRIGGER:
+			// TODO: implement.
+			break;
+		}
 	}
 	
-	// draw current tile type.
+	// draw current type indicator.
 	{
-		if (cur_type == MTT_AIR)
-			return;
+		static uint8_t co[] = CONF_COLOR_OUTLINE;
 		
-		float const *ct = map_tile_color(cur_type);
-		SDL_SetRenderDrawColor(rend, ct[0], ct[1], ct[2], 255);
-		
-		SDL_Rect rect =
+		SDL_Rect r =
 		{
-			.x = 0,
+			.x = CONF_WND_WIDTH - CONF_EDITOR_TYPE_INDICATOR_SIZE,
 			.y = 0,
-			.w = 70,
-			.h = 70,
+			.w = CONF_EDITOR_TYPE_INDICATOR_SIZE,
+			.h = CONF_EDITOR_TYPE_INDICATOR_SIZE,
 		};
-		SDL_RenderFillRect(rend, &rect);
+		
+		uint8_t const *col;
+		switch (mode)
+		{
+		case EM_TILE:
+			col = map_tile_color(type);
+			break;
+		case EM_TRIGGER:
+			col = trigger_color(type);
+			break;
+		}
+		
+		SDL_SetRenderDrawColor(rend, col[0], col[1], col[2], 255);
+		SDL_RenderFillRect(rend, &r);
+		
+		SDL_SetRenderDrawColor(rend, co[0], co[1], co[2], 255);
+		SDL_RenderDrawRect(rend, &r);
 	}
+}
+
+static void
+btn_mode_tile(void)
+{
+	mode = EM_TILE;
+	type = 0;
+}
+
+static void
+btn_mode_trigger(void)
+{
+	mode = EM_TRIGGER;
+	type = 0;
+}
+
+static void
+btn_type_next(void)
+{
+	switch (mode)
+	{
+	case EM_TILE:
+		type = type == MTT_END__ - 1 ? 0 : type + 1;
+		break;
+	case EM_TRIGGER:
+		type = type == TT_END__ - 1 ? 0 : type + 1;
+		break;
+	}
+}
+
+static void
+btn_type_prev(void)
+{
+	switch (mode)
+	{
+	case EM_TILE:
+		type = type == 0 ? MTT_END__ - 1 : type - 1;
+		break;
+	case EM_TRIGGER:
+		type = type == 0 ? TT_END__ - 1 : type - 1;
+		break;
+	}
+}
+
+static void
+btn_zoom_in(void)
+{
+	g_cam.zoom += CONF_EDITOR_CAM_ZOOM;
+	g_cam.zoom = MIN(g_cam.zoom, CONF_CAM_MAX_ZOOM);
+}
+
+static void
+btn_zoom_out(void)
+{
+	g_cam.zoom -= CONF_EDITOR_CAM_ZOOM;
+	g_cam.zoom = MAX(g_cam.zoom, CONF_CAM_MIN_ZOOM);
 }

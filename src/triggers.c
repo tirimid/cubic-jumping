@@ -9,6 +9,18 @@ uint32_t g_ntriggers;
 
 static void collide(trigger_t const *trigger);
 
+uint8_t const *
+trigger_color(trigger_type_t type)
+{
+	static uint8_t colors[TT_END__][3] =
+	{
+		CONF_COLOR_TRIGGER_MSG,
+		CONF_COLOR_TRIGGER_KILL,
+	};
+	
+	return colors[type];
+}
+
 void
 triggers_add_trigger(trigger_type_t type,
                      float px,
@@ -37,14 +49,13 @@ triggers_update(void)
 void
 triggers_draw(SDL_Renderer *rend)
 {
-	static uint8_t ct[] = CONF_COLOR_TRIGGER;
-	
 	for (uint32_t i = 0; i < g_ntriggers; ++i)
 	{
+		uint8_t const *col = trigger_color(g_triggers[i].type);
 		SDL_SetRenderDrawColor(rend,
-		                       ct[0],
-		                       ct[1],
-		                       ct[2],
+		                       col[0],
+		                       col[1],
+		                       col[2],
 		                       CONF_COLOR_TRIGGER_OPACITY);
 		
 		relative_draw_rect(rend,

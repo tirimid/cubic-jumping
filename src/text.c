@@ -4,9 +4,9 @@
 #include <stdint.h>
 
 #include "conf.h"
+#include "util.h"
 
-#define FONT_WIDTH 5
-#define FONT_HEIGHT 6
+static size_t drawable_len_at(size_t off);
 
 static char const *box_text;
 static unsigned box_ticks = 0;
@@ -41,11 +41,11 @@ text_draw_ch(SDL_Renderer *rend, char ch, int x, int y)
 	
 	// draw outline boxes.
 	SDL_SetRenderDrawColor(rend, cto[0], cto[1], cto[2], 255);
-	for (int gy = 0; gy < FONT_HEIGHT; ++gy)
+	for (int gy = 0; gy < TEXT_FONT_HEIGHT; ++gy)
 	{
-		for (int gx = 0; gx < FONT_WIDTH; ++gx)
+		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
 		{
-			int shift = gy * FONT_WIDTH + gx;
+			int shift = gy * TEXT_FONT_WIDTH + gx;
 			if (!(font[ch] & 1 << shift))
 				continue;
 			
@@ -62,11 +62,11 @@ text_draw_ch(SDL_Renderer *rend, char ch, int x, int y)
 	
 	// draw inside boxes.
 	SDL_SetRenderDrawColor(rend, ct[0], ct[1], ct[2], 255);
-	for (int gy = 0; gy < FONT_HEIGHT; ++gy)
+	for (int gy = 0; gy < TEXT_FONT_HEIGHT; ++gy)
 	{
-		for (int gx = 0; gx < FONT_WIDTH; ++gx)
+		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
 		{
-			int shift = gy * FONT_WIDTH + gx;
+			int shift = gy * TEXT_FONT_WIDTH + gx;
 			if (!(font[ch] & 1 << shift))
 				continue;
 			
@@ -83,6 +83,16 @@ text_draw_ch(SDL_Renderer *rend, char ch, int x, int y)
 }
 
 void
+text_draw_str(SDL_Renderer *rend, char const *s, int x, int y)
+{
+	for (char const *c = s; *c; ++c)
+	{
+		text_draw_ch(rend, *c, x, y);
+		x += CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f);
+	}
+}
+
+void
 text_draw_str_bounded(SDL_Renderer *rend,
                       char const *s,
                       int px,
@@ -91,15 +101,30 @@ text_draw_str_bounded(SDL_Renderer *rend,
                       int sy)
 {
 	size_t i = 0;
-	for (int dy = py; dy < py + sy; dy += CONF_TEXT_SCALE * (FONT_HEIGHT + 0.5f))
+	for (int dy = py; dy < py + sy; dy += CONF_TEXT_SCALE * (TEXT_FONT_HEIGHT + 0.5f))
 	{
-		for (int dx = px; dx < px + sx; dx += CONF_TEXT_SCALE * (FONT_WIDTH + 0.5f))
+		// skip all non-renderable characters at start of line.
+		while (s[i] && !font[s[i]])
+			++i;
+		
+		// draw all words on line that don't require a newline wrap.
+		for (int dx = px; dx < px + sx;)
 		{
 			if (!s[i])
 				return;
 			
-			text_draw_ch(rend, s[i], dx, dy);
-			++i;
+			size_t draw_len = drawable_len_at(i);
+			draw_len = MAX(draw_len, 1);
+			if (dx + draw_len * CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f) >= px + sx)
+				break;
+			
+			for (size_t j = i; j < i + draw_len; ++j)
+			{
+				text_draw_ch(rend, s[j], dx, dy);
+				dx += CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f);
+			}
+			
+			i += draw_len;
 		}
 	}
 }
@@ -153,4 +178,16 @@ void
 text_box_update(void)
 {
 	box_ticks -= box_ticks > 0;
+}
+
+static size_t
+drawable_len_at(size_t off)
+{
+	size_t len;
+	for (len = 0; box_text[off + len]; ++len)
+	{
+		if (!font[box_text[off + len]])
+			break;
+	}
+	return len;
 }

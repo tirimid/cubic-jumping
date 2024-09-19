@@ -41,12 +41,7 @@ player_draw(SDL_Renderer *rend)
 	
 	static uint8_t cp[] = CONF_COLOR_PLAYER;
 	SDL_SetRenderDrawColor(rend, cp[0], cp[1], cp[2], 255);
-	
-	relative_draw_rect(rend,
-	                   g_player.pos_x,
-	                   g_player.pos_y,
-	                   CONF_PLAYER_SIZE,
-	                   CONF_PLAYER_SIZE);
+	relative_draw_rect(rend, g_player.pos_x, g_player.pos_y, CONF_PLAYER_SIZE, CONF_PLAYER_SIZE);
 }
 
 bool

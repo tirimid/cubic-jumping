@@ -25,7 +25,7 @@ After build, you can run the program in a few ways. To have them listed in your
 terminal, run the following:
 
 ```
-$ ./cubic-jumping
+$ ./cubic-jumping help
 ```
 
 ## Contributing

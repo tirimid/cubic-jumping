@@ -6,7 +6,12 @@
 #include "player.h"
 #include "util.h"
 
-cam_t g_cam;
+cam_t g_cam =
+{
+	.pos_x = 0.0f,
+	.pos_y = 0.0f,
+	.zoom = CONF_CAM_MAX_ZOOM,
+};
 
 void
 cam_update(void)
@@ -29,7 +34,7 @@ cam_update(void)
 		
 		float zoom_ext = sqrtf(psx2 + psy2);
 		zoom_ext = MIN(zoom_ext, CONF_CAM_MAX_ZOOM);
-		zoom_ext = MAX(zoom_ext, 0.0f);
+		zoom_ext = MAX(zoom_ext, CONF_CAM_MIN_ZOOM);
 		
 		g_cam.zoom = lerp(g_cam.zoom, 1.0f - zoom_ext, CONF_CAM_ZOOM_SPEED);
 	}

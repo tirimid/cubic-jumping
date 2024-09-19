@@ -40,10 +40,11 @@ int map_load_from_file(char const *file);
 void map_grow(uint32_t dx, uint32_t dy);
 int map_write_to_file(char const *file);
 
-// game functionality.
-float const *map_tile_color(map_tile_type_t type);
+// game and base rendering functionality.
+uint8_t const *map_tile_color(map_tile_type_t type);
 bool map_tile_collision(map_tile_type_t type);
 void map_draw(SDL_Renderer *rend);
+void map_draw_outlines(SDL_Renderer *rend);
 map_tile_t *map_get(uint32_t x, uint32_t y);
 
 #endif

@@ -243,12 +243,12 @@ map_write_to_file(char const *file)
 	return 0;
 }
 
-float const *
+uint8_t const *
 map_tile_color(map_tile_type_t type)
 {
-	static float colors[MTT_END__][3] =
+	static uint8_t colors[MTT_END__][3] =
 	{
-		{0, 0, 0}, // ignore, air is not drawn.
+		CONF_COLOR_BG,
 		CONF_COLOR_GROUND,
 		CONF_COLOR_KILL,
 		CONF_COLOR_BOUNCE,
@@ -284,10 +284,23 @@ map_draw(SDL_Renderer *rend)
 			if (tile->type == MTT_AIR)
 				continue;
 			
-			float const *col = map_tile_color(tile->type);
+			uint8_t const *col = map_tile_color(tile->type);
 			SDL_SetRenderDrawColor(rend, col[0], col[1], col[2], 255);
 			relative_draw_rect(rend, x, y, 1.0f, 1.0f);
 		}
+	}
+}
+
+void
+map_draw_outlines(SDL_Renderer *rend)
+{
+	static uint8_t co[] = CONF_COLOR_OUTLINE;
+	
+	SDL_SetRenderDrawColor(rend, co[0], co[1], co[2], 255);
+	for (uint32_t x = 0; x < g_map.size_x; ++x)
+	{
+		for (uint32_t y = 0; y < g_map.size_y; ++y)
+			relative_draw_hollow_rect(rend, x, y, 1.0f, 1.0f);
 	}
 }
 

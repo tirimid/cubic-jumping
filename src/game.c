@@ -45,6 +45,7 @@ game_init(void)
 	}
 	
 	SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+	
 	map_list_load(MLI_CTE0);
 	
 	return 0;
@@ -62,7 +63,7 @@ game_quit(void)
 void
 game_main_loop(void)
 {
-	text_box_show("hello world, hello text box", 500);
+	text_box_show("hello wond", 500);
 	
 	for (;;)
 	{
@@ -89,23 +90,27 @@ game_main_loop(void)
 		}
 		
 		// update game.
-		player_update();
-		triggers_update();
-		vfx_update();
-		cam_update();
-		text_box_update();
-		keybd_post_update();
+		{
+			player_update();
+			triggers_update();
+			vfx_update();
+			cam_update();
+			text_box_update();
+			keybd_post_update();
+		}
 		
 		// draw game.
-		draw_bg();
-		map_draw(rend);
-		vfx_draw(rend);
-		player_draw(rend);
+		{
+			draw_bg();
+			map_draw(rend);
+			vfx_draw(rend);
+			player_draw(rend);
 #if CONF_SHOW_TRIGGERS
-		triggers_draw(rend);
+			triggers_draw(rend);
 #endif
-		text_box_draw(rend);
-		SDL_RenderPresent(rend);
+			text_box_draw(rend);
+			SDL_RenderPresent(rend);
+		}
 		
 		uint64_t tick_end = get_unix_time_ms();
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;

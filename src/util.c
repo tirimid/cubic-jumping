@@ -51,12 +51,27 @@ relative_draw_rect(SDL_Renderer *rend, float x, float y, float w, float h)
 	// appear as a result of dynamic camera movement / zooming.
 	SDL_Rect rect =
 	{
-		.x = g_cam.zoom * CONF_DRAW_SCALE * (x - g_cam.pos_x) + CONF_WND_WIDTH / 2,
-		.y = g_cam.zoom * CONF_DRAW_SCALE * (y - g_cam.pos_y) + CONF_WND_HEIGHT / 2,
 		.w = g_cam.zoom * CONF_DRAW_SCALE * w + 1,
 		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
 	};
+	game_to_screen_coord(&rect.x, &rect.y, x, y);
 	SDL_RenderFillRect(rend, &rect);
+}
+
+void
+relative_draw_hollow_rect(SDL_Renderer *rend,
+                          float x,
+                          float y,
+                          float w,
+                          float h)
+{
+	SDL_Rect rect =
+	{
+		.w = g_cam.zoom * CONF_DRAW_SCALE * w + 1,
+		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
+	};
+	game_to_screen_coord(&rect.x, &rect.y, x, y);
+	SDL_RenderDrawRect(rend, &rect);
 }
 
 float
@@ -69,4 +84,18 @@ int
 rand_int(int max)
 {
 	return rand() % max;
+}
+
+void
+game_to_screen_coord(int *out_x, int *out_y, float x, float y)
+{
+	*out_x = g_cam.zoom * CONF_DRAW_SCALE * (x - g_cam.pos_x) + CONF_WND_WIDTH / 2;
+	*out_y = g_cam.zoom * CONF_DRAW_SCALE * (y - g_cam.pos_y) + CONF_WND_HEIGHT / 2;
+}
+
+void
+screen_to_game_coord(float *out_x, float *out_y, int x, int y)
+{
+	*out_x = (x - CONF_WND_WIDTH / 2) / (g_cam.zoom * CONF_DRAW_SCALE) + g_cam.pos_x;
+	*out_y = (y - CONF_WND_HEIGHT / 2) / (g_cam.zoom * CONF_DRAW_SCALE) + g_cam.pos_y;
 }
