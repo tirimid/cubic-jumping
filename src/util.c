@@ -5,10 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL.h>
 #include <sys/time.h>
 
 #include "cam.h"
 #include "conf.h"
+#include "wnd.h"
 
 #define ERR_TITLE "CJ - error"
 #define MAX_LOG_LEN 512
@@ -45,7 +47,7 @@ lerp(float a, float b, float t)
 }
 
 void
-relative_draw_rect(SDL_Renderer *rend, float x, float y, float w, float h)
+relative_draw_rect(float x, float y, float w, float h)
 {
 	// 1 is added to pixel width and height in order to remove any seams that
 	// appear as a result of dynamic camera movement / zooming.
@@ -55,15 +57,11 @@ relative_draw_rect(SDL_Renderer *rend, float x, float y, float w, float h)
 		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
 	};
 	game_to_screen_coord(&rect.x, &rect.y, x, y);
-	SDL_RenderFillRect(rend, &rect);
+	SDL_RenderFillRect(g_rend, &rect);
 }
 
 void
-relative_draw_hollow_rect(SDL_Renderer *rend,
-                          float x,
-                          float y,
-                          float w,
-                          float h)
+relative_draw_hollow_rect(float x, float y, float w, float h)
 {
 	SDL_Rect rect =
 	{
@@ -71,7 +69,7 @@ relative_draw_hollow_rect(SDL_Renderer *rend,
 		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
 	};
 	game_to_screen_coord(&rect.x, &rect.y, x, y);
-	SDL_RenderDrawRect(rend, &rect);
+	SDL_RenderDrawRect(g_rend, &rect);
 }
 
 float

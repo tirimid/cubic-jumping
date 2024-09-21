@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-#include <SDL.h>
 #include <unistd.h>
 
 #include "map.h"
@@ -33,7 +32,7 @@ extern player_t g_player;
 extern player_state_t g_player_state;
 
 void player_update(void);
-void player_draw(SDL_Renderer *rend);
+void player_draw(void);
 bool player_grounded(void);
 bool player_walled_left(void);
 bool player_walled_right(void);

@@ -3,13 +3,15 @@
 
 #include <stdint.h>
 
-#include <SDL.h>
-
 #define TRIGGERS_MAX 64
 
 typedef enum trigger_type
 {
-	TT_MSG = 0,
+	// not *really* a trigger type.
+	// used as a mechanism to allow a trigger erase feature.
+	TT_NULL = 0,
+	
+	TT_MSG,
 	TT_KILL,
 	
 	TT_END__,
@@ -30,6 +32,6 @@ extern uint32_t g_ntriggers;
 uint8_t const *trigger_color(trigger_type_t type);
 void triggers_add_trigger(trigger_type_t type, float px, float py, float sx, float sy);
 void triggers_update(void);
-void triggers_draw(SDL_Renderer *rend);
+void triggers_draw(void);
 
 #endif

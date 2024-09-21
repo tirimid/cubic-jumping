@@ -1,6 +1,8 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
+#include <stdbool.h>
+
 #include <SDL.h>
 
 typedef enum mouse_button

@@ -3,9 +3,12 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include <SDL.h>
+
 #include "cam.h"
 #include "conf.h"
 #include "util.h"
+#include "wnd.h"
 
 map_t g_map;
 
@@ -32,6 +35,7 @@ map_create_file(char const *file, char const *name)
 	}
 	
 	// write out header for dummy map.
+	do
 	{
 		fprintf(fp, "//CJ");
 		
@@ -44,14 +48,16 @@ map_create_file(char const *file, char const *name)
 		wr_uint_32(fp, 1);
 		wr_uint_32(fp, 0);
 		wr_uint_32(fp, 0);
-	}
+	} while (0);
 	
 	// write out data for dummy map.
+	do
 	{
 		wr_uint_8(fp, MTT_GROUND);
-	}
+	} while (0);
 	
 	// write out inclusion target header.
+	do
 	{
 		fprintf(fp,
 		        "\n#ifndef %s_HFM\n"
@@ -77,7 +83,7 @@ map_create_file(char const *file, char const *name)
 		        name,
 		        name,
 		        name);
-	}
+	} while (0);
 	
 	return 0;
 }
@@ -93,6 +99,7 @@ map_load_from_file(char const *file)
 	}
 	
 	// read map header data.
+	do
 	{
 		if (fgetc(fp) != '/'
 		    || fgetc(fp) != '/'
@@ -119,9 +126,10 @@ map_load_from_file(char const *file)
 		{
 			return 1;
 		}
-	}
+	} while (0);
 	
 	// read main map data.
+	do
 	{
 		g_map.data = malloc(sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
@@ -135,7 +143,7 @@ map_load_from_file(char const *file)
 				.type = type,
 			};
 		}
-	}
+	} while (0);
 	
 	return 0;
 }
@@ -150,6 +158,7 @@ map_grow(uint32_t dx, uint32_t dy)
 	g_map.data = realloc(g_map.data, sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
 	
 	// create new air cells (horizontal).
+	do
 	{
 		size_t mv_len = old_size_x * (old_size_y - 1);
 		size_t mv_ind = old_size_x;
@@ -166,14 +175,15 @@ map_grow(uint32_t dx, uint32_t dy)
 		// need to zero new tiles on last row to prevent phantom tiles from
 		// randomly appearing upon map grow.
 		memset(&g_map.data[mv_ind], 0, sizeof(map_tile_t) * dx);
-	}
+	} while (0);
 	
 	// create new air cells (vertical).
+	do
 	{
 		memset(&g_map.data[g_map.size_x * old_size_y],
 		       0,
 		       sizeof(map_tile_t) * g_map.size_x * dy);
-	}
+	} while (0);
 }
 
 int
@@ -187,6 +197,7 @@ map_write_to_file(char const *file)
 	}
 	
 	// write out map data header.
+	do
 	{
 		fprintf(fp, "//CJ");
 		
@@ -202,9 +213,10 @@ map_write_to_file(char const *file)
 			wr_uint_8(fp, g_map.data[i].type);
 		
 		fprintf(fp, "\n");
-	}
+	} while (0);
 	
 	// write out inclusion target header text.
+	do
 	{
 		fprintf(fp,
 		        "#ifndef %s_HFM\n"
@@ -238,7 +250,7 @@ map_write_to_file(char const *file)
 		        g_map.player_spawn_x,
 		        g_map.player_spawn_y,
 		        g_map.name);
-	}
+	} while (0);
 	
 	return 0;
 }
@@ -274,7 +286,7 @@ map_tile_collision(map_tile_type_t type)
 }
 
 void
-map_draw(SDL_Renderer *rend)
+map_draw(void)
 {
 	for (uint32_t x = 0; x < g_map.size_x; ++x)
 	{
@@ -285,22 +297,22 @@ map_draw(SDL_Renderer *rend)
 				continue;
 			
 			uint8_t const *col = map_tile_color(tile->type);
-			SDL_SetRenderDrawColor(rend, col[0], col[1], col[2], 255);
-			relative_draw_rect(rend, x, y, 1.0f, 1.0f);
+			SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
+			relative_draw_rect(x, y, 1.0f, 1.0f);
 		}
 	}
 }
 
 void
-map_draw_outlines(SDL_Renderer *rend)
+map_draw_outlines(void)
 {
 	static uint8_t co[] = CONF_COLOR_OUTLINE;
 	
-	SDL_SetRenderDrawColor(rend, co[0], co[1], co[2], 255);
+	SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
 	for (uint32_t x = 0; x < g_map.size_x; ++x)
 	{
 		for (uint32_t y = 0; y < g_map.size_y; ++y)
-			relative_draw_hollow_rect(rend, x, y, 1.0f, 1.0f);
+			relative_draw_hollow_rect(x, y, 1.0f, 1.0f);
 	}
 }
 

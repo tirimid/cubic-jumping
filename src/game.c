@@ -14,50 +14,14 @@
 #include "triggers.h"
 #include "util.h"
 #include "vfx.h"
+#include "wnd.h"
 
 static void draw_bg(void);
 
-static SDL_Window *wnd;
-static SDL_Renderer *rend;
-
-int
+void
 game_init(void)
 {
-	atexit(game_quit);
-	
-	wnd = SDL_CreateWindow(CONF_WND_TITLE,
-	                       SDL_WINDOWPOS_UNDEFINED,
-	                       SDL_WINDOWPOS_UNDEFINED,
-	                       CONF_WND_WIDTH,
-	                       CONF_WND_HEIGHT,
-	                       CONF_WND_FLAGS);
-	if (!wnd)
-	{
-		log_err("game: failed to create window: %s\n", SDL_GetError());
-		return 1;
-	}
-	
-	rend = SDL_CreateRenderer(wnd, -1, CONF_REND_FLAGS);
-	if (!rend)
-	{
-		log_err("game: failed to create renderer: %s\n", SDL_GetError());
-		return 1;
-	}
-	
-	SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
-	
 	map_list_load(MLI_CTE0);
-	
-	return 0;
-}
-
-void
-game_quit(void)
-{
-	if (rend)
-		SDL_DestroyRenderer(rend);
-	if (wnd)
-		SDL_DestroyWindow(wnd);
 }
 
 void
@@ -90,6 +54,7 @@ game_main_loop(void)
 		}
 		
 		// update game.
+		do
 		{
 			player_update();
 			triggers_update();
@@ -97,20 +62,21 @@ game_main_loop(void)
 			cam_update();
 			text_box_update();
 			keybd_post_update();
-		}
+		} while (0);
 		
 		// draw game.
+		do
 		{
 			draw_bg();
-			map_draw(rend);
-			vfx_draw(rend);
-			player_draw(rend);
+			map_draw();
+			vfx_draw();
+			player_draw();
 #if CONF_SHOW_TRIGGERS
-			triggers_draw(rend);
+			triggers_draw();
 #endif
-			text_box_draw(rend);
-			SDL_RenderPresent(rend);
-		}
+			text_box_draw();
+			SDL_RenderPresent(g_rend);
+		} while (0);
 		
 		uint64_t tick_end = get_unix_time_ms();
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
@@ -136,15 +102,14 @@ draw_bg(void)
 		first_square_y -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
 	
 	// render background.
-	SDL_SetRenderDrawColor(rend, cbg[0], cbg[1], cbg[2], 255);
-	SDL_RenderClear(rend);
+	SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);
+	SDL_RenderClear(g_rend);
 	
+	SDL_SetRenderDrawColor(g_rend, cbgs[0], cbgs[1], cbgs[2], 255);
 	for (float x = first_square_x; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 	{
 		for (float y = first_square_y; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 		{
-			SDL_SetRenderDrawColor(rend, cbgs[0], cbgs[1], cbgs[2], 255);
-			
 			SDL_Rect square =
 			{
 				.x = x,
@@ -152,7 +117,7 @@ draw_bg(void)
 				.w = CONF_BG_SQUARE_SIZE,
 				.h = CONF_BG_SQUARE_SIZE,
 			};
-			SDL_RenderFillRect(rend, &square);
+			SDL_RenderFillRect(g_rend, &square);
 		}
 	}
 }

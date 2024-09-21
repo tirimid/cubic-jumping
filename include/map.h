@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <SDL.h>
-
 #define MAP_MAX_NAME_LEN 8
 
 typedef enum map_tile_type
@@ -43,8 +41,8 @@ int map_write_to_file(char const *file);
 // game and base rendering functionality.
 uint8_t const *map_tile_color(map_tile_type_t type);
 bool map_tile_collision(map_tile_type_t type);
-void map_draw(SDL_Renderer *rend);
-void map_draw_outlines(SDL_Renderer *rend);
+void map_draw(void);
+void map_draw_outlines(void);
 map_tile_t *map_get(uint32_t x, uint32_t y);
 
 #endif

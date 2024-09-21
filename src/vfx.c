@@ -4,10 +4,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <SDL.h>
 #include <unistd.h>
 
 #include "conf.h"
 #include "util.h"
+#include "wnd.h"
 
 static size_t nparticles = 0;
 static particle_t particles[CONF_MAX_PARTICLES];
@@ -81,7 +83,7 @@ vfx_update(void)
 }
 
 void
-vfx_draw(SDL_Renderer *rend)
+vfx_draw(void)
 {
 	for (size_t i = 0; i < nparticles; ++i)
 	{
@@ -120,6 +122,7 @@ vfx_draw(SDL_Renderer *rend)
 		}
 		
 		// draw particles.
+		do
 		{
 			float rel_lifetime = (float)(max_lifetime - particles[i].lifetime) / max_lifetime;
 			float size = lerp(size_a, size_b, rel_lifetime);
@@ -127,13 +130,12 @@ vfx_draw(SDL_Renderer *rend)
 			uint8_t r = lerp(ca[0], cb[0], rel_lifetime);
 			uint8_t g = lerp(ca[1], cb[1], rel_lifetime);
 			uint8_t b = lerp(ca[2], cb[2], rel_lifetime);
-			SDL_SetRenderDrawColor(rend, r, g, b, 255);
+			SDL_SetRenderDrawColor(g_rend, r, g, b, 255);
 			
-			relative_draw_rect(rend,
-			                   particles[i].pos_x - size / 2.0f,
+			relative_draw_rect(particles[i].pos_x - size / 2.0f,
 			                   particles[i].pos_y - size / 2.0f,
 			                   size,
 			                   size);
-		}
+		} while (0);
 	}
 }

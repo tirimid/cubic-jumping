@@ -9,6 +9,7 @@
 #include "game.h"
 #include "map.h"
 #include "util.h"
+#include "wnd.h"
 
 typedef enum game_mode
 {
@@ -23,6 +24,7 @@ main(int argc, char *argv[])
 {
 	// check game launch mode and CLI usage.
 	game_mode_t mode;
+	do
 	{
 		if (argc < 2)
 			mode = GM_GAME;
@@ -64,9 +66,10 @@ main(int argc, char *argv[])
 			usage(argv[0]);
 			return 1;
 		}
-	}
+	} while (0);
 	
 	// initialize non-game systems.
+	do
 	{
 		if (SDL_Init(SDL_INIT_VIDEO))
 		{
@@ -76,13 +79,15 @@ main(int argc, char *argv[])
 		atexit(SDL_Quit);
 		
 		srand(time(NULL));
-	}
+	} while (0);
+	
+	if (wnd_init())
+		return 1;
 	
 	switch (mode)
 	{
 	case GM_GAME:
-		if (game_init())
-			return 1;
+		game_init();
 		game_main_loop();
 		break;
 	case GM_EDITOR:

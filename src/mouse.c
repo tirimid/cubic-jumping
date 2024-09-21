@@ -8,13 +8,13 @@ mouse_press_button(SDL_Event const *e)
 	switch (e->button.button)
 	{
 	case SDL_BUTTON_LEFT:
-		down_states[MB_LEFT] = press_states[MB_LEFT] = pressed;
+		down_states[MB_LEFT] = press_states[MB_LEFT] = true;
 		break;
 	case SDL_BUTTON_RIGHT:
-		down_states[MB_RIGHT] = press_states[MB_RIGHT] = pressed;
+		down_states[MB_RIGHT] = press_states[MB_RIGHT] = true;
 		break;
 	case SDL_BUTTON_MIDDLE:
-		down_states[MB_MIDDLE] = press_states[MB_MIDDLE] = pressed;
+		down_states[MB_MIDDLE] = press_states[MB_MIDDLE] = true;
 		break;
 	}
 }

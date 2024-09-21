@@ -3,8 +3,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <SDL.h>
+
 #include "conf.h"
 #include "util.h"
+#include "wnd.h"
 
 static size_t drawable_len_at(size_t off);
 
@@ -35,12 +38,12 @@ static uint32_t font[] =
 };
 
 void
-text_draw_ch(SDL_Renderer *rend, char ch, int x, int y)
+text_draw_ch(char ch, int x, int y)
 {
 	static uint8_t ct[] = CONF_COLOR_TEXT, cto[] = CONF_COLOR_TEXT_OUTLINE;
 	
 	// draw outline boxes.
-	SDL_SetRenderDrawColor(rend, cto[0], cto[1], cto[2], 255);
+	SDL_SetRenderDrawColor(g_rend, cto[0], cto[1], cto[2], 255);
 	for (int gy = 0; gy < TEXT_FONT_HEIGHT; ++gy)
 	{
 		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
@@ -56,12 +59,12 @@ text_draw_ch(SDL_Renderer *rend, char ch, int x, int y)
 				.w = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE,
 				.h = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE,
 			};
-			SDL_RenderFillRect(rend, &outline);
+			SDL_RenderFillRect(g_rend, &outline);
 		}
 	}
 	
 	// draw inside boxes.
-	SDL_SetRenderDrawColor(rend, ct[0], ct[1], ct[2], 255);
+	SDL_SetRenderDrawColor(g_rend, ct[0], ct[1], ct[2], 255);
 	for (int gy = 0; gy < TEXT_FONT_HEIGHT; ++gy)
 	{
 		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
@@ -77,28 +80,23 @@ text_draw_ch(SDL_Renderer *rend, char ch, int x, int y)
 				.w = CONF_TEXT_SCALE,
 				.h = CONF_TEXT_SCALE,
 			};
-			SDL_RenderFillRect(rend, &main);
+			SDL_RenderFillRect(g_rend, &main);
 		}
 	}
 }
 
 void
-text_draw_str(SDL_Renderer *rend, char const *s, int x, int y)
+text_draw_str(char const *s, int x, int y)
 {
 	for (char const *c = s; *c; ++c)
 	{
-		text_draw_ch(rend, *c, x, y);
+		text_draw_ch(*c, x, y);
 		x += CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f);
 	}
 }
 
 void
-text_draw_str_bounded(SDL_Renderer *rend,
-                      char const *s,
-                      int px,
-                      int py,
-                      int sx,
-                      int sy)
+text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
 {
 	size_t i = 0;
 	for (int dy = py; dy < py + sy; dy += CONF_TEXT_SCALE * (TEXT_FONT_HEIGHT + 0.5f))
@@ -120,7 +118,7 @@ text_draw_str_bounded(SDL_Renderer *rend,
 			
 			for (size_t j = i; j < i + draw_len; ++j)
 			{
-				text_draw_ch(rend, s[j], dx, dy);
+				text_draw_ch(s[j], dx, dy);
 				dx += CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f);
 			}
 			
@@ -137,12 +135,13 @@ text_box_show(char const *text, unsigned ticks)
 }
 
 void
-text_box_draw(SDL_Renderer *rend)
+text_box_draw(void)
 {
 	if (!box_ticks)
 		return;
 	
 	// draw actual box of text box.
+	do
 	{
 		static uint8_t ctb[] = CONF_COLOR_TEXT_BOX;
 		
@@ -154,24 +153,24 @@ text_box_draw(SDL_Renderer *rend)
 			.h = CONF_TEXT_BOX_HEIGHT,
 		};
 		
-		SDL_SetRenderDrawColor(rend,
+		SDL_SetRenderDrawColor(g_rend,
 		                       ctb[0],
 		                       ctb[1],
 		                       ctb[2],
 		                       CONF_COLOR_TEXT_BOX_OPACITY);
 		
-		SDL_RenderFillRect(rend, &box);
-	}
+		SDL_RenderFillRect(g_rend, &box);
+	} while (0);
 	
 	// draw text.
+	do
 	{
-		text_draw_str_bounded(rend,
-		                      box_text,
+		text_draw_str_bounded(box_text,
 		                      CONF_TEXT_BOX_PADDING,
 		                      CONF_TEXT_BOX_PADDING,
 		                      CONF_WND_WIDTH - 2 * CONF_TEXT_BOX_PADDING,
 		                      CONF_TEXT_BOX_HEIGHT - 2 * CONF_TEXT_BOX_PADDING);
-	}
+	} while (0);
 }
 
 void

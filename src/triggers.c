@@ -1,8 +1,11 @@
 #include "triggers.h"
 
+#include <SDL.h>
+
 #include "conf.h"
 #include "player.h"
 #include "util.h"
+#include "wnd.h"
 
 trigger_t g_triggers[TRIGGERS_MAX];
 uint32_t g_ntriggers;
@@ -14,6 +17,7 @@ trigger_color(trigger_type_t type)
 {
 	static uint8_t colors[TT_END__][3] =
 	{
+		CONF_COLOR_BG,
 		CONF_COLOR_TRIGGER_MSG,
 		CONF_COLOR_TRIGGER_KILL,
 	};
@@ -47,19 +51,18 @@ triggers_update(void)
 }
 
 void
-triggers_draw(SDL_Renderer *rend)
+triggers_draw(void)
 {
 	for (uint32_t i = 0; i < g_ntriggers; ++i)
 	{
 		uint8_t const *col = trigger_color(g_triggers[i].type);
-		SDL_SetRenderDrawColor(rend,
+		SDL_SetRenderDrawColor(g_rend,
 		                       col[0],
 		                       col[1],
 		                       col[2],
 		                       CONF_COLOR_TRIGGER_OPACITY);
 		
-		relative_draw_rect(rend,
-		                   g_triggers[i].pos_x,
+		relative_draw_rect(g_triggers[i].pos_x,
 		                   g_triggers[i].pos_y,
 		                   g_triggers[i].size_x,
 		                   g_triggers[i].size_y);
