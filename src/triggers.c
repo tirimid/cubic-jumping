@@ -1,23 +1,25 @@
 #include "triggers.h"
 
+#include <string.h>
+
 #include <SDL.h>
 
 #include "conf.h"
 #include "player.h"
+#include "text_list.h"
 #include "util.h"
 #include "wnd.h"
 
 trigger_t g_triggers[TRIGGERS_MAX];
-uint32_t g_ntriggers;
+size_t g_ntriggers = 0;
 
-static void collide(trigger_t const *trigger);
+static void collide(trigger_t const *trigger, size_t ind);
 
 uint8_t const *
 trigger_color(trigger_type_t type)
 {
 	static uint8_t colors[TT_END__][3] =
 	{
-		CONF_COLOR_BG,
 		CONF_COLOR_TRIGGER_MSG,
 		CONF_COLOR_TRIGGER_KILL,
 	};
@@ -26,13 +28,22 @@ trigger_color(trigger_type_t type)
 }
 
 void
-triggers_add_trigger(trigger_type_t type,
-                     float px,
-                     float py,
-                     float sx,
-                     float sy)
+triggers_add_trigger(trigger_t const *trigger)
 {
-	// TODO: implement.
+	if (g_ntriggers < TRIGGERS_MAX)
+		g_triggers[g_ntriggers++] = *trigger;
+}
+
+void
+triggers_rm_trigger(size_t ind)
+{
+	if (g_ntriggers == 0)
+		return;
+	
+	memmove(&g_triggers[ind],
+	        &g_triggers[ind + 1],
+	        sizeof(trigger_t) * (g_ntriggers - ind - 1));
+	--g_ntriggers;
 }
 
 void
@@ -45,7 +56,7 @@ triggers_update(void)
 		    && g_player.pos_y + CONF_PLAYER_SIZE >= g_triggers[i].pos_y
 		    && g_player.pos_y < g_triggers[i].pos_y + g_triggers[i].size_y)
 		{
-			collide(&g_triggers[i]);
+			collide(&g_triggers[i], i);
 		}
 	}
 }
@@ -70,7 +81,22 @@ triggers_draw(void)
 }
 
 static void
-collide(trigger_t const *trigger)
+collide(trigger_t const *trigger, size_t ind)
 {
-	// TODO: implement.
+	// perform trigger functionality.
+	switch (trigger->type)
+	{
+	case TT_MSG:
+		if (trigger->arg < TLI_END__)
+			text_list_enqueue(trigger->arg);
+		break;
+	case TT_KILL:
+		player_die();
+		break;
+	default:
+		break;
+	}
+	
+	if (trigger->single_use)
+		triggers_rm_trigger(ind);
 }

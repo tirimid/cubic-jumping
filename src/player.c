@@ -4,7 +4,9 @@
 
 #include "cam.h"
 #include "conf.h"
+#include "game.h"
 #include "keybd.h"
+#include "map.h"
 #include "map_list.h"
 #include "util.h"
 #include "vfx.h"
@@ -17,6 +19,7 @@ player_state_t g_player_state;
 
 static void update_playing(void);
 static void update_dead(void);
+static void collide(map_tile_t *tile);
 static void collide_left(void);
 static void collide_right(void);
 static void collide_bottom(void);
@@ -101,7 +104,7 @@ update_playing(void)
 	do
 	{
 		int cxtl;
-		map_tile_t const *cxtl_tile = NULL;
+		map_tile_t *cxtl_tile = NULL;
 		for (cxtl = g_player.pos_x; cxtl >= 0; --cxtl)
 		{
 			map_tile_t *tile = map_get(cxtl, g_player.pos_y);
@@ -113,7 +116,7 @@ update_playing(void)
 		}
 		
 		int cxbl;
-		map_tile_t const *cxbl_tile = NULL;
+		map_tile_t *cxbl_tile = NULL;
 		for (cxbl = g_player.pos_x; cxbl >= 0; --cxbl)
 		{
 			map_tile_t *tile = map_get(cxbl, g_player.pos_y + CONF_PLAYER_SIZE);
@@ -133,7 +136,7 @@ update_playing(void)
 	do
 	{
 		int cxtr;
-		map_tile_t const *cxtr_tile = NULL;
+		map_tile_t *cxtr_tile = NULL;
 		for (cxtr = g_player.pos_x + CONF_PLAYER_SIZE; cxtr < g_map.size_x; ++cxtr)
 		{
 			map_tile_t *tile = map_get(cxtr, g_player.pos_y);
@@ -145,7 +148,7 @@ update_playing(void)
 		}
 		
 		int cxbr;
-		map_tile_t const *cxbr_tile = NULL;
+		map_tile_t *cxbr_tile = NULL;
 		for (cxbr = g_player.pos_x + CONF_PLAYER_SIZE; cxbr < g_map.size_x; ++cxbr)
 		{
 			map_tile_t *tile = map_get(cxbr, g_player.pos_y + CONF_PLAYER_SIZE);
@@ -165,7 +168,7 @@ update_playing(void)
 	do
 	{
 		int cytl;
-		map_tile_t const *cytl_tile = NULL;
+		map_tile_t *cytl_tile = NULL;
 		for (cytl = g_player.pos_y; cytl >= 0; --cytl)
 		{
 			map_tile_t *tile = map_get(g_player.pos_x, cytl);
@@ -177,7 +180,7 @@ update_playing(void)
 		}
 		
 		int cytr;
-		map_tile_t const *cytr_tile = NULL;
+		map_tile_t *cytr_tile = NULL;
 		for (cytr = g_player.pos_y; cytr >= 0; --cytr)
 		{
 			map_tile_t *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cytr);
@@ -197,7 +200,7 @@ update_playing(void)
 	do
 	{
 		int cybl;
-		map_tile_t const *cybl_tile = NULL;
+		map_tile_t *cybl_tile = NULL;
 		for (cybl = g_player.pos_y + CONF_PLAYER_SIZE; cybl < g_map.size_y; ++cybl)
 		{
 			map_tile_t *tile = map_get(g_player.pos_x, cybl);
@@ -209,7 +212,7 @@ update_playing(void)
 		}
 		
 		int cybr;
-		map_tile_t const *cybr_tile = NULL;
+		map_tile_t *cybr_tile = NULL;
 		for (cybr = g_player.pos_y + CONF_PLAYER_SIZE; cybr < g_map.size_y; ++cybr)
 		{
 			map_tile_t *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cybr);
@@ -273,6 +276,7 @@ update_playing(void)
 		    && g_player.dist_left < g_player.dist_right)
 		{
 			collide_left();
+			collide(g_player.near_left);
 		}
 		
 		if (g_player.vel_x > 0.0f
@@ -280,6 +284,7 @@ update_playing(void)
 		    && g_player.dist_right < g_player.dist_left)
 		{
 			collide_right();
+			collide(g_player.near_right);
 		}
 		
 		if (g_player.vel_y < 0.0f
@@ -287,6 +292,7 @@ update_playing(void)
 		    && g_player.dist_top < g_player.dist_bottom)
 		{
 			collide_top();
+			collide(g_player.near_top);
 		}
 		
 		if (g_player.vel_y > 0.0f
@@ -294,6 +300,7 @@ update_playing(void)
 		    && g_player.dist_bottom < g_player.dist_top)
 		{
 			collide_bottom();
+			collide(g_player.near_bottom);
 		}
 	} while (0);
 	
@@ -342,29 +349,46 @@ update_dead(void)
 }
 
 static void
+collide(map_tile_t *tile)
+{
+	// implement behavior that doesn't depend on collision direction.
+	switch (tile->type)
+	{
+	case MTT_KILL:
+		player_die();
+		break;
+	case MTT_END:
+		if (g_game.off_switches == 0)
+			map_list_load_next();
+		break;
+	case MTT_SWITCH_OFF:
+		tile->type = MTT_SWITCH_ON;
+		--g_game.off_switches;
+		break;
+	default:
+		break;
+	}
+}
+
+static void
 collide_left(void)
 {
 	if (!g_player.near_left)
 		return;
 	
+	g_player.pos_x -= g_player.dist_left - 0.001f;
+	
 	switch (g_player.near_left->type)
 	{
-	case MTT_GROUND:
-		g_player.pos_x -= g_player.dist_left - 0.001f;
-		g_player.vel_x = 0.0f;
-		break;
-	case MTT_KILL:
-		g_player.pos_x -= g_player.dist_left - 0.001f;
-		player_die();
-		break;
 	case MTT_BOUNCE:
-		g_player.pos_x -= g_player.dist_left - 0.001f;
 		g_player.vel_x *= -CONF_RESTITUTION;
 		break;
 	case MTT_LAUNCH:
-		g_player.pos_x -= g_player.dist_left - 0.001f;
 		g_player.vel_x = CONF_LAUNCH_FORCE_X;
 		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		break;
+	default:
+		g_player.vel_x = 0.0f;
 		break;
 	}
 }
@@ -375,24 +399,19 @@ collide_right(void)
 	if (!g_player.near_right)
 		return;
 	
+	g_player.pos_x += g_player.dist_right - 0.001f;
+	
 	switch (g_player.near_right->type)
 	{
-	case MTT_GROUND:
-		g_player.pos_x += g_player.dist_right - 0.001f;
-		g_player.vel_x = 0.0f;
-		break;
-	case MTT_KILL:
-		g_player.pos_x += g_player.dist_right - 0.001f;
-		player_die();
-		break;
 	case MTT_BOUNCE:
-		g_player.pos_x += g_player.dist_right - 0.001f;
 		g_player.vel_x *= -CONF_RESTITUTION;
 		break;
 	case MTT_LAUNCH:
-		g_player.pos_x += g_player.dist_right - 0.001f;
 		g_player.vel_x = -CONF_LAUNCH_FORCE_X;
 		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		break;
+	default:
+		g_player.vel_x = 0.0f;
 		break;
 	}
 }
@@ -403,23 +422,18 @@ collide_bottom(void)
 	if (!g_player.near_bottom)
 		return;
 	
+	g_player.pos_y += g_player.dist_bottom - 0.001f;
+	
 	switch (g_player.near_bottom->type)
 	{
-	case MTT_GROUND:
-		g_player.pos_y += g_player.dist_bottom - 0.001f;
-		g_player.vel_y = 0.0f;
-		break;
-	case MTT_KILL:
-		g_player.pos_y += g_player.dist_bottom - 0.001f;
-		player_die();
-		break;
 	case MTT_BOUNCE:
-		g_player.pos_y += g_player.dist_bottom - 0.001f;
 		g_player.vel_y *= -CONF_RESTITUTION;
 		break;
 	case MTT_LAUNCH:
-		g_player.pos_y += g_player.dist_bottom - 0.001f;
 		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		break;
+	default:
+		g_player.vel_y = 0.0f;
 		break;
 	}
 }
@@ -430,22 +444,14 @@ collide_top(void)
 	if (!g_player.near_top)
 		return;
 	
+	g_player.pos_y -= g_player.dist_top - 0.001f;
+	
 	switch (g_player.near_top->type)
 	{
-	case MTT_GROUND:
-		g_player.pos_y -= g_player.dist_top - 0.001f;
-		g_player.vel_y = 0.0f;
-		break;
-	case MTT_KILL:
-		g_player.pos_y -= g_player.dist_top - 0.001f;
-		player_die();
-		break;
 	case MTT_BOUNCE:
-		g_player.pos_y -= g_player.dist_top - 0.001f;
 		g_player.vel_y *= -CONF_RESTITUTION;
 		break;
-	case MTT_LAUNCH:
-		g_player.pos_y -= g_player.dist_top - 0.001f;
+	default:
 		g_player.vel_y = 0.0f;
 		break;
 	}

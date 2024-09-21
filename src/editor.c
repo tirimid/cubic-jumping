@@ -9,10 +9,13 @@
 #include "keybd.h"
 #include "map.h"
 #include "mouse.h"
+#include "text.h"
 #include "triggers.h"
 #include "ui.h"
 #include "util.h"
 #include "wnd.h"
+
+#define NO_DRAG_REGION 0.0f
 
 typedef enum edit_mode
 {
@@ -31,10 +34,18 @@ static void btn_type_next(void);
 static void btn_type_prev(void);
 static void btn_zoom_in(void);
 static void btn_zoom_out(void);
+static void btn_save(void);
+static void btn_arg_add(void);
+static void btn_arg_sub(void);
+static void btn_single(void);
 
 static char const *map_file;
 static edit_mode_t mode = EM_TILE;
 static int type = 0;
+static bool unsaved = false;
+static float drag_orig_x = NO_DRAG_REGION, drag_orig_y = NO_DRAG_REGION;
+static uint32_t arg = 0;
+static bool single_use = true;
 
 int
 editor_init(char const *file)
@@ -62,6 +73,10 @@ editor_main_loop(void)
 	ui_button_t b_type_prev = ui_button_create(560, 10, "Type<", btn_type_prev);
 	ui_button_t b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
 	ui_button_t b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
+	ui_button_t b_save = ui_button_create(260, 50, "Save", btn_save);
+	ui_button_t b_arg_add = ui_button_create(365, 50, "Arg+", btn_arg_add);
+	ui_button_t b_arg_sub = ui_button_create(470, 50, "Arg-", btn_arg_sub);
+	ui_button_t b_single = ui_button_create(575, 50, "Single", btn_single);
 	
 	for (;;)
 	{
@@ -106,6 +121,10 @@ editor_main_loop(void)
 				ui_button_update(&b_zoom_out);
 				ui_button_update(&b_type_next);
 				ui_button_update(&b_type_prev);
+				ui_button_update(&b_save);
+				ui_button_update(&b_arg_add);
+				ui_button_update(&b_arg_sub);
+				ui_button_update(&b_single);
 			} while (0);
 			
 			update_editor();
@@ -119,6 +138,7 @@ editor_main_loop(void)
 			draw_bg();
 			map_draw();
 			map_draw_outlines();
+			triggers_draw();
 			draw_indicators();
 			
 			// draw UI.
@@ -131,6 +151,10 @@ editor_main_loop(void)
 				ui_button_draw(&b_zoom_out);
 				ui_button_draw(&b_type_next);
 				ui_button_draw(&b_type_prev);
+				ui_button_draw(&b_save);
+				ui_button_draw(&b_arg_add);
+				ui_button_draw(&b_arg_sub);
+				ui_button_draw(&b_single);
 			} while (0);
 			
 			SDL_RenderPresent(g_rend);
@@ -159,11 +183,98 @@ update_editor(void)
 	switch (mode)
 	{
 	case EM_TILE:
-		// TODO: implement.
+	{
+		int mouse_x, mouse_y;
+		mouse_pos(&mouse_x, &mouse_y);
+		
+		if (mouse_y < CONF_EDITOR_BAR_SIZE)
+			break;
+		
+		if (mouse_down(MB_LEFT))
+		{
+			unsaved = true;
+			
+			float sel_x, sel_y;
+			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
+			sel_x = MAX(0.0f, sel_x);
+			sel_y = MAX(0.0f, sel_y);
+			
+			if (sel_x >= g_map.size_x)
+				map_grow((int)sel_x - g_map.size_x + 1, 0);
+			if (sel_y >= g_map.size_y)
+				map_grow(0, (int)sel_y - g_map.size_y + 1);
+			
+			map_get((int)sel_x, (int)sel_y)->type = type;
+		}
+		
 		break;
+	}
 	case EM_TRIGGER:
-		// TODO: implement.
+	{
+		int mouse_x, mouse_y;
+		mouse_pos(&mouse_x, &mouse_y);
+		
+		if (mouse_y < CONF_EDITOR_BAR_SIZE)
+			break;
+		
+		float drag_x, drag_y;
+		screen_to_game_coord(&drag_x, &drag_y, mouse_x, mouse_y);
+		
+		if (mouse_pressed(MB_LEFT))
+		{
+			drag_orig_x = drag_x;
+			drag_orig_y = drag_y;
+		}
+		else if (mouse_released(MB_LEFT))
+		{
+			unsaved = true;
+			
+			if (drag_x < drag_orig_x)
+			{
+				float tmp = drag_x;
+				drag_x = drag_orig_x;
+				drag_orig_x = tmp;
+			}
+			
+			if (drag_y < drag_orig_y)
+			{
+				float tmp = drag_y;
+				drag_y = drag_orig_y;
+				drag_orig_y = tmp;
+			}
+			
+			trigger_t new_trigger =
+			{
+				.pos_x = drag_orig_x,
+				.pos_y = drag_orig_y,
+				.size_x = drag_x - drag_orig_x,
+				.size_y = drag_y - drag_orig_y,
+				.arg = arg,
+				.single_use = single_use,
+				.type = type,
+			};
+			triggers_add_trigger(&new_trigger);
+			
+			drag_orig_x = drag_orig_y = NO_DRAG_REGION;
+		}
+		
+		if (mouse_down(MB_RIGHT))
+		{
+			for (size_t i = 0; i < g_ntriggers; ++i)
+			{
+				trigger_t const *trigger = &g_triggers[i];
+				if (drag_x >= trigger->pos_x
+				    && drag_x < trigger->pos_x + trigger->size_x
+				    && drag_y >= trigger->pos_y
+				    && drag_y < trigger->pos_y + trigger->size_y)
+				{
+					triggers_rm_trigger(i);
+				}
+			}
+		}
+		
 		break;
+	}
 	case EM_PLAYER:
 	{
 		int mouse_x, mouse_y;
@@ -174,15 +285,14 @@ update_editor(void)
 		
 		if (mouse_down(MB_LEFT))
 		{
+			unsaved = true;
+			
 			float sel_x, sel_y;
 			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
 			sel_x = MAX(0.0f, sel_x);
 			sel_y = MAX(0.0f, sel_y);
 			sel_x = (int)sel_x;
 			sel_y = (int)sel_y;
-			
-			if (sel_y < 0.0f || sel_y < 0.0f)
-				break;
 			
 			g_map.player_spawn_x = sel_x;
 			g_map.player_spawn_y = sel_y;
@@ -234,7 +344,7 @@ draw_indicators(void)
 		case EM_PLAYER:
 		{
 			int mouse_x, mouse_y;
-			SDL_GetMouseState(&mouse_x, &mouse_y);
+			mouse_pos(&mouse_x, &mouse_y);
 			
 			float sel_x, sel_y;
 			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
@@ -248,8 +358,25 @@ draw_indicators(void)
 			break;
 		}
 		case EM_TRIGGER:
-			// TODO: implement.
+		{
+			if (drag_orig_x == NO_DRAG_REGION)
+				break;
+			
+			int mouse_x, mouse_y;
+			mouse_pos(&mouse_x, &mouse_y);
+			
+			float drag_x, drag_y;
+			screen_to_game_coord(&drag_x, &drag_y, mouse_x, mouse_y);
+			
+			float lbx = MIN(drag_x, drag_orig_x);
+			float lby = MIN(drag_y, drag_orig_y);
+			float ubx = MAX(drag_x, drag_orig_x);
+			float uby = MAX(drag_y, drag_orig_y);
+			
+			relative_draw_rect(lbx, lby, ubx - lbx, uby - lby);
+			
 			break;
+		}
 		}
 	} while (0);
 	
@@ -290,8 +417,6 @@ draw_indicators(void)
 			uint8_t const *col = map_tile_color(type);
 			SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
 			SDL_RenderFillRect(g_rend, &r);
-			SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
-			SDL_RenderDrawRect(g_rend, &r);
 			break;
 		}
 		case EM_TRIGGER:
@@ -299,13 +424,49 @@ draw_indicators(void)
 			uint8_t const *col = trigger_color(type);
 			SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
 			SDL_RenderFillRect(g_rend, &r);
-			SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
-			SDL_RenderDrawRect(g_rend, &r);
 			break;
 		}
 		default:
 			break;
 		}
+		
+		SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
+		SDL_RenderDrawRect(g_rend, &r);
+	} while (0);
+	
+	// draw arg indicator.
+	do
+	{
+		static char buf[32];
+		snprintf(buf, sizeof(buf), "%08x", arg);
+		text_draw_str(buf, 10, 100);
+	} while (0);
+	
+	// draw single use indicator.
+	do
+	{
+		text_draw_str(single_use ? "Single" : "Multi", 200, 100);
+	} while (0);
+	
+	// draw save status indicator.
+	do
+	{
+		static uint8_t ces[] = CONF_COLOR_EDITOR_SAVED;
+		static uint8_t ceu[] = CONF_COLOR_EDITOR_UNSAVED;
+		
+		if (unsaved)
+			SDL_SetRenderDrawColor(g_rend, ceu[0], ceu[1], ceu[2], 255);
+		else
+			SDL_SetRenderDrawColor(g_rend, ces[0], ces[1], ces[2], 255);
+		
+		SDL_Rect r =
+		{
+			.x = 0,
+			.y = CONF_WND_HEIGHT - CONF_EDITOR_SAVE_INDICATOR_SIZE,
+			.w = CONF_WND_WIDTH,
+			.h = CONF_EDITOR_SAVE_INDICATOR_SIZE,
+		};
+		SDL_RenderFillRect(g_rend, &r);
 	} while (0);
 }
 
@@ -373,4 +534,32 @@ btn_zoom_out(void)
 {
 	g_cam.zoom -= CONF_EDITOR_CAM_ZOOM;
 	g_cam.zoom = MAX(g_cam.zoom, CONF_CAM_MIN_ZOOM);
+}
+
+static void
+btn_save(void)
+{
+	if (!unsaved)
+		return;
+	
+	map_write_to_file(map_file);
+	unsaved = false;
+}
+
+static void
+btn_arg_add(void)
+{
+	++arg;
+}
+
+static void
+btn_arg_sub(void)
+{
+	--arg;
+}
+
+static void
+btn_single(void)
+{
+	single_use = !single_use;
 }

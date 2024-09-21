@@ -1,28 +1,47 @@
 #include "map_list.h"
 
+#include <stddef.h>
+
 #include "cam.h"
+#include "game.h"
 #include "map.h"
 #include "player.h"
+#include "triggers.h"
 
 // compiled map data.
 #include "cte0.hfm"
+#include "cte1.hfm"
+
+typedef struct item_data
+{
+	map_t *map;
+	trigger_t *triggers;
+	size_t ntriggers;
+} item_data_t;
 
 static map_list_item_t cur_item;
-static map_t const *items[MLI_END__] =
+static item_data_t item_data[MLI_END__] =
 {
-	&cte0,
+	{
+		.map = &cte0_map,
+		.triggers = cte0_triggers,
+		.ntriggers = cte0_NTRIGGERS,
+	},
+	{
+		.map = &cte1_map,
+		.triggers = cte1_triggers,
+		.ntriggers = cte1_NTRIGGERS,
+	},
 };
-
-map_list_item_t
-map_list_cur_item(void)
-{
-	return cur_item;
-}
 
 void
 map_list_load(map_list_item_t item)
 {
-	g_map = *items[item];
+	g_map = *item_data[item].map;
+	
+	g_ntriggers = 0;
+	for (size_t i = 0; i < item_data[item].ntriggers; ++i)
+		triggers_add_trigger(&item_data[item].triggers[i]);
 	
 	g_player_state = PS_PLAYING;
 	g_player = (player_t)
@@ -40,6 +59,8 @@ map_list_load(map_list_item_t item)
 		.zoom = 1.0f,
 	};
 	
+	game_disable_switches();
+	
 	cur_item = item;
 }
 
@@ -54,4 +75,14 @@ map_list_reload(void)
 		.vel_x = 0.0f,
 		.vel_y = 0.0f,
 	};
+	
+	game_disable_switches();
+}
+
+void
+map_list_load_next(void)
+{
+	// TODO: show level end screen.
+	// TODO: show game end screen upon finishing final level.
+	map_list_load(cur_item + 1);
 }

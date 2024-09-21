@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include <SDL.h>
@@ -10,25 +11,25 @@
 #include "map.h"
 #include "map_list.h"
 #include "player.h"
-#include "text.h"
+#include "text_list.h"
 #include "triggers.h"
 #include "util.h"
 #include "vfx.h"
 #include "wnd.h"
 
+game_t g_game;
+
 static void draw_bg(void);
 
 void
-game_init(void)
+game_init(map_list_item_t first_map)
 {
-	map_list_load(MLI_CTE0);
+	map_list_load(first_map);
 }
 
 void
 game_main_loop(void)
 {
-	text_box_show("hello wond", 500);
-	
 	for (;;)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
@@ -60,7 +61,7 @@ game_main_loop(void)
 			triggers_update();
 			vfx_update();
 			cam_update();
-			text_box_update();
+			text_list_update();
 			keybd_post_update();
 		} while (0);
 		
@@ -74,7 +75,7 @@ game_main_loop(void)
 #if CONF_SHOW_TRIGGERS
 			triggers_draw();
 #endif
-			text_box_draw();
+			text_list_draw();
 			SDL_RenderPresent(g_rend);
 		} while (0);
 		
@@ -82,6 +83,22 @@ game_main_loop(void)
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
+	}
+}
+
+void
+game_disable_switches(void)
+{
+	g_game.off_switches = 0;
+	for (size_t i = 0, size = g_map.size_x * g_map.size_y; i < size; ++i)
+	{
+		if (g_map.data[i].type == MTT_SWITCH_ON)
+		{
+			g_map.data[i].type = MTT_SWITCH_OFF;
+			++g_game.off_switches;
+		}
+		else if (g_map.data[i].type == MTT_SWITCH_OFF)
+			++g_game.off_switches;
 	}
 }
 

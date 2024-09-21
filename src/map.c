@@ -7,6 +7,7 @@
 
 #include "cam.h"
 #include "conf.h"
+#include "triggers.h"
 #include "util.h"
 #include "wnd.h"
 
@@ -50,6 +51,12 @@ map_create_file(char const *file, char const *name)
 		wr_uint_32(fp, 0);
 	} while (0);
 	
+	// write out trigger data for dummy map.
+	do
+	{
+		wr_uint_32(fp, 0);
+	} while (0);
+	
 	// write out data for dummy map.
 	do
 	{
@@ -62,12 +69,15 @@ map_create_file(char const *file, char const *name)
 		fprintf(fp,
 		        "\n#ifndef %s_HFM\n"
 		        "#define %s_HFM\n"
+		        "#include <stddef.h>\n"
 		        "#include \"map.h\"\n"
-		        "static map_tile_t %s_data[] =\n"
+		        "#include \"triggers.h\"\n"
+		        "#define %s_NTRIGGERS 0"
+		        "static map_tile_t %s_map_data[] =\n"
 		        "{\n"
 		        "{1},\n"
 		        "};\n"
-		        "static map_t %s =\n"
+		        "static map_t %s_map =\n"
 		        "{\n"
 		        "\t.size_x = 1,\n"
 		        "\t.size_y = 1,\n"
@@ -76,7 +86,13 @@ map_create_file(char const *file, char const *name)
 		        "\t.player_spawn_y = 0,\n"
 		        "\t.name = \"%s\\0\",\n"
 		        "};\n"
+		        "static trigger_t %s_triggers[] =\n"
+		        "{\n"
+		        "{0.0f,0.0f,0.0f,0.0f,0,0,0}\n"
+		        "};\n"
 		        "#endif\n",
+		        name,
+		        name,
 		        name,
 		        name,
 		        name,
@@ -142,6 +158,33 @@ map_load_from_file(char const *file)
 			{
 				.type = type,
 			};
+		}
+	} while (0);
+	
+	// read trigger data.
+	do
+	{
+		uint32_t ntriggers;
+		if (rd_uint_32(&ntriggers, fp))
+			return 1;
+		
+		g_ntriggers = 0;
+		for (uint32_t i = 0; i < ntriggers; ++i)
+		{
+			trigger_t new_trigger;
+			if (rd_uint_32((uint32_t *)&new_trigger.pos_x, fp)
+			    || rd_uint_32((uint32_t *)&new_trigger.pos_y, fp)
+			    || rd_uint_32((uint32_t *)&new_trigger.size_x, fp)
+			    || rd_uint_32((uint32_t *)&new_trigger.size_y, fp)
+			    || rd_uint_32((uint32_t *)&new_trigger.arg, fp)
+			    || rd_uint_8((uint8_t *)&new_trigger.single_use, fp)
+			    || rd_uint_8(&new_trigger.type, fp))
+			{
+				log_err("map: failed to read one or more triggers from file: %s!", file);
+				return 1;
+			}
+			
+			triggers_add_trigger(&new_trigger);
 		}
 	} while (0);
 	
@@ -211,9 +254,28 @@ map_write_to_file(char const *file)
 		
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
 			wr_uint_8(fp, g_map.data[i].type);
-		
-		fprintf(fp, "\n");
 	} while (0);
+	
+	// write out trigger data.
+	do
+	{
+		wr_uint_32(fp, g_ntriggers);
+		
+		for (size_t i = 0; i < g_ntriggers; ++i)
+		{
+			trigger_t const *trigger = &g_triggers[i];
+			
+			wr_uint_32(fp, *(uint32_t *)&trigger->pos_x);
+			wr_uint_32(fp, *(uint32_t *)&trigger->pos_y);
+			wr_uint_32(fp, *(uint32_t *)&trigger->size_x);
+			wr_uint_32(fp, *(uint32_t *)&trigger->size_y);
+			wr_uint_32(fp, trigger->arg);
+			wr_uint_8(fp, trigger->single_use);
+			wr_uint_8(fp, trigger->type);
+		}
+	} while (0);
+	
+	fprintf(fp, "\n");
 	
 	// write out inclusion target header text.
 	do
@@ -221,11 +283,16 @@ map_write_to_file(char const *file)
 		fprintf(fp,
 		        "#ifndef %s_HFM\n"
 		        "#define %s_HFM\n"
+		        "#include <stddef.h>\n"
 		        "#include \"map.h\"\n"
-		        "static map_tile_t %s_data[] =\n"
+		        "#include \"triggers.h\"\n"
+		        "#define %s_NTRIGGERS %u\n"
+		        "static map_tile_t %s_map_data[] =\n"
 		        "{\n",
 		        g_map.name,
 		        g_map.name,
+		        g_map.name,
+		        g_ntriggers,
 		        g_map.name);
 		
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
@@ -233,22 +300,43 @@ map_write_to_file(char const *file)
 		
 		fprintf(fp,
 		        "\n};\n"
-		        "static map_t %s =\n"
+		        "static map_t %s_map =\n"
 		        "{\n"
 		        "\t.size_x = %u,\n"
 		        "\t.size_y = %u,\n"
-		        "\t.data = %s_data,\n"
+		        "\t.data = %s_map_data,\n"
 		        "\t.player_spawn_x = %u,\n"
 		        "\t.player_spawn_y = %u,\n"
 		        "\t.name = \"%s\\0\",\n"
 		        "};\n"
-		        "#endif\n",
+		        "static trigger_t %s_triggers[] =\n"
+		        "{\n",
 		        g_map.name,
 		        g_map.size_x,
 		        g_map.size_y,
 		        g_map.name,
 		        g_map.player_spawn_x,
 		        g_map.player_spawn_y,
+		        g_map.name,
+		        g_map.name);
+		
+		for (size_t i = 0; i < g_ntriggers; ++i)
+		{
+			fprintf(fp,
+			        "{%ff,%ff,%ff,%ff,%u,%u,%u},",
+			        g_triggers[i].pos_x,
+			        g_triggers[i].pos_y,
+			        g_triggers[i].size_x,
+			        g_triggers[i].size_y,
+			        g_triggers[i].arg,
+			        g_triggers[i].single_use,
+			        g_triggers[i].type);
+		}
+		
+		fprintf(fp,
+		        "{0.0f,0.0f,0.0f,0.0f,0,0,0}\n" // dummy trigger.
+		        "};\n"
+		        "#endif\n",
 		        g_map.name);
 	} while (0);
 	
@@ -265,6 +353,9 @@ map_tile_color(map_tile_type_t type)
 		CONF_COLOR_KILL,
 		CONF_COLOR_BOUNCE,
 		CONF_COLOR_LAUNCH,
+		CONF_COLOR_END,
+		CONF_COLOR_SWITCH_OFF,
+		CONF_COLOR_SWITCH_ON,
 	};
 	
 	return colors[type];
@@ -276,6 +367,9 @@ map_tile_collision(map_tile_type_t type)
 	static bool collision[MTT_END__] =
 	{
 		false,
+		true,
+		true,
+		true,
 		true,
 		true,
 		true,

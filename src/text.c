@@ -9,10 +9,7 @@
 #include "util.h"
 #include "wnd.h"
 
-static size_t drawable_len_at(size_t off);
-
-static char const *box_text;
-static unsigned box_ticks = 0;
+static size_t drawable_len_at(char const *text, size_t off);
 
 // thanks to azmr on github for creating this header font.
 // find the source at `https://github.com/azmr/blit-fonts/blob/master/blit32.h`.
@@ -111,7 +108,7 @@ text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
 			if (!s[i])
 				return;
 			
-			size_t draw_len = drawable_len_at(i);
+			size_t draw_len = drawable_len_at(s, i);
 			draw_len = MAX(draw_len, 1);
 			if (dx + draw_len * CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f) >= px + sx)
 				break;
@@ -128,18 +125,8 @@ text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
 }
 
 void
-text_box_show(char const *text, unsigned ticks)
+text_box_draw(char const *text)
 {
-	box_text = text;
-	box_ticks = ticks;
-}
-
-void
-text_box_draw(void)
-{
-	if (!box_ticks)
-		return;
-	
 	// draw actual box of text box.
 	do
 	{
@@ -165,7 +152,7 @@ text_box_draw(void)
 	// draw text.
 	do
 	{
-		text_draw_str_bounded(box_text,
+		text_draw_str_bounded(text,
 		                      CONF_TEXT_BOX_PADDING,
 		                      CONF_TEXT_BOX_PADDING,
 		                      CONF_WND_WIDTH - 2 * CONF_TEXT_BOX_PADDING,
@@ -173,19 +160,13 @@ text_box_draw(void)
 	} while (0);
 }
 
-void
-text_box_update(void)
-{
-	box_ticks -= box_ticks > 0;
-}
-
 static size_t
-drawable_len_at(size_t off)
+drawable_len_at(char const *text, size_t off)
 {
 	size_t len;
-	for (len = 0; box_text[off + len]; ++len)
+	for (len = 0; text[off + len]; ++len)
 	{
-		if (!font[box_text[off + len]])
+		if (!font[text[off + len]])
 			break;
 	}
 	return len;
