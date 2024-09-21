@@ -4,7 +4,11 @@
 typedef enum text_list_item
 {
 	TLI_CTE0_TEST = 0,
-	TLI_C0E0_MOVE_LEFT_RIGHT,
+	TLI_C0E0_HOW_TO_MOVE,
+	TLI_C0E0_HOW_TO_JUMP,
+	TLI_C0E0_HOW_TO_WALLJUMP,
+	TLI_C0E0_HOW_TO_CLIMB,
+	TLI_C0E0_HOW_TO_SLIDE,
 	
 	TLI_END__,
 } text_list_item_t;

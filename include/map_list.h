@@ -3,8 +3,13 @@
 
 typedef enum map_list_item
 {
+	// chapter test.
 	MLI_CTE0 = 0,
 	MLI_CTE1,
+	
+	// chapter 0.
+	MLI_C0E0,
+	MLI_C0E1,
 	
 	MLI_END__,
 } map_list_item_t;

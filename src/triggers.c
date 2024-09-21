@@ -1,11 +1,13 @@
 #include "triggers.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #include <SDL.h>
 
 #include "conf.h"
 #include "player.h"
+#include "text.h"
 #include "text_list.h"
 #include "util.h"
 #include "wnd.h"
@@ -66,17 +68,32 @@ triggers_draw(void)
 {
 	for (uint32_t i = 0; i < g_ntriggers; ++i)
 	{
-		uint8_t const *col = trigger_color(g_triggers[i].type);
-		SDL_SetRenderDrawColor(g_rend,
-		                       col[0],
-		                       col[1],
-		                       col[2],
-		                       CONF_COLOR_TRIGGER_OPACITY);
+		trigger_t const *t = &g_triggers[i];
 		
-		relative_draw_rect(g_triggers[i].pos_x,
-		                   g_triggers[i].pos_y,
-		                   g_triggers[i].size_x,
-		                   g_triggers[i].size_y);
+		// draw bounding box.
+		do
+		{
+			uint8_t const *col = trigger_color(t->type);
+			SDL_SetRenderDrawColor(g_rend,
+			                       col[0],
+			                       col[1],
+			                       col[2],
+			                       CONF_COLOR_TRIGGER_OPACITY);
+		
+			relative_draw_rect(t->pos_x, t->pos_y, t->size_x, t->size_y);
+		} while (0);
+		
+		// draw argument text.
+		do
+		{
+			int scr_x, scr_y;
+			game_to_screen_coord(&scr_x, &scr_y, t->pos_x, t->pos_y);
+			
+			static char buf[32];
+			sprintf(buf, "%x", t->arg);
+			
+			text_draw_str(buf, scr_x, scr_y);
+		} while (0);
 	}
 }
 

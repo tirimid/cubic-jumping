@@ -24,14 +24,8 @@ keybd_set_key_state(SDL_Event const *e, bool pressed)
 	case CONF_KEY_POWERJUMP:
 		down_states[K_POWERJUMP] = press_states[K_POWERJUMP] = pressed;
 		break;
-	case CONF_KEY_ACT:
-		down_states[K_ACT] = press_states[K_ACT] = pressed;
-		break;
 	case CONF_KEY_MENU:
 		down_states[K_MENU] = press_states[K_MENU] = pressed;
-		break;
-	case CONF_KEY_SELECT:
-		down_states[K_MENU] = press_states[K_SELECT] = pressed;
 		break;
 	default:
 		break;
@@ -46,9 +40,7 @@ keybd_post_update(void)
 	press_states[K_JUMP] = false;
 	press_states[K_FALL] = false;
 	press_states[K_POWERJUMP] = false;
-	press_states[K_ACT] = false;
 	press_states[K_MENU] = false;
-	press_states[K_SELECT] = false;
 }
 
 bool

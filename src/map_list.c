@@ -11,6 +11,8 @@
 // compiled map data.
 #include "cte0.hfm"
 #include "cte1.hfm"
+#include "c0e0.hfm"
+#include "c0e1.hfm"
 
 typedef struct item_data
 {
@@ -31,6 +33,16 @@ static item_data_t item_data[MLI_END__] =
 		.map = &cte1_map,
 		.triggers = cte1_triggers,
 		.ntriggers = cte1_NTRIGGERS,
+	},
+	{
+		.map = &c0e0_map,
+		.triggers = c0e0_triggers,
+		.ntriggers = c0e0_NTRIGGERS,
+	},
+	{
+		.map = &c0e1_map,
+		.triggers = c0e1_triggers,
+		.ntriggers = c0e1_NTRIGGERS,
 	},
 };
 

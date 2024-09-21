@@ -12,9 +12,7 @@ typedef enum key
 	K_JUMP,
 	K_FALL,
 	K_POWERJUMP,
-	K_ACT,
 	K_MENU,
-	K_SELECT,
 	
 	K_END__,
 } key_t;

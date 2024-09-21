@@ -51,16 +51,16 @@ map_create_file(char const *file, char const *name)
 		wr_uint_32(fp, 0);
 	} while (0);
 	
-	// write out trigger data for dummy map.
-	do
-	{
-		wr_uint_32(fp, 0);
-	} while (0);
-	
 	// write out data for dummy map.
 	do
 	{
 		wr_uint_8(fp, MTT_GROUND);
+	} while (0);
+	
+	// write out trigger data for dummy map.
+	do
+	{
+		wr_uint_32(fp, 0);
 	} while (0);
 	
 	// write out inclusion target header.

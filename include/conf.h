@@ -16,9 +16,7 @@
 #define CONF_KEY_JUMP SDLK_UP
 #define CONF_KEY_FALL SDLK_DOWN
 #define CONF_KEY_POWERJUMP SDLK_x
-#define CONF_KEY_ACT SDLK_c
 #define CONF_KEY_MENU SDLK_ESCAPE
-#define CONF_KEY_SELECT SDLK_RETURN
 
 // gamerule options.
 #define CONF_TICK_MS 10

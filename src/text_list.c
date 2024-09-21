@@ -9,17 +9,20 @@
 #include "text.h"
 
 #define QUEUED_MAX 64
-#define TEXT_BUF_SIZE 512
 
 static void gen_box_text(text_list_item_t item);
 
-static char box_text[TEXT_BUF_SIZE];
+static char box_text[512];
 
 // when creating a text box with the text list item, the tick duration for the
 // visibility of the box should be looked up from this LUT.
 static unsigned box_ticks_lut[] =
 {
 	200,
+	400,
+	200,
+	400,
+	500,
 	400,
 };
 
@@ -88,10 +91,22 @@ gen_box_text(text_list_item_t item)
 	switch (item)
 	{
 	case TLI_CTE0_TEST:
-		snprintf(box_text, TEXT_BUF_SIZE, "Hello world");
+		sprintf(box_text, "Hello world");
 		break;
-	case TLI_C0E0_MOVE_LEFT_RIGHT:
-		snprintf(box_text, TEXT_BUF_SIZE, "Move left and right using <%s> and <%s>", SDL_GetKeyName(CONF_KEY_LEFT), SDL_GetKeyName(CONF_KEY_RIGHT));
+	case TLI_C0E0_HOW_TO_MOVE:
+		sprintf(box_text, "Move left and right using <%s> and <%s>", SDL_GetKeyName(CONF_KEY_LEFT), SDL_GetKeyName(CONF_KEY_RIGHT));
+		break;
+	case TLI_C0E0_HOW_TO_JUMP:
+		sprintf(box_text, "Jump using <%s>", SDL_GetKeyName(CONF_KEY_JUMP));
+		break;
+	case TLI_C0E0_HOW_TO_WALLJUMP:
+		sprintf(box_text, "Walljump by jumping while in contact with a wall");
+		break;
+	case TLI_C0E0_HOW_TO_CLIMB:
+		sprintf(box_text, "Climb vertical corridors by chaining walljumps into eachother");
+		break;
+	case TLI_C0E0_HOW_TO_SLIDE:
+		sprintf(box_text, "Slide down walls by moving into them while falling");
 		break;
 	}
 }
