@@ -5,6 +5,7 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define CLAMP(min, n, max) MIN((max), MAX((n), (min)))
 
 void log_err(char const *fmt, ...);
 uint64_t get_unix_time_ms(void);

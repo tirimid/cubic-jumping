@@ -20,6 +20,7 @@
 game_t g_game;
 
 static void draw_bg(void);
+static void fill_out_of_bounds(void);
 
 void
 game_init(map_list_item_t first_map)
@@ -69,6 +70,7 @@ game_main_loop(void)
 		do
 		{
 			draw_bg();
+			fill_out_of_bounds();
 			map_draw();
 			vfx_draw();
 			player_draw();
@@ -136,5 +138,74 @@ draw_bg(void)
 			};
 			SDL_RenderFillRect(g_rend, &square);
 		}
+	}
+}
+
+static void
+fill_out_of_bounds(void)
+{
+	int scr_lbx, scr_lby;
+	game_to_screen_coord(&scr_lbx, &scr_lby, 0.0f, 0.0f);
+	
+	int scr_ubx, scr_uby;
+	game_to_screen_coord(&scr_ubx, &scr_uby, g_map.size_x, g_map.size_y);
+	
+	// set OOB cover draw color.
+	do
+	{
+		static uint8_t cg[] = CONF_COLOR_GROUND;
+		SDL_SetRenderDrawColor(g_rend, cg[0], cg[1], cg[2], 255);
+	} while (0);
+	
+	// draw left OOB cover.
+	if (scr_lbx > 0)
+	{
+		SDL_Rect r =
+		{
+			.x = 0,
+			.y = 0,
+			.w = scr_lbx,
+			.h = CONF_WND_HEIGHT,
+		};
+		SDL_RenderFillRect(g_rend, &r);
+	}
+	
+	// draw right OOB cover.
+	if (scr_ubx < CONF_WND_WIDTH)
+	{
+		SDL_Rect r =
+		{
+			.x = scr_ubx,
+			.y = 0,
+			.w = CONF_WND_WIDTH - scr_ubx,
+			.h = CONF_WND_HEIGHT,
+		};
+		SDL_RenderFillRect(g_rend, &r);
+	}
+	
+	// draw top OOB cover.
+	if (scr_lby > 0)
+	{
+		SDL_Rect r =
+		{
+			.x = 0,
+			.y = 0,
+			.w = CONF_WND_WIDTH,
+			.h = scr_lby,
+		};
+		SDL_RenderFillRect(g_rend, &r);
+	}
+	
+	// draw bottom OOB cover.
+	if (scr_uby < CONF_WND_HEIGHT)
+	{
+		SDL_Rect r =
+		{
+			.x = 0,
+			.y = scr_uby,
+			.w = CONF_WND_WIDTH,
+			.h = CONF_WND_HEIGHT - scr_uby,
+		};
+		SDL_RenderFillRect(g_rend, &r);
 	}
 }

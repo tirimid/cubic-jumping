@@ -18,12 +18,12 @@ static char box_text[512];
 // visibility of the box should be looked up from this LUT.
 static unsigned box_ticks_lut[] =
 {
-	200,
-	400,
-	200,
-	400,
-	500,
-	400,
+	250,
+	250,
+	250,
+	250,
+	250,
+	250,
 };
 
 static text_list_item_t queue[QUEUED_MAX];
