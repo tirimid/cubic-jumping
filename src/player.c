@@ -5,7 +5,7 @@
 #include "cam.h"
 #include "conf.h"
 #include "game.h"
-#include "keybd.h"
+#include "input.h"
 #include "map.h"
 #include "map_list.h"
 #include "util.h"

@@ -1,16 +1,16 @@
 #include "game.h"
 
-#include <stdint.h>
 #include <stdlib.h>
 
 #include <SDL.h>
 
 #include "cam.h"
 #include "conf.h"
-#include "keybd.h"
+#include "input.h"
 #include "map.h"
 #include "map_list.h"
 #include "player.h"
+#include "text.h"
 #include "text_list.h"
 #include "triggers.h"
 #include "util.h"
@@ -21,6 +21,7 @@ game_t g_game;
 
 static void draw_bg(void);
 static void fill_out_of_bounds(void);
+static void draw_indicators(void);
 
 void
 game_init(map_list_item_t first_map)
@@ -29,7 +30,7 @@ game_init(map_list_item_t first_map)
 }
 
 void
-game_main_loop(void)
+game_loop(void)
 {
 	for (;;)
 	{
@@ -78,6 +79,7 @@ game_main_loop(void)
 			triggers_draw();
 #endif
 			text_list_draw();
+			draw_indicators();
 			SDL_RenderPresent(g_rend);
 		} while (0);
 		
@@ -85,6 +87,8 @@ game_main_loop(void)
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
+		
+		g_game.il_time_ms += CONF_TICK_MS;
 	}
 }
 
@@ -208,4 +212,24 @@ fill_out_of_bounds(void)
 		};
 		SDL_RenderFillRect(g_rend, &r);
 	}
+}
+
+static void
+draw_indicators(void)
+{
+	// draw IL timer.
+	do
+	{
+		uint64_t il_time_s = g_game.il_time_ms / 1000;
+		uint64_t il_time_m = il_time_s / 60;
+		
+		static char buf[32];
+		sprintf(buf,
+		        "%01u:%02u.%u",
+		        il_time_m,
+		        il_time_s % 60,
+		        g_game.il_time_ms % 1000);
+		
+		text_draw_str(buf, CONF_TIMER_OFF_X, CONF_TIMER_OFF_Y);
+	} while (0);
 }

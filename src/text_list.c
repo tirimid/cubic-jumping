@@ -18,12 +18,19 @@ static char box_text[512];
 // visibility of the box should be looked up from this LUT.
 static unsigned box_ticks_lut[] =
 {
-	250,
-	250,
-	250,
-	250,
-	250,
-	250,
+	[TLI_CTE0_TEST] = 250,
+	
+	[TLI_C0E0_HOW_TO_MOVE] = 250,
+	[TLI_C0E0_HOW_TO_JUMP] = 250,
+	[TLI_C0E0_HOW_TO_WALLJUMP] = 250,
+	[TLI_C0E0_HOW_TO_CLIMB] = 250,
+	[TLI_C0E0_HOW_TO_SLIDE] = 250,
+	[TLI_C0E0_HOW_TO_WIN] = 250,
+	
+	[TLI_C0E1_KILL_INTRO] = 250,
+	[TLI_C0E1_MOMENTUM_INTRO] = 250,
+	[TLI_C0E1_HOW_TO_POWERJUMP] = 250,
+	[TLI_C0E1_HOW_TO_FALL] = 250,
 };
 
 static text_list_item_t queue[QUEUED_MAX];
@@ -107,6 +114,21 @@ gen_box_text(text_list_item_t item)
 		break;
 	case TLI_C0E0_HOW_TO_SLIDE:
 		sprintf(box_text, "Slide down walls by moving into them while falling");
+		break;
+	case TLI_C0E0_HOW_TO_WIN:
+		sprintf(box_text, "Finish the level by entering the yellow portal");
+		break;
+	case TLI_C0E1_KILL_INTRO:
+		sprintf(box_text, "Don't fall into the kill blocks!");
+		break;
+	case TLI_C0E1_MOMENTUM_INTRO:
+		sprintf(box_text, "Use the momentum from a prior jump to jump over the kill blocks");
+		break;
+	case TLI_C0E1_HOW_TO_POWERJUMP:
+		sprintf(box_text, "Powerjump in the direction you're moving using <%s>", SDL_GetKeyName(CONF_KEY_POWERJUMP));
+		break;
+	case TLI_C0E1_HOW_TO_FALL:
+		sprintf(box_text, "Fall faster by holding <%s> in the air", SDL_GetKeyName(CONF_KEY_FALL));
 		break;
 	}
 }

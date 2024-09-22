@@ -229,6 +229,53 @@ map_grow(uint32_t dx, uint32_t dy)
 	} while (0);
 }
 
+void
+map_refit_bounds(void)
+{
+	// determine minimum bounds of map.
+	uint32_t far_x = 0, far_y = 0;
+	for (uint32_t x = 0; x < g_map.size_x; ++x)
+	{
+		for (uint32_t y = 0; y < g_map.size_y; ++y)
+		{
+			map_tile_t *tile = map_get(x, y);
+			if (tile->type == MTT_AIR)
+				continue;
+			
+			far_y = MAX(far_y, y);
+			far_x = MAX(far_x, x);
+		}
+	}
+	
+	// if needed, shrink horizontally and move cell memory.
+	do
+	{
+		if (g_map.size_x == far_x + 1)
+			break;
+		
+		size_t dx = g_map.size_x - far_x - 1;
+		size_t mv_ind = g_map.size_x;
+		size_t mv_len = g_map.size_x * (g_map.size_y - 1);
+		
+		while (mv_len > 0)
+		{
+			memmove(&g_map.data[mv_ind - dx],
+			        &g_map.data[mv_ind],
+			        sizeof(map_tile_t) * mv_len);
+			
+			mv_len -= g_map.size_x;
+			mv_ind += far_x + 1;
+		}
+	} while (0);
+	
+	// resize map to minimum possible size.
+	do
+	{
+		g_map.size_x = far_x + 1;
+		g_map.size_y = far_y + 1;
+	} while (0);
+}
+
 int
 map_write_to_file(char const *file)
 {
@@ -339,6 +386,8 @@ map_write_to_file(char const *file)
 		        "#endif\n",
 		        g_map.name);
 	} while (0);
+	
+	fclose(fp);
 	
 	return 0;
 }

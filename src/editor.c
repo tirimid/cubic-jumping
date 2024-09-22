@@ -6,9 +6,8 @@
 
 #include "cam.h"
 #include "conf.h"
-#include "keybd.h"
+#include "input.h"
 #include "map.h"
-#include "mouse.h"
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
@@ -66,7 +65,7 @@ editor_quit(void)
 }
 
 void
-editor_main_loop(void)
+editor_loop(void)
 {
 	ui_button_t b_mode_tile_p = ui_button_create(10, 10, "Tile-P", btn_mode_tile_p);
 	ui_button_t b_mode_tile_f = ui_button_create(160, 10, "Tile-F", btn_mode_tile_f);
@@ -530,22 +529,24 @@ draw_indicators(void)
 static void
 btn_mode_tile_p(void)
 {
+	if (mode != EM_TILE_P && mode != EM_TILE_F)
+		type = 0;
 	mode = EM_TILE_P;
-	type = 0;
 }
 
 static void
 btn_mode_tile_f(void)
 {
+	if (mode != EM_TILE_P && mode != EM_TILE_F)
+		type = 0;
 	mode = EM_TILE_F;
-	type = 0;
 }
 
 static void
 btn_mode_trigger(void)
 {
-	mode = EM_TRIGGER;
 	type = 0;
+	mode = EM_TRIGGER;
 }
 
 static void
@@ -608,6 +609,7 @@ btn_save(void)
 	if (!unsaved)
 		return;
 	
+	map_refit_bounds();
 	map_write_to_file(map_file);
 	unsaved = false;
 }

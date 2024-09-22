@@ -6,7 +6,7 @@
 #include <SDL.h>
 
 #include "conf.h"
-#include "mouse.h"
+#include "input.h"
 #include "text.h"
 #include "wnd.h"
 

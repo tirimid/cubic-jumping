@@ -88,12 +88,12 @@ main(int argc, char *argv[])
 	{
 	case GM_GAME:
 		game_init(MLI_C0E0);
-		game_main_loop();
+		game_loop();
 		break;
 	case GM_EDITOR:
 		if (editor_init(argv[2]))
 			return 1;
-		editor_main_loop();
+		editor_loop();
 		break;
 	}
 	

@@ -39,6 +39,7 @@ extern map_t g_map;
 int map_create_file(char const *file, char const *name);
 int map_load_from_file(char const *file);
 void map_grow(uint32_t dx, uint32_t dy);
+void map_refit_bounds(void);
 int map_write_to_file(char const *file);
 
 // game and base rendering functionality.

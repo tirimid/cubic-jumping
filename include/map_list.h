@@ -10,6 +10,7 @@ typedef enum map_list_item
 	// chapter 0.
 	MLI_C0E0,
 	MLI_C0E1,
+	MLI_C0E2,
 	
 	MLI_END__,
 } map_list_item_t;

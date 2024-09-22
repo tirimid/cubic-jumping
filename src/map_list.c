@@ -13,6 +13,7 @@
 #include "cte1.hfm"
 #include "c0e0.hfm"
 #include "c0e1.hfm"
+#include "c0e2.hfm"
 
 typedef struct item_data
 {
@@ -44,6 +45,11 @@ static item_data_t item_data[MLI_END__] =
 		.triggers = c0e1_triggers,
 		.ntriggers = c0e1_NTRIGGERS,
 	},
+	{
+		.map = &c0e2_map,
+		.triggers = c0e2_triggers,
+		.ntriggers = c0e2_NTRIGGERS,
+	},
 };
 
 void
@@ -72,6 +78,7 @@ map_list_load(map_list_item_t item)
 	};
 	
 	game_disable_switches();
+	g_game.il_time_ms = 0;
 	
 	cur_item = item;
 }

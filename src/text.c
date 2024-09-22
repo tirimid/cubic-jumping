@@ -135,7 +135,7 @@ text_box_draw(char const *text)
 		SDL_Rect box =
 		{
 			.x = 0,
-			.y = 0,
+			.y = CONF_WND_HEIGHT - CONF_TEXT_BOX_HEIGHT,
 			.w = CONF_WND_WIDTH,
 			.h = CONF_TEXT_BOX_HEIGHT,
 		};
@@ -154,7 +154,7 @@ text_box_draw(char const *text)
 	{
 		text_draw_str_bounded(text,
 		                      CONF_TEXT_BOX_PADDING,
-		                      CONF_TEXT_BOX_PADDING,
+		                      CONF_WND_HEIGHT - CONF_TEXT_BOX_HEIGHT + CONF_TEXT_BOX_PADDING,
 		                      CONF_WND_WIDTH - 2 * CONF_TEXT_BOX_PADDING,
 		                      CONF_TEXT_BOX_HEIGHT - 2 * CONF_TEXT_BOX_PADDING);
 	} while (0);
