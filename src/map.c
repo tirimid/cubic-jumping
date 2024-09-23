@@ -188,6 +188,8 @@ map_load_from_file(char const *file)
 		}
 	} while (0);
 	
+	fclose(fp);
+	
 	return 0;
 }
 
@@ -333,7 +335,7 @@ map_write_to_file(char const *file)
 		        "#include <stddef.h>\n"
 		        "#include \"map.h\"\n"
 		        "#include \"triggers.h\"\n"
-		        "#define %s_NTRIGGERS %u\n"
+		        "#define %s_NTRIGGERS %lu\n"
 		        "static map_tile_t %s_map_data[] =\n"
 		        "{\n",
 		        g_map.name,

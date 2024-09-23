@@ -11,6 +11,7 @@
 // compiled map data.
 #include "cte0.hfm"
 #include "cte1.hfm"
+#include "cte2.hfm"
 #include "c0e0.hfm"
 #include "c0e1.hfm"
 #include "c0e2.hfm"
@@ -34,6 +35,11 @@ static item_data_t item_data[MLI_END__] =
 		.map = &cte1_map,
 		.triggers = cte1_triggers,
 		.ntriggers = cte1_NTRIGGERS,
+	},
+	{
+		.map = &cte2_map,
+		.triggers = cte2_triggers,
+		.ntriggers = cte2_NTRIGGERS,
 	},
 	{
 		.map = &c0e0_map,

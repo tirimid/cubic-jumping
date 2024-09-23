@@ -87,7 +87,7 @@ main(int argc, char *argv[])
 	switch (mode)
 	{
 	case GM_GAME:
-		game_init(MLI_C0E0);
+		game_init(MLI_CTE0);
 		game_loop();
 		break;
 	case GM_EDITOR:

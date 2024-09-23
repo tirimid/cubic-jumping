@@ -6,6 +6,7 @@ typedef enum map_list_item
 	// chapter test.
 	MLI_CTE0 = 0,
 	MLI_CTE1,
+	MLI_CTE2,
 	
 	// chapter 0.
 	MLI_C0E0,
