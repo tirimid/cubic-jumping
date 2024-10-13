@@ -71,7 +71,6 @@ triggers_draw(void)
 		trigger_t const *t = &g_triggers[i];
 		
 		// draw bounding box.
-		do
 		{
 			uint8_t const *col = trigger_color(t->type);
 			SDL_SetRenderDrawColor(g_rend,
@@ -81,10 +80,9 @@ triggers_draw(void)
 			                       CONF_COLOR_TRIGGER_OPACITY);
 		
 			relative_draw_rect(t->pos_x, t->pos_y, t->size_x, t->size_y);
-		} while (0);
+		}
 		
 		// draw argument text.
-		do
 		{
 			int scr_x, scr_y;
 			game_to_screen_coord(&scr_x, &scr_y, t->pos_x, t->pos_y);
@@ -93,7 +91,7 @@ triggers_draw(void)
 			sprintf(buf, "%x", t->arg);
 			
 			text_draw_str(buf, scr_x, scr_y);
-		} while (0);
+		}
 	}
 }
 

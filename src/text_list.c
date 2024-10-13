@@ -61,7 +61,6 @@ text_list_update(void)
 	if (queue_front_ticks == 0)
 	{
 		// remove first element and finish if nothing left.
-		do
 		{
 			memmove(&queue[0],
 			        &queue[1],
@@ -70,14 +69,13 @@ text_list_update(void)
 			--nqueued;
 			if (nqueued == 0)
 				return;
-		} while (0);
+		}
 		
 		// set new textbox parameters.
-		do
 		{
 			gen_box_text(queue[0]);
 			queue_front_ticks = box_ticks_lut[queue[0]];
-		} while (0);
+		}
 		
 		return;
 	}
@@ -101,10 +99,10 @@ gen_box_text(text_list_item_t item)
 		sprintf(box_text, "Hello world");
 		break;
 	case TLI_C0E0_HOW_TO_MOVE:
-		sprintf(box_text, "Move left and right using <%s> and <%s>", SDL_GetKeyName(CONF_KEY_LEFT), SDL_GetKeyName(CONF_KEY_RIGHT));
+		sprintf(box_text, "Move left and right using [%s] and [%s]", SDL_GetKeyName(CONF_KEY_LEFT), SDL_GetKeyName(CONF_KEY_RIGHT));
 		break;
 	case TLI_C0E0_HOW_TO_JUMP:
-		sprintf(box_text, "Jump using <%s>", SDL_GetKeyName(CONF_KEY_JUMP));
+		sprintf(box_text, "Jump using [%s]", SDL_GetKeyName(CONF_KEY_JUMP));
 		break;
 	case TLI_C0E0_HOW_TO_WALLJUMP:
 		sprintf(box_text, "Walljump by jumping while in contact with a wall");
@@ -125,10 +123,10 @@ gen_box_text(text_list_item_t item)
 		sprintf(box_text, "Use the momentum from a prior jump to jump over the kill blocks");
 		break;
 	case TLI_C0E1_HOW_TO_POWERJUMP:
-		sprintf(box_text, "Powerjump in the direction you're moving using <%s>", SDL_GetKeyName(CONF_KEY_POWERJUMP));
+		sprintf(box_text, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(CONF_KEY_POWERJUMP));
 		break;
 	case TLI_C0E1_HOW_TO_FALL:
-		sprintf(box_text, "Fall faster by holding <%s> in the air", SDL_GetKeyName(CONF_KEY_FALL));
+		sprintf(box_text, "Fall faster by holding [%s] in the air", SDL_GetKeyName(CONF_KEY_FALL));
 		break;
 	}
 }

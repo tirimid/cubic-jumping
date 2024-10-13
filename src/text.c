@@ -128,7 +128,6 @@ void
 text_box_draw(char const *text)
 {
 	// draw actual box of text box.
-	do
 	{
 		static uint8_t ctb[] = CONF_COLOR_TEXT_BOX;
 		
@@ -147,17 +146,16 @@ text_box_draw(char const *text)
 		                       CONF_COLOR_TEXT_BOX_OPACITY);
 		
 		SDL_RenderFillRect(g_rend, &box);
-	} while (0);
+	}
 	
 	// draw text.
-	do
 	{
 		text_draw_str_bounded(text,
 		                      CONF_TEXT_BOX_PADDING,
 		                      CONF_WND_HEIGHT - CONF_TEXT_BOX_HEIGHT + CONF_TEXT_BOX_PADDING,
 		                      CONF_WND_WIDTH - 2 * CONF_TEXT_BOX_PADDING,
 		                      CONF_TEXT_BOX_HEIGHT - 2 * CONF_TEXT_BOX_PADDING);
-	} while (0);
+	}
 }
 
 static size_t

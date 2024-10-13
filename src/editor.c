@@ -90,7 +90,7 @@ editor_loop(void)
 			switch (e.type)
 			{
 			case SDL_QUIT:
-				return;
+				exit(0);
 			case SDL_KEYDOWN:
 				if (!e.key.repeat)
 					keybd_set_key_state(&e, true);
@@ -111,10 +111,8 @@ editor_loop(void)
 		}
 		
 		// update editor.
-		do
 		{
 			// update UI.
-			do
 			{
 				ui_button_update(&b_mode_tile_p);
 				ui_button_update(&b_mode_tile_f);
@@ -128,15 +126,14 @@ editor_loop(void)
 				ui_button_update(&b_arg_add);
 				ui_button_update(&b_arg_sub);
 				ui_button_update(&b_single);
-			} while (0);
+			}
 			
 			update_editor();
 			keybd_post_update();
 			mouse_post_update();
-		} while (0);
+		}
 		
 		// draw editor.
-		do
 		{
 			draw_bg();
 			map_draw();
@@ -145,7 +142,6 @@ editor_loop(void)
 			draw_indicators();
 			
 			// draw UI.
-			do
 			{
 				ui_button_draw(&b_mode_tile_p);
 				ui_button_draw(&b_mode_tile_f);
@@ -159,10 +155,10 @@ editor_loop(void)
 				ui_button_draw(&b_arg_add);
 				ui_button_draw(&b_arg_sub);
 				ui_button_draw(&b_single);
-			} while (0);
+			}
 			
 			SDL_RenderPresent(g_rend);
-		} while (0);
+		}
 		
 		uint64_t tick_end = get_unix_time_ms();
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
@@ -175,13 +171,12 @@ static void
 update_editor(void)
 {
 	// move camera.
-	do
 	{
 		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
 		float mv_vert = key_down(K_FALL) - key_down(K_JUMP);
 		g_cam.pos_x += CONF_EDITOR_CAM_SPEED * mv_horiz;
 		g_cam.pos_y += CONF_EDITOR_CAM_SPEED * mv_vert;
-	} while (0);
+	}
 	
 	// mouse interaction based on mode.
 	switch (mode)
@@ -369,7 +364,6 @@ static void
 draw_indicators(void)
 {
 	// draw player spawn position.
-	do
 	{
 		static uint8_t cp[] = CONF_COLOR_PLAYER;
 		
@@ -379,10 +373,9 @@ draw_indicators(void)
 		                   g_map.player_spawn_y,
 		                   CONF_PLAYER_SIZE,
 		                   CONF_PLAYER_SIZE);
-	} while (0);
+	}
 	
 	// draw hover / selection boundary.
-	do
 	{
 		static uint8_t cb[] = CONF_COLOR_EDITOR_BOUNDARY;
 		
@@ -433,10 +426,9 @@ draw_indicators(void)
 			break;
 		}
 		}
-	} while (0);
+	}
 	
 	// draw editor bar.
-	do
 	{
 		static uint8_t cbgs[] = CONF_COLOR_BG_SQUARE;
 		
@@ -450,10 +442,9 @@ draw_indicators(void)
 		
 		SDL_SetRenderDrawColor(g_rend, cbgs[0], cbgs[1], cbgs[2], 255);
 		SDL_RenderFillRect(g_rend, &r);
-	} while (0);
+	}
 	
 	// draw current type indicator.
-	do
 	{
 		static uint8_t co[] = CONF_COLOR_OUTLINE;
 		
@@ -488,24 +479,21 @@ draw_indicators(void)
 		
 		SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
 		SDL_RenderDrawRect(g_rend, &r);
-	} while (0);
+	}
 	
 	// draw arg indicator.
-	do
 	{
 		static char buf[32];
 		snprintf(buf, sizeof(buf), "%08x", arg);
 		text_draw_str(buf, 10, 100);
-	} while (0);
+	}
 	
 	// draw single use indicator.
-	do
 	{
 		text_draw_str(single_use ? "Sing." : "Mult.", 200, 100);
-	} while (0);
+	}
 	
 	// draw save status indicator.
-	do
 	{
 		static uint8_t ces[] = CONF_COLOR_EDITOR_SAVED;
 		static uint8_t ceu[] = CONF_COLOR_EDITOR_UNSAVED;
@@ -523,7 +511,7 @@ draw_indicators(void)
 			.h = CONF_EDITOR_SAVE_INDICATOR_SIZE,
 		};
 		SDL_RenderFillRect(g_rend, &r);
-	} while (0);
+	}
 }
 
 static void

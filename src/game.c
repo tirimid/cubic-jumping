@@ -9,6 +9,7 @@
 #include "input.h"
 #include "map.h"
 #include "map_list.h"
+#include "menus.h"
 #include "player.h"
 #include "text.h"
 #include "text_list.h"
@@ -42,7 +43,7 @@ game_loop(void)
 			switch (e.type)
 			{
 			case SDL_QUIT:
-				return;
+				exit(0);
 			case SDL_KEYDOWN:
 				if (!e.key.repeat)
 					keybd_set_key_state(&e, true);
@@ -54,6 +55,13 @@ game_loop(void)
 			default:
 				break;
 			}
+		}
+		
+		if (key_pressed(K_MENU))
+		{
+			keybd_post_update();
+			pause_menu_loop();
+			continue;
 		}
 		
 		// update game.
@@ -116,13 +124,16 @@ draw_bg(void)
 	static float first_square_y = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
 	
 	// update square positions.
-	first_square_x += CONF_BG_SQUARE_SPEED_X;
-	if (first_square_x >= 0.0f)
-		first_square_x -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
-	
-	first_square_y += CONF_BG_SQUARE_SPEED_Y;
-	if (first_square_y >= 0.0f)
-		first_square_y -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+	do
+	{
+		first_square_x += CONF_BG_SQUARE_SPEED_X;
+		if (first_square_x >= 0.0f)
+			first_square_x -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+		
+		first_square_y += CONF_BG_SQUARE_SPEED_Y;
+		if (first_square_y >= 0.0f)
+			first_square_y -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+	} while (0);
 	
 	// render background.
 	SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);

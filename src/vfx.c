@@ -122,7 +122,6 @@ vfx_draw(void)
 		}
 		
 		// draw particles.
-		do
 		{
 			float rel_lifetime = (float)(max_lifetime - particles[i].lifetime) / max_lifetime;
 			float size = lerp(size_a, size_b, rel_lifetime);
@@ -136,6 +135,6 @@ vfx_draw(void)
 			                   particles[i].pos_y - size / 2.0f,
 			                   size,
 			                   size);
-		} while (0);
+		}
 	}
 }

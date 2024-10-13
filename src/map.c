@@ -36,7 +36,6 @@ map_create_file(char const *file, char const *name)
 	}
 	
 	// write out header for dummy map.
-	do
 	{
 		fprintf(fp, "//CJ");
 		
@@ -49,22 +48,19 @@ map_create_file(char const *file, char const *name)
 		wr_uint_32(fp, 1);
 		wr_uint_32(fp, 0);
 		wr_uint_32(fp, 0);
-	} while (0);
+	}
 	
 	// write out data for dummy map.
-	do
 	{
 		wr_uint_8(fp, MTT_GROUND);
-	} while (0);
+	}
 	
 	// write out trigger data for dummy map.
-	do
 	{
 		wr_uint_32(fp, 0);
-	} while (0);
+	}
 	
 	// write out inclusion target header.
-	do
 	{
 		fprintf(fp,
 		        "\n#ifndef %s_HFM\n"
@@ -99,7 +95,7 @@ map_create_file(char const *file, char const *name)
 		        name,
 		        name,
 		        name);
-	} while (0);
+	}
 	
 	return 0;
 }
@@ -115,7 +111,6 @@ map_load_from_file(char const *file)
 	}
 	
 	// read map header data.
-	do
 	{
 		if (fgetc(fp) != '/'
 		    || fgetc(fp) != '/'
@@ -142,10 +137,9 @@ map_load_from_file(char const *file)
 		{
 			return 1;
 		}
-	} while (0);
+	}
 	
 	// read main map data.
-	do
 	{
 		g_map.data = malloc(sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
@@ -159,10 +153,9 @@ map_load_from_file(char const *file)
 				.type = type,
 			};
 		}
-	} while (0);
+	}
 	
 	// read trigger data.
-	do
 	{
 		uint32_t ntriggers;
 		if (rd_uint_32(&ntriggers, fp))
@@ -186,7 +179,7 @@ map_load_from_file(char const *file)
 			
 			triggers_add_trigger(&new_trigger);
 		}
-	} while (0);
+	}
 	
 	fclose(fp);
 	
@@ -203,7 +196,6 @@ map_grow(uint32_t dx, uint32_t dy)
 	g_map.data = realloc(g_map.data, sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
 	
 	// create new air cells (horizontal).
-	do
 	{
 		size_t mv_len = old_size_x * (old_size_y - 1);
 		size_t mv_ind = old_size_x;
@@ -220,15 +212,14 @@ map_grow(uint32_t dx, uint32_t dy)
 		// need to zero new tiles on last row to prevent phantom tiles from
 		// randomly appearing upon map grow.
 		memset(&g_map.data[mv_ind], 0, sizeof(map_tile_t) * dx);
-	} while (0);
+	}
 	
 	// create new air cells (vertical).
-	do
 	{
 		memset(&g_map.data[g_map.size_x * old_size_y],
 		       0,
 		       sizeof(map_tile_t) * g_map.size_x * dy);
-	} while (0);
+	}
 }
 
 void
@@ -250,11 +241,8 @@ map_refit_bounds(void)
 	}
 	
 	// if needed, shrink horizontally and move cell memory.
-	do
+	if (g_map.size_x > far_x + 1)
 	{
-		if (g_map.size_x == far_x + 1)
-			break;
-		
 		size_t dx = g_map.size_x - far_x - 1;
 		size_t mv_ind = g_map.size_x;
 		size_t mv_len = g_map.size_x * (g_map.size_y - 1);
@@ -268,14 +256,13 @@ map_refit_bounds(void)
 			mv_len -= g_map.size_x;
 			mv_ind += far_x + 1;
 		}
-	} while (0);
+	}
 	
 	// resize map to minimum possible size.
-	do
 	{
 		g_map.size_x = far_x + 1;
 		g_map.size_y = far_y + 1;
-	} while (0);
+	}
 }
 
 int
@@ -289,7 +276,6 @@ map_write_to_file(char const *file)
 	}
 	
 	// write out map data header.
-	do
 	{
 		fprintf(fp, "//CJ");
 		
@@ -303,10 +289,9 @@ map_write_to_file(char const *file)
 		
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
 			wr_uint_8(fp, g_map.data[i].type);
-	} while (0);
+	}
 	
 	// write out trigger data.
-	do
 	{
 		wr_uint_32(fp, g_ntriggers);
 		
@@ -322,12 +307,11 @@ map_write_to_file(char const *file)
 			wr_uint_8(fp, trigger->single_use);
 			wr_uint_8(fp, trigger->type);
 		}
-	} while (0);
+	}
 	
 	fprintf(fp, "\n");
 	
 	// write out inclusion target header text.
-	do
 	{
 		fprintf(fp,
 		        "#ifndef %s_HFM\n"
@@ -387,7 +371,7 @@ map_write_to_file(char const *file)
 		        "};\n"
 		        "#endif\n",
 		        g_map.name);
-	} while (0);
+	}
 	
 	fclose(fp);
 	

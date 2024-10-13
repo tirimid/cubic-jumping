@@ -87,7 +87,6 @@ static void
 update_playing(void)
 {
 	// rectify player bounds in map.
-	do
 	{
 		if (g_player.pos_x < 0.0f)
 			g_player.pos_x = 0.0f;
@@ -98,10 +97,9 @@ update_playing(void)
 			g_player.pos_x = g_map.size_x - CONF_PLAYER_SIZE;
 		if (g_player.pos_y > g_map.size_y - CONF_PLAYER_SIZE)
 			g_player.pos_y = g_map.size_y - CONF_PLAYER_SIZE;
-	} while (0);
+	}
 	
 	// find nearest left edge.
-	do
 	{
 		int cxtl;
 		map_tile_t *cxtl_tile = NULL;
@@ -130,10 +128,9 @@ update_playing(void)
 		int cxl = MAX(cxtl, cxbl);
 		g_player.dist_left = g_player.pos_x - cxl - 1.0f;
 		g_player.near_left = cxtl > cxbl ? cxtl_tile : cxbl_tile;
-	} while (0);
+	}
 	
 	// find nearest right edge.
-	do
 	{
 		int cxtr;
 		map_tile_t *cxtr_tile = NULL;
@@ -162,10 +159,9 @@ update_playing(void)
 		int cxr = MIN(cxtr, cxbr);
 		g_player.dist_right = cxr - g_player.pos_x - CONF_PLAYER_SIZE;
 		g_player.near_right = cxtr < cxbr ? cxtr_tile : cxbr_tile;
-	} while (0);
+	}
 	
 	// find nearest top edge.
-	do
 	{
 		int cytl;
 		map_tile_t *cytl_tile = NULL;
@@ -194,10 +190,9 @@ update_playing(void)
 		int cyt = MAX(cytl, cytr);
 		g_player.dist_top = g_player.pos_y - cyt - 1.0f;
 		g_player.near_top = cytl > cytr ? cytl_tile : cytr_tile;
-	} while (0);
+	}
 	
 	// find nearest bottom edge.
-	do
 	{
 		int cybl;
 		map_tile_t *cybl_tile = NULL;
@@ -226,10 +221,9 @@ update_playing(void)
 		int cyb = MIN(cybl, cybr);
 		g_player.dist_bottom = cyb - g_player.pos_y - CONF_PLAYER_SIZE;
 		g_player.near_bottom = cybl < cybr ? cybl_tile : cybr_tile;
-	} while (0);
+	}
 	
 	// apply user movement input velocity.
-	do
 	{
 		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
 		mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
@@ -260,16 +254,14 @@ update_playing(void)
 			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
-	} while (0);
+	}
 	
 	// apply environmental forces.
-	do
 	{
 		g_player.vel_y += CONF_GRAVITY;
-	} while (0);
+	}
 	
 	// apply collision corrections.
-	do
 	{
 		if (g_player.vel_x < 0.0f
 		    && -g_player.vel_x >= g_player.dist_left
@@ -302,10 +294,9 @@ update_playing(void)
 			collide_bottom();
 			collide(g_player.near_bottom);
 		}
-	} while (0);
+	}
 	
 	// actually move player.
-	do
 	{
 		g_player.pos_x += g_player.vel_x;
 		g_player.pos_y += g_player.vel_y;
@@ -318,10 +309,9 @@ update_playing(void)
 		{
 			g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
 		}
-	} while (0);
+	}
 	
 	// advance trace spawn counter, and spawn if needed.
-	do
 	{
 		if (g_player.trace_spawn_ticks == 0)
 		{
@@ -332,7 +322,7 @@ update_playing(void)
 		}
 		else
 			--g_player.trace_spawn_ticks;
-	} while (0);
+	}
 }
 
 static void

@@ -56,7 +56,6 @@ void
 ui_button_draw(ui_button_t const *btn)
 {
 	// set frame color based on button status.
-	do
 	{
 		static uint8_t cb[] = CONF_COLOR_BUTTON;
 		static uint8_t cbh[] = CONF_COLOR_BUTTON_HOVERED;
@@ -68,10 +67,9 @@ ui_button_draw(ui_button_t const *btn)
 			SDL_SetRenderDrawColor(g_rend, cbh[0], cbh[1], cbh[2], 255);
 		else
 			SDL_SetRenderDrawColor(g_rend, cb[0], cb[1], cb[2], 255);
-	} while (0);
+	}
 	
 	// draw frame.
-	do
 	{
 		SDL_Rect r =
 		{
@@ -81,13 +79,12 @@ ui_button_draw(ui_button_t const *btn)
 			.h = btn->h + 2 * CONF_BUTTON_PADDING,
 		};
 		SDL_RenderFillRect(g_rend, &r);
-	} while (0);
+	}
 	
 	// draw label text.
-	do
 	{
 		text_draw_str(btn->text,
 		              btn->x + CONF_BUTTON_PADDING,
 		              btn->y + CONF_BUTTON_PADDING);
-	} while (0);
+	}
 }
