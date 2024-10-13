@@ -5,6 +5,7 @@
 #include "cam.h"
 #include "game.h"
 #include "map.h"
+#include "menus.h"
 #include "player.h"
 #include "triggers.h"
 
@@ -107,7 +108,11 @@ map_list_reload(void)
 void
 map_list_load_next(void)
 {
-	// TODO: show level end screen.
-	// TODO: show game end screen upon finishing final level.
-	map_list_load(cur_item + 1);
+	if (cur_item == MLI_END__ - 1)
+		; // TODO: show game end screen upon finishing final level.
+	else
+	{
+		level_end_menu_loop();
+		map_list_load(cur_item + 1);
+	}
 }

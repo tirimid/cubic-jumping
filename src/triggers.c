@@ -24,6 +24,7 @@ trigger_color(trigger_type_t type)
 	{
 		CONF_COLOR_TRIGGER_MSG,
 		CONF_COLOR_TRIGGER_KILL,
+		CONF_COLOR_TRIGGER_MSG_TERM,
 	};
 	
 	return colors[type];
@@ -107,6 +108,9 @@ collide(trigger_t const *trigger, size_t ind)
 		break;
 	case TT_KILL:
 		player_die();
+		break;
+	case TT_MSG_TERM:
+		text_list_term();
 		break;
 	default:
 		break;

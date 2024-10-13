@@ -21,6 +21,7 @@ typedef enum text_list_item
 	TLI_END__,
 } text_list_item_t;
 
+void text_list_term(void);
 void text_list_enqueue(text_list_item_t item);
 void text_list_update(void);
 void text_list_draw(void);

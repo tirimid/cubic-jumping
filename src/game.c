@@ -65,7 +65,6 @@ game_loop(void)
 		}
 		
 		// update game.
-		do
 		{
 			player_update();
 			triggers_update();
@@ -73,10 +72,9 @@ game_loop(void)
 			cam_update();
 			text_list_update();
 			keybd_post_update();
-		} while (0);
+		}
 		
 		// draw game.
-		do
 		{
 			draw_bg();
 			fill_out_of_bounds();
@@ -89,7 +87,7 @@ game_loop(void)
 			text_list_draw();
 			draw_indicators();
 			SDL_RenderPresent(g_rend);
-		} while (0);
+		}
 		
 		uint64_t tick_end = get_unix_time_ms();
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
@@ -124,7 +122,6 @@ draw_bg(void)
 	static float first_square_y = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
 	
 	// update square positions.
-	do
 	{
 		first_square_x += CONF_BG_SQUARE_SPEED_X;
 		if (first_square_x >= 0.0f)
@@ -133,7 +130,7 @@ draw_bg(void)
 		first_square_y += CONF_BG_SQUARE_SPEED_Y;
 		if (first_square_y >= 0.0f)
 			first_square_y -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
-	} while (0);
+	}
 	
 	// render background.
 	SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);
@@ -166,11 +163,10 @@ fill_out_of_bounds(void)
 	game_to_screen_coord(&scr_ubx, &scr_uby, g_map.size_x, g_map.size_y);
 	
 	// set OOB cover draw color.
-	do
 	{
 		static uint8_t cg[] = CONF_COLOR_GROUND;
 		SDL_SetRenderDrawColor(g_rend, cg[0], cg[1], cg[2], 255);
-	} while (0);
+	}
 	
 	// draw left OOB cover.
 	if (scr_lbx > 0)
@@ -229,7 +225,6 @@ static void
 draw_indicators(void)
 {
 	// draw IL timer.
-	do
 	{
 		uint64_t il_time_s = g_game.il_time_ms / 1000;
 		uint64_t il_time_m = il_time_s / 60;
@@ -242,5 +237,5 @@ draw_indicators(void)
 		        g_game.il_time_ms % 1000);
 		
 		text_draw_str(buf, CONF_TIMER_OFF_X, CONF_TIMER_OFF_Y);
-	} while (0);
+	}
 }

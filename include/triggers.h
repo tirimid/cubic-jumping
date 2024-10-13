@@ -11,6 +11,7 @@ typedef enum trigger_type
 {
 	TT_MSG = 0,
 	TT_KILL,
+	TT_MSG_TERM,
 	
 	TT_END__,
 } trigger_type_t;

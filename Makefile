@@ -12,7 +12,7 @@ CFLAGS := \
 	$(shell sdl2-config --cflags)
 
 LDFLAGS := \
-	$(shell sdl2-config --libs)
+	$(shell sdl2-config --libs) -lm
 
 SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%,lib/%.o,$(SRCS))
@@ -21,7 +21,7 @@ OUT_BIN := cubic-jumping
 all: $(OUT_BIN)
 
 $(OUT_BIN): $(OBJS)
-	$(LD) $(LDFLAGS) -o $@ $^
+	$(LD) -o $@ $^ $(LDFLAGS)
 
 lib/%.o: src/% lib
 	$(CC) $(CFLAGS) -o $@ -c $<

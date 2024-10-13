@@ -18,24 +18,30 @@ static char box_text[512];
 // visibility of the box should be looked up from this LUT.
 static unsigned box_ticks_lut[] =
 {
-	[TLI_CTE0_TEST] = 250,
+	[TLI_CTE0_TEST] = 500,
 	
-	[TLI_C0E0_HOW_TO_MOVE] = 250,
-	[TLI_C0E0_HOW_TO_JUMP] = 250,
-	[TLI_C0E0_HOW_TO_WALLJUMP] = 250,
-	[TLI_C0E0_HOW_TO_CLIMB] = 250,
-	[TLI_C0E0_HOW_TO_SLIDE] = 250,
-	[TLI_C0E0_HOW_TO_WIN] = 250,
+	[TLI_C0E0_HOW_TO_MOVE] = 500,
+	[TLI_C0E0_HOW_TO_JUMP] = 500,
+	[TLI_C0E0_HOW_TO_WALLJUMP] = 500,
+	[TLI_C0E0_HOW_TO_CLIMB] = 500,
+	[TLI_C0E0_HOW_TO_SLIDE] = 500,
+	[TLI_C0E0_HOW_TO_WIN] = 500,
 	
-	[TLI_C0E1_KILL_INTRO] = 250,
-	[TLI_C0E1_MOMENTUM_INTRO] = 250,
-	[TLI_C0E1_HOW_TO_POWERJUMP] = 250,
-	[TLI_C0E1_HOW_TO_FALL] = 250,
+	[TLI_C0E1_KILL_INTRO] = 500,
+	[TLI_C0E1_MOMENTUM_INTRO] = 500,
+	[TLI_C0E1_HOW_TO_POWERJUMP] = 500,
+	[TLI_C0E1_HOW_TO_FALL] = 500,
 };
 
 static text_list_item_t queue[QUEUED_MAX];
 static unsigned queue_front_ticks = 0;
 static size_t nqueued = 0;
+
+void
+text_list_term(void)
+{
+	queue_front_ticks = 0;
+}
 
 void
 text_list_enqueue(text_list_item_t item)
