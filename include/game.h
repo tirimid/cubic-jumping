@@ -7,9 +7,9 @@ typedef struct game
 {
 	unsigned off_switches;
 	uint64_t il_time_ms;
-} game_t;
+} game;
 
-extern game_t g_game;
+extern game g_game;
 
 void game_loop(void);
 void game_disable_switches(void);

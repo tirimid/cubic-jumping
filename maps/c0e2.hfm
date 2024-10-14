@@ -5,11 +5,11 @@
 #include "map.h"
 #include "triggers.h"
 #define c0e2_NTRIGGERS 0
-static map_tile_t c0e2_map_data[] =
+static map_tile c0e2_map_data[] =
 {
 {1},{1},{1},{1},{1},{1},{1},{1},{0},{0},{0},{0},{0},{1},{1},{0},{0},{0},{0},{0},{1},{1},{0},{0},{0},{0},{0},{1},{1},{0},{0},{0},{0},{0},{1},{1},{0},{0},{0},{0},{0},{1},{1},{1},{1},{1},{1},{1},{1},
 };
-static map_t c0e2_map =
+static map c0e2_map =
 {
 	.size_x = 7,
 	.size_y = 7,
@@ -18,7 +18,7 @@ static map_t c0e2_map =
 	.player_spawn_y = 4,
 	.name = "c0e2\0",
 };
-static trigger_t c0e2_triggers[] =
+static trigger c0e2_triggers[] =
 {
 {0.0f,0.0f,0.0f,0.0f,0,0,0}
 };

@@ -22,7 +22,7 @@ typedef enum edit_mode
 	EM_TILE_F,
 	EM_TRIGGER,
 	EM_PLAYER,
-} edit_mode_t;
+} edit_mode;
 
 static void update_editor(void);
 static void draw_bg(void);
@@ -41,7 +41,7 @@ static void btn_arg_sub(void);
 static void btn_single(void);
 
 static char const *map_file;
-static edit_mode_t mode = EM_TILE_P;
+static edit_mode mode = EM_TILE_P;
 static int type = 0;
 static bool unsaved = false;
 static float drag_orig_x = NO_DRAG_REGION, drag_orig_y = NO_DRAG_REGION;
@@ -67,18 +67,18 @@ editor_quit(void)
 void
 editor_loop(void)
 {
-	ui_button_t b_mode_tile_p = ui_button_create(10, 10, "Tile-P", btn_mode_tile_p);
-	ui_button_t b_mode_tile_f = ui_button_create(160, 10, "Tile-F", btn_mode_tile_f);
-	ui_button_t b_mode_trigger = ui_button_create(310, 10, "Trigger", btn_mode_trigger);
-	ui_button_t b_mode_player = ui_button_create(480, 10, "Player", btn_mode_player);
-	ui_button_t b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
-	ui_button_t b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
-	ui_button_t b_save = ui_button_create(260, 50, "Save", btn_save);
-	ui_button_t b_arg_add = ui_button_create(365, 50, "Arg+", btn_arg_add);
-	ui_button_t b_arg_sub = ui_button_create(470, 50, "Arg-", btn_arg_sub);
-	ui_button_t b_single = ui_button_create(575, 50, "Single", btn_single);
-	ui_button_t b_type_next = ui_button_create(320, 90, "Type>", btn_type_next);
-	ui_button_t b_type_prev = ui_button_create(450, 90, "Type<", btn_type_prev);
+	ui_button b_mode_tile_p = ui_button_create(10, 10, "Tile-P", btn_mode_tile_p);
+	ui_button b_mode_tile_f = ui_button_create(160, 10, "Tile-F", btn_mode_tile_f);
+	ui_button b_mode_trigger = ui_button_create(310, 10, "Trigger", btn_mode_trigger);
+	ui_button b_mode_player = ui_button_create(480, 10, "Player", btn_mode_player);
+	ui_button b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
+	ui_button b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
+	ui_button b_save = ui_button_create(260, 50, "Save", btn_save);
+	ui_button b_arg_add = ui_button_create(365, 50, "Arg+", btn_arg_add);
+	ui_button b_arg_sub = ui_button_create(470, 50, "Arg-", btn_arg_sub);
+	ui_button b_single = ui_button_create(575, 50, "Single", btn_single);
+	ui_button b_type_next = ui_button_create(320, 90, "Type>", btn_type_next);
+	ui_button b_type_prev = ui_button_create(450, 90, "Type<", btn_type_prev);
 	
 	for (;;)
 	{
@@ -292,7 +292,7 @@ update_editor(void)
 				drag_orig_y = tmp;
 			}
 			
-			trigger_t new_trigger =
+			trigger new_trigger =
 			{
 				.pos_x = drag_orig_x,
 				.pos_y = drag_orig_y,
@@ -311,7 +311,7 @@ update_editor(void)
 		{
 			for (size_t i = 0; i < g_ntriggers; ++i)
 			{
-				trigger_t const *trigger = &g_triggers[i];
+				trigger const *trigger = &g_triggers[i];
 				if (drag_x >= trigger->pos_x
 				    && drag_x < trigger->pos_x + trigger->size_x
 				    && drag_y >= trigger->pos_y

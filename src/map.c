@@ -11,7 +11,7 @@
 #include "util.h"
 #include "wnd.h"
 
-map_t g_map;
+map g_map;
 
 static int rd_uint_8(uint8_t *out, FILE *fp);
 static int rd_uint_32(uint32_t *out, FILE *fp);
@@ -69,11 +69,11 @@ map_create_file(char const *file, char const *name)
 		        "#include \"map.h\"\n"
 		        "#include \"triggers.h\"\n"
 		        "#define %s_NTRIGGERS 0"
-		        "static map_tile_t %s_map_data[] =\n"
+		        "static map_tile %s_map_data[] =\n"
 		        "{\n"
 		        "{1},\n"
 		        "};\n"
-		        "static map_t %s_map =\n"
+		        "static map %s_map =\n"
 		        "{\n"
 		        "\t.size_x = 1,\n"
 		        "\t.size_y = 1,\n"
@@ -82,7 +82,7 @@ map_create_file(char const *file, char const *name)
 		        "\t.player_spawn_y = 0,\n"
 		        "\t.name = \"%s\\0\",\n"
 		        "};\n"
-		        "static trigger_t %s_triggers[] =\n"
+		        "static trigger %s_triggers[] =\n"
 		        "{\n"
 		        "{0.0f,0.0f,0.0f,0.0f,0,0,0}\n"
 		        "};\n"
@@ -141,14 +141,14 @@ map_load_from_file(char const *file)
 	
 	// read main map data.
 	{
-		g_map.data = malloc(sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
+		g_map.data = malloc(sizeof(map_tile) * g_map.size_x * g_map.size_y);
 		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
 		{
 			uint8_t type;
 			if (rd_uint_8(&type, fp))
 				return 1;
 			
-			g_map.data[i] = (map_tile_t)
+			g_map.data[i] = (map_tile)
 			{
 				.type = type,
 			};
@@ -164,7 +164,7 @@ map_load_from_file(char const *file)
 		g_ntriggers = 0;
 		for (uint32_t i = 0; i < ntriggers; ++i)
 		{
-			trigger_t new_trigger;
+			trigger new_trigger;
 			if (rd_uint_32((uint32_t *)&new_trigger.pos_x, fp)
 			    || rd_uint_32((uint32_t *)&new_trigger.pos_y, fp)
 			    || rd_uint_32((uint32_t *)&new_trigger.size_x, fp)
@@ -193,7 +193,7 @@ map_grow(uint32_t dx, uint32_t dy)
 	g_map.size_x += dx;
 	g_map.size_y += dy;
 	
-	g_map.data = realloc(g_map.data, sizeof(map_tile_t) * g_map.size_x * g_map.size_y);
+	g_map.data = realloc(g_map.data, sizeof(map_tile) * g_map.size_x * g_map.size_y);
 	
 	// create new air cells (horizontal).
 	{
@@ -203,22 +203,22 @@ map_grow(uint32_t dx, uint32_t dy)
 		{
 			memmove(&g_map.data[mv_ind + dx],
 			        &g_map.data[mv_ind],
-			        sizeof(map_tile_t) * mv_len);
-			memset(&g_map.data[mv_ind], 0, sizeof(map_tile_t) * dx);
+			        sizeof(map_tile) * mv_len);
+			memset(&g_map.data[mv_ind], 0, sizeof(map_tile) * dx);
 			mv_len -= old_size_x;
 			mv_ind += g_map.size_x;
 		}
 		
 		// need to zero new tiles on last row to prevent phantom tiles from
 		// randomly appearing upon map grow.
-		memset(&g_map.data[mv_ind], 0, sizeof(map_tile_t) * dx);
+		memset(&g_map.data[mv_ind], 0, sizeof(map_tile) * dx);
 	}
 	
 	// create new air cells (vertical).
 	{
 		memset(&g_map.data[g_map.size_x * old_size_y],
 		       0,
-		       sizeof(map_tile_t) * g_map.size_x * dy);
+		       sizeof(map_tile) * g_map.size_x * dy);
 	}
 }
 
@@ -231,7 +231,7 @@ map_refit_bounds(void)
 	{
 		for (uint32_t y = 0; y < g_map.size_y; ++y)
 		{
-			map_tile_t *tile = map_get(x, y);
+			map_tile *tile = map_get(x, y);
 			if (tile->type == MTT_AIR)
 				continue;
 			
@@ -251,7 +251,7 @@ map_refit_bounds(void)
 		{
 			memmove(&g_map.data[mv_ind - dx],
 			        &g_map.data[mv_ind],
-			        sizeof(map_tile_t) * mv_len);
+			        sizeof(map_tile) * mv_len);
 			
 			mv_len -= g_map.size_x;
 			mv_ind += far_x + 1;
@@ -297,7 +297,7 @@ map_write_to_file(char const *file)
 		
 		for (size_t i = 0; i < g_ntriggers; ++i)
 		{
-			trigger_t const *trigger = &g_triggers[i];
+			trigger const *trigger = &g_triggers[i];
 			
 			wr_uint_32(fp, *(uint32_t *)&trigger->pos_x);
 			wr_uint_32(fp, *(uint32_t *)&trigger->pos_y);
@@ -320,7 +320,7 @@ map_write_to_file(char const *file)
 		        "#include \"map.h\"\n"
 		        "#include \"triggers.h\"\n"
 		        "#define %s_NTRIGGERS %lu\n"
-		        "static map_tile_t %s_map_data[] =\n"
+		        "static map_tile %s_map_data[] =\n"
 		        "{\n",
 		        g_map.name,
 		        g_map.name,
@@ -333,7 +333,7 @@ map_write_to_file(char const *file)
 		
 		fprintf(fp,
 		        "\n};\n"
-		        "static map_t %s_map =\n"
+		        "static map %s_map =\n"
 		        "{\n"
 		        "\t.size_x = %u,\n"
 		        "\t.size_y = %u,\n"
@@ -342,7 +342,7 @@ map_write_to_file(char const *file)
 		        "\t.player_spawn_y = %u,\n"
 		        "\t.name = \"%s\\0\",\n"
 		        "};\n"
-		        "static trigger_t %s_triggers[] =\n"
+		        "static trigger %s_triggers[] =\n"
 		        "{\n",
 		        g_map.name,
 		        g_map.size_x,
@@ -379,7 +379,7 @@ map_write_to_file(char const *file)
 }
 
 uint8_t const *
-map_tile_color(map_tile_type_t type)
+map_tile_color(map_tile_type type)
 {
 	static uint8_t colors[MTT_END__][3] =
 	{
@@ -397,7 +397,7 @@ map_tile_color(map_tile_type_t type)
 }
 
 bool
-map_tile_collision(map_tile_type_t type)
+map_tile_collision(map_tile_type type)
 {
 	static bool collision[MTT_END__] =
 	{
@@ -421,7 +421,7 @@ map_draw(void)
 	{
 		for (uint32_t y = 0; y < g_map.size_y; ++y)
 		{
-			map_tile_t *tile = map_get(x, y);
+			map_tile *tile = map_get(x, y);
 			if (tile->type == MTT_AIR)
 				continue;
 			
@@ -445,7 +445,7 @@ map_draw_outlines(void)
 	}
 }
 
-map_tile_t *
+map_tile *
 map_get(uint32_t x, uint32_t y)
 {
 	return &g_map.data[g_map.size_x * y + x];

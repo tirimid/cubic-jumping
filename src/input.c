@@ -45,13 +45,13 @@ keybd_post_update(void)
 }
 
 bool
-key_down(key_t k)
+key_down(key k)
 {
 	return k_down_states[k];
 }
 
 bool
-key_pressed(key_t k)
+key_pressed(key k)
 {
 	return k_press_states[k];
 }
@@ -102,19 +102,19 @@ mouse_post_update(void)
 }
 
 bool
-mouse_down(mouse_button_t b)
+mouse_down(mouse_button b)
 {
 	return m_down_states[b];
 }
 
 bool
-mouse_pressed(mouse_button_t b)
+mouse_pressed(mouse_button b)
 {
 	return m_press_states[b];
 }
 
 bool
-mouse_released(mouse_button_t b)
+mouse_released(mouse_button b)
 {
 	return m_release_states[b];
 }

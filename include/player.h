@@ -11,7 +11,7 @@ typedef enum player_state
 {
 	PS_PLAYING = 0,
 	PS_DEAD,
-} player_state_t;
+} player_state;
 
 typedef struct player
 {
@@ -21,15 +21,15 @@ typedef struct player
 	
 	// collision handling data.
 	float dist_left, dist_right, dist_top, dist_bottom;
-	map_tile_t *near_left, *near_right, *near_top, *near_bottom;
+	map_tile *near_left, *near_right, *near_top, *near_bottom;
 	
 	// visual data.
 	unsigned trace_spawn_ticks;
 	unsigned dead_ticks;
-} player_t;
+} player;
 
-extern player_t g_player;
-extern player_state_t g_player_state;
+extern player g_player;
+extern player_state g_player_state;
 
 void player_update(void);
 void player_draw(void);

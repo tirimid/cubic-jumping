@@ -19,10 +19,10 @@ typedef enum text_list_item
 	TLI_C0E1_HOW_TO_FALL = 0xa,
 	
 	TLI_END__,
-} text_list_item_t;
+} text_list_item;
 
 void text_list_term(void);
-void text_list_enqueue(text_list_item_t item);
+void text_list_enqueue(text_list_item item);
 void text_list_update(void);
 void text_list_draw(void);
 

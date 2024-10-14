@@ -10,10 +10,10 @@
 #include "text.h"
 #include "wnd.h"
 
-ui_button_t
+ui_button
 ui_button_create(int x, int y, char const *text, void (*callback)(void))
 {
-	return (ui_button_t)
+	return (ui_button)
 	{
 		.x = x,
 		.y = y,
@@ -25,7 +25,7 @@ ui_button_create(int x, int y, char const *text, void (*callback)(void))
 }
 
 void
-ui_button_update(ui_button_t *btn)
+ui_button_update(ui_button *btn)
 {
 	int mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
@@ -53,7 +53,7 @@ ui_button_update(ui_button_t *btn)
 }
 
 void
-ui_button_draw(ui_button_t const *btn)
+ui_button_draw(ui_button const *btn)
 {
 	// set frame color based on button status.
 	{

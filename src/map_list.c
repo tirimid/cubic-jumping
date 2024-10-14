@@ -19,15 +19,15 @@
 #include "c0e1.hfm"
 #include "c0e2.hfm"
 
-typedef struct item_data
+typedef struct item
 {
-	map_t *map;
-	trigger_t *triggers;
+	map *map;
+	trigger *triggers;
 	size_t ntriggers;
-} item_data_t;
+} item;
 
-static map_list_item_t cur_item;
-static item_data_t item_data[MLI_END__] =
+static map_list_item cur_item;
+static item item_data[MLI_END__] =
 {
 	{
 		.map = &cte0_map,
@@ -62,7 +62,7 @@ static item_data_t item_data[MLI_END__] =
 };
 
 void
-map_list_load(map_list_item_t item)
+map_list_load(map_list_item item)
 {
 	g_map = *item_data[item].map;
 	
@@ -71,7 +71,7 @@ map_list_load(map_list_item_t item)
 		triggers_add_trigger(&item_data[item].triggers[i]);
 	
 	g_player_state = PS_PLAYING;
-	g_player = (player_t)
+	g_player = (player)
 	{
 		.pos_x = g_map.player_spawn_x,
 		.pos_y = g_map.player_spawn_y,
@@ -79,7 +79,7 @@ map_list_load(map_list_item_t item)
 		.vel_y = 0.0f,
 	};
 	
-	g_cam = (cam_t)
+	g_cam = (cam)
 	{
 		.pos_x = g_map.player_spawn_x,
 		.pos_y = g_map.player_spawn_y,
@@ -100,7 +100,7 @@ void
 map_list_reload(void)
 {
 	g_player_state = PS_PLAYING;
-	g_player = (player_t)
+	g_player = (player)
 	{
 		.pos_x = g_map.player_spawn_x,
 		.pos_y = g_map.player_spawn_y,

@@ -10,10 +10,10 @@ typedef enum menu_request
 	MR_EXIT,
 	MR_NEXT,
 	MR_RETRY,
-} menu_request_t;
+} menu_request;
 
 void main_menu_loop(void);
-menu_request_t level_end_menu_loop(void);
-menu_request_t pause_menu_loop(void);
+menu_request level_end_menu_loop(void);
+menu_request pause_menu_loop(void);
 
 #endif

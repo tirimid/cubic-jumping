@@ -14,9 +14,9 @@ typedef enum map_list_item
 	MLI_C0E2,
 	
 	MLI_END__,
-} map_list_item_t;
+} map_list_item;
 
-void map_list_load(map_list_item_t item);
+void map_list_load(map_list_item item);
 void map_list_reload(void);
 void map_list_load_next(void);
 

@@ -12,7 +12,7 @@
 #include "wnd.h"
 
 static size_t nparticles = 0;
-static particle_t particles[CONF_MAX_PARTICLES];
+static particle particles[CONF_MAX_PARTICLES];
 
 void
 vfx_clear_particles(void)
@@ -21,7 +21,7 @@ vfx_clear_particles(void)
 }
 
 void
-vfx_put_particle(particle_type_t type, float x, float y)
+vfx_put_particle(particle_type type, float x, float y)
 {
 	if (nparticles >= CONF_MAX_PARTICLES)
 		return;
@@ -29,7 +29,7 @@ vfx_put_particle(particle_type_t type, float x, float y)
 	switch (type)
 	{
 	case PT_PLAYER_TRACE:
-		particles[nparticles++] = (particle_t)
+		particles[nparticles++] = (particle)
 		{
 			.pos_x = x,
 			.pos_y = y,
@@ -40,7 +40,7 @@ vfx_put_particle(particle_type_t type, float x, float y)
 		};
 		break;
 	case PT_PLAYER_SHARD:
-		particles[nparticles++] = (particle_t)
+		particles[nparticles++] = (particle)
 		{
 			.pos_x = x,
 			.pos_y = y,
@@ -64,7 +64,7 @@ vfx_update(void)
 			{
 				memmove(&particles[i],
 				        &particles[i + 1],
-				        (nparticles - i - 1) * sizeof(particle_t));
+				        (nparticles - i - 1) * sizeof(particle));
 			}
 			
 			--nparticles;

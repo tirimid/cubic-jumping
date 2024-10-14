@@ -10,7 +10,7 @@
 
 #define QUEUED_MAX 64
 
-static void gen_box_text(text_list_item_t item);
+static void gen_box_text(text_list_item item);
 
 static char box_text[512];
 
@@ -33,7 +33,7 @@ static unsigned box_ticks_lut[] =
 	[TLI_C0E1_HOW_TO_FALL] = 500,
 };
 
-static text_list_item_t queue[QUEUED_MAX];
+static text_list_item queue[QUEUED_MAX];
 static unsigned queue_front_ticks = 0;
 static size_t nqueued = 0;
 
@@ -45,7 +45,7 @@ text_list_term(void)
 }
 
 void
-text_list_enqueue(text_list_item_t item)
+text_list_enqueue(text_list_item item)
 {
 	if (nqueued < QUEUED_MAX)
 	{
@@ -71,7 +71,7 @@ text_list_update(void)
 		{
 			memmove(&queue[0],
 			        &queue[1],
-			        sizeof(text_list_item_t) * (QUEUED_MAX - 1));
+			        sizeof(text_list_item) * (QUEUED_MAX - 1));
 			
 			--nqueued;
 			if (nqueued == 0)
@@ -98,7 +98,7 @@ text_list_draw(void)
 }
 
 static void
-gen_box_text(text_list_item_t item)
+gen_box_text(text_list_item item)
 {
 	switch (item)
 	{

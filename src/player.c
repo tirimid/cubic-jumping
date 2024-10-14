@@ -14,12 +14,12 @@
 
 #define COL_THRESHOLD 0.05f
 
-player_t g_player;
-player_state_t g_player_state;
+player g_player;
+player_state g_player_state;
 
 static void update_playing(void);
 static void update_dead(void);
-static void collide(map_tile_t *tile);
+static void collide(map_tile *tile);
 static void collide_left(void);
 static void collide_right(void);
 static void collide_bottom(void);
@@ -192,7 +192,7 @@ update_dead(void)
 }
 
 static void
-collide(map_tile_t *tile)
+collide(map_tile *tile)
 {
 	// implement behavior that doesn't depend on collision direction.
 	switch (tile->type)
@@ -306,10 +306,10 @@ compute_collision_distances(void)
 	// find nearest left edge.
 	{
 		int cxtl;
-		map_tile_t *cxtl_tile = NULL;
+		map_tile *cxtl_tile = NULL;
 		for (cxtl = g_player.pos_x; cxtl >= 0; --cxtl)
 		{
-			map_tile_t *tile = map_get(cxtl, g_player.pos_y);
+			map_tile *tile = map_get(cxtl, g_player.pos_y);
 			if (map_tile_collision(tile->type))
 			{
 				cxtl_tile = tile;
@@ -318,10 +318,10 @@ compute_collision_distances(void)
 		}
 		
 		int cxbl;
-		map_tile_t *cxbl_tile = NULL;
+		map_tile *cxbl_tile = NULL;
 		for (cxbl = g_player.pos_x; cxbl >= 0; --cxbl)
 		{
-			map_tile_t *tile = map_get(cxbl, g_player.pos_y + CONF_PLAYER_SIZE);
+			map_tile *tile = map_get(cxbl, g_player.pos_y + CONF_PLAYER_SIZE);
 			if (map_tile_collision(tile->type))
 			{
 				cxbl_tile = tile;
@@ -337,10 +337,10 @@ compute_collision_distances(void)
 	// find nearest right edge.
 	{
 		int cxtr;
-		map_tile_t *cxtr_tile = NULL;
+		map_tile *cxtr_tile = NULL;
 		for (cxtr = g_player.pos_x + CONF_PLAYER_SIZE; cxtr < g_map.size_x; ++cxtr)
 		{
-			map_tile_t *tile = map_get(cxtr, g_player.pos_y);
+			map_tile *tile = map_get(cxtr, g_player.pos_y);
 			if (map_tile_collision(tile->type))
 			{
 				cxtr_tile = tile;
@@ -349,10 +349,10 @@ compute_collision_distances(void)
 		}
 		
 		int cxbr;
-		map_tile_t *cxbr_tile = NULL;
+		map_tile *cxbr_tile = NULL;
 		for (cxbr = g_player.pos_x + CONF_PLAYER_SIZE; cxbr < g_map.size_x; ++cxbr)
 		{
-			map_tile_t *tile = map_get(cxbr, g_player.pos_y + CONF_PLAYER_SIZE);
+			map_tile *tile = map_get(cxbr, g_player.pos_y + CONF_PLAYER_SIZE);
 			if (map_tile_collision(tile->type))
 			{
 				cxbr_tile = tile;
@@ -368,10 +368,10 @@ compute_collision_distances(void)
 	// find nearest top edge.
 	{
 		int cytl;
-		map_tile_t *cytl_tile = NULL;
+		map_tile *cytl_tile = NULL;
 		for (cytl = g_player.pos_y; cytl >= 0; --cytl)
 		{
-			map_tile_t *tile = map_get(g_player.pos_x, cytl);
+			map_tile *tile = map_get(g_player.pos_x, cytl);
 			if (map_tile_collision(tile->type))
 			{
 				cytl_tile = tile;
@@ -380,10 +380,10 @@ compute_collision_distances(void)
 		}
 		
 		int cytr;
-		map_tile_t *cytr_tile = NULL;
+		map_tile *cytr_tile = NULL;
 		for (cytr = g_player.pos_y; cytr >= 0; --cytr)
 		{
-			map_tile_t *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cytr);
+			map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cytr);
 			if (map_tile_collision(tile->type))
 			{
 				cytr_tile = tile;
@@ -399,10 +399,10 @@ compute_collision_distances(void)
 	// find nearest bottom edge.
 	{
 		int cybl;
-		map_tile_t *cybl_tile = NULL;
+		map_tile *cybl_tile = NULL;
 		for (cybl = g_player.pos_y + CONF_PLAYER_SIZE; cybl < g_map.size_y; ++cybl)
 		{
-			map_tile_t *tile = map_get(g_player.pos_x, cybl);
+			map_tile *tile = map_get(g_player.pos_x, cybl);
 			if (map_tile_collision(tile->type))
 			{
 				cybl_tile = tile;
@@ -411,10 +411,10 @@ compute_collision_distances(void)
 		}
 		
 		int cybr;
-		map_tile_t *cybr_tile = NULL;
+		map_tile *cybr_tile = NULL;
 		for (cybr = g_player.pos_y + CONF_PLAYER_SIZE; cybr < g_map.size_y; ++cybr)
 		{
-			map_tile_t *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cybr);
+			map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cybr);
 			if (map_tile_collision(tile->type))
 			{
 				cybr_tile = tile;
@@ -454,16 +454,6 @@ test_and_apply_collisions(void)
 		collide_right();
 		collide(g_player.near_right);
 	}
-	
-#if 0
-	compute_collision_distances();
-	if (-g_player.vel_y >= g_player.dist_top
-	    && g_player.dist_top < g_player.dist_bottom)
-	{
-		collide_top();
-		collide(g_player.near_top);
-	}
-#endif
 	
 	compute_collision_distances();
 	if (g_player.vel_y >= g_player.dist_bottom

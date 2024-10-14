@@ -18,7 +18,7 @@
 #include "vfx.h"
 #include "wnd.h"
 
-game_t g_game;
+game g_game;
 
 static void draw_bg(void);
 static void fill_out_of_bounds(void);

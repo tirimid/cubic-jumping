@@ -5,9 +5,9 @@ typedef struct cam
 {
 	float pos_x, pos_y;
 	float zoom;
-} cam_t;
+} cam;
 
-extern cam_t g_cam;
+extern cam g_cam;
 
 void cam_update(void);
 

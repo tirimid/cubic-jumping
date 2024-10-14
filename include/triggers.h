@@ -14,7 +14,7 @@ typedef enum trigger_type
 	TT_MSG_TERM,
 	
 	TT_END__,
-} trigger_type_t;
+} trigger_type;
 
 typedef struct trigger
 {
@@ -23,13 +23,13 @@ typedef struct trigger
 	uint32_t arg; // type-dependent argument.
 	bool single_use;
 	uint8_t type;
-} trigger_t;
+} trigger;
 
-extern trigger_t g_triggers[TRIGGERS_MAX];
+extern trigger g_triggers[TRIGGERS_MAX];
 extern size_t g_ntriggers;
 
-uint8_t const *trigger_color(trigger_type_t type);
-void triggers_add_trigger(trigger_t const *trigger);
+uint8_t const *trigger_color(trigger_type type);
+void triggers_add_trigger(trigger const *trigger);
 void triggers_rm_trigger(size_t ind);
 void triggers_update(void);
 void triggers_draw(void);

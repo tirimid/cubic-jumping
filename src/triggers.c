@@ -12,13 +12,13 @@
 #include "util.h"
 #include "wnd.h"
 
-trigger_t g_triggers[TRIGGERS_MAX];
+trigger g_triggers[TRIGGERS_MAX];
 size_t g_ntriggers = 0;
 
-static void collide(trigger_t const *trigger, size_t ind);
+static void collide(trigger const *trigger, size_t ind);
 
 uint8_t const *
-trigger_color(trigger_type_t type)
+trigger_color(trigger_type type)
 {
 	static uint8_t colors[TT_END__][3] =
 	{
@@ -31,7 +31,7 @@ trigger_color(trigger_type_t type)
 }
 
 void
-triggers_add_trigger(trigger_t const *trigger)
+triggers_add_trigger(trigger const *trigger)
 {
 	if (g_ntriggers < TRIGGERS_MAX)
 		g_triggers[g_ntriggers++] = *trigger;
@@ -45,7 +45,7 @@ triggers_rm_trigger(size_t ind)
 	
 	memmove(&g_triggers[ind],
 	        &g_triggers[ind + 1],
-	        sizeof(trigger_t) * (g_ntriggers - ind - 1));
+	        sizeof(trigger) * (g_ntriggers - ind - 1));
 	--g_ntriggers;
 }
 
@@ -69,7 +69,7 @@ triggers_draw(void)
 {
 	for (uint32_t i = 0; i < g_ntriggers; ++i)
 	{
-		trigger_t const *t = &g_triggers[i];
+		trigger const *t = &g_triggers[i];
 		
 		// draw bounding box.
 		{
@@ -97,7 +97,7 @@ triggers_draw(void)
 }
 
 static void
-collide(trigger_t const *trigger, size_t ind)
+collide(trigger const *trigger, size_t ind)
 {
 	// perform trigger functionality.
 	switch (trigger->type)

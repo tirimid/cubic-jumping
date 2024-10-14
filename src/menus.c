@@ -25,16 +25,16 @@ static void btn_req_next(void);
 static void btn_req_retry(void);
 
 static bool in_menu = false;
-static menu_request_t req = MR_NONE;
+static menu_request req = MR_NONE;
 
 void
 main_menu_loop(void)
 {
-	ui_button_t b_continue = ui_button_create(80, 300, "Continue", NULL);
-	ui_button_t b_play = ui_button_create(80, 340, "Play from beginning", btn_play_from_beginning);
-	ui_button_t b_play_custom = ui_button_create(80, 380, "Play custom level", NULL);
-	ui_button_t b_editor = ui_button_create(80, 420, "Level editor", NULL);
-	ui_button_t b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
+	ui_button b_continue = ui_button_create(80, 300, "Continue", NULL);
+	ui_button b_play = ui_button_create(80, 340, "Play from beginning", btn_play_from_beginning);
+	ui_button b_play_custom = ui_button_create(80, 380, "Play custom level", NULL);
+	ui_button b_editor = ui_button_create(80, 420, "Level editor", NULL);
+	ui_button b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
 	
 	// `in_menu` is irrelevant for the main menu since it is the main launch
 	// screen for game functionality, and it doesn't really make sense to
@@ -105,11 +105,11 @@ main_menu_loop(void)
 	}
 }
 
-menu_request_t
+menu_request
 level_end_menu_loop(void)
 {
-	ui_button_t b_next = ui_button_create(80, 300, "Next level", btn_req_next);
-	ui_button_t b_retry = ui_button_create(80, 340, "Retry level", btn_req_retry);
+	ui_button b_next = ui_button_create(80, 300, "Next level", btn_req_next);
+	ui_button b_retry = ui_button_create(80, 340, "Retry level", btn_req_retry);
 	
 	in_menu = true;
 	req = MR_NONE;
@@ -190,12 +190,12 @@ level_end_menu_loop(void)
 	return req;
 }
 
-menu_request_t
+menu_request
 pause_menu_loop(void)
 {
-	ui_button_t b_resume = ui_button_create(80, 300, "Resume", btn_exit_menu);
-	ui_button_t b_main_menu = ui_button_create(80, 340, "Main menu", btn_req_exit);
-	ui_button_t b_exit = ui_button_create(80, 380, "Exit to desktop", btn_exit_to_desktop);
+	ui_button b_resume = ui_button_create(80, 300, "Resume", btn_exit_menu);
+	ui_button b_main_menu = ui_button_create(80, 340, "Main menu", btn_req_exit);
+	ui_button b_exit = ui_button_create(80, 380, "Exit to desktop", btn_exit_to_desktop);
 	
 	in_menu = true;
 	req = MR_NONE;
