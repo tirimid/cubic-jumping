@@ -1,58 +1,49 @@
 #include "input.h"
 
-#include "conf.h"
+#include <stdint.h>
+#include <string.h>
 
-static bool k_down_states[K_END__], k_press_states[K_END__];
+// just assume that 1024 is a big enough array size.
+static bool k_down_states[1024], k_press_states[1024];
 static bool m_down_states[MB_END__], m_press_states[MB_END__], m_release_states[MB_END__];
 
 void
 keybd_set_key_state(SDL_Event const *e, bool pressed)
 {
-	switch (e->key.keysym.sym)
+	SDL_Keycode k = e->key.keysym.sym;
+	if (k & 1 << 30)
 	{
-	case CONF_KEY_LEFT:
-		k_down_states[K_LEFT] = k_press_states[K_LEFT] = pressed;
-		break;
-	case CONF_KEY_RIGHT:
-		k_down_states[K_RIGHT] = k_press_states[K_RIGHT] = pressed;
-		break;
-	case CONF_KEY_JUMP:
-		k_down_states[K_JUMP] = k_press_states[K_JUMP] = pressed;
-		break;
-	case CONF_KEY_FALL:
-		k_down_states[K_FALL] = k_press_states[K_FALL] = pressed;
-		break;
-	case CONF_KEY_POWERJUMP:
-		k_down_states[K_POWERJUMP] = k_press_states[K_POWERJUMP] = pressed;
-		break;
-	case CONF_KEY_MENU:
-		k_down_states[K_MENU] = k_press_states[K_MENU] = pressed;
-		break;
-	default:
-		break;
+		k &= ~(1 << 30);
+		k += 128;
 	}
+	k_down_states[k] = k_press_states[k] = pressed;
 }
 
 void
 keybd_post_update(void)
 {
-	k_press_states[K_LEFT] = false;
-	k_press_states[K_RIGHT] = false;
-	k_press_states[K_JUMP] = false;
-	k_press_states[K_FALL] = false;
-	k_press_states[K_POWERJUMP] = false;
-	k_press_states[K_MENU] = false;
+	memset(k_press_states, 0, sizeof(k_press_states));
 }
 
 bool
-key_down(key k)
+key_down(SDL_Keycode k)
 {
+	if (k & 1 << 30)
+	{
+		k &= ~(1 << 30);
+		k += 128;
+	}
 	return k_down_states[k];
 }
 
 bool
-key_pressed(key k)
+key_pressed(SDL_Keycode k)
 {
+	if (k & 1 << 30)
+	{
+		k &= ~(1 << 30);
+		k += 128;
+	}
 	return k_press_states[k];
 }
 

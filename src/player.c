@@ -74,6 +74,13 @@ player_walled_right(void)
 void
 player_die(void)
 {
+	// prevent "double-death", incrementing game deaths by 2 instead of 1.
+	if (g_player_state == PS_DEAD)
+		return;
+	
+	++g_game.il_deaths;
+	++g_game.total_deaths;
+	
 	g_player.dead_ticks = CONF_PLAYER_DEATH_TICKS;
 	g_player_state = PS_DEAD;
 	
@@ -109,16 +116,16 @@ update_playing(void)
 	
 	// apply user movement input velocity.
 	{
-		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
+		float mv_horiz = key_down(CONF_KEY_RIGHT) - key_down(CONF_KEY_LEFT);
 		mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
 		g_player.vel_x += mv_horiz;
 		
-		if (key_down(K_FALL))
+		if (key_down(CONF_KEY_FALL))
 			g_player.vel_y += CONF_PLAYER_FALL_ACCEL;
 		
-		if (player_grounded() && key_down(K_JUMP))
+		if (player_grounded() && key_down(CONF_KEY_JUMP))
 			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
-		else if (player_grounded() && key_down(K_POWERJUMP))
+		else if (player_grounded() && key_down(CONF_KEY_POWERJUMP))
 		{
 			if (g_player.vel_x > 0.0f)
 				g_player.vel_x = CONF_PLAYER_POWERJUMP_FORCE_X;
@@ -127,20 +134,20 @@ update_playing(void)
 			g_player.vel_y = -CONF_PLAYER_POWERJUMP_FORCE_Y;
 		}
 		
-		if (player_walled_left() && key_down(K_JUMP))
+		if (player_walled_left() && key_down(CONF_KEY_JUMP))
 		{
 			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
 		
-		if (player_walled_right() && key_down(K_JUMP))
+		if (player_walled_right() && key_down(CONF_KEY_JUMP))
 		{
 			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
 		
-		if (player_walled_left() && key_down(K_LEFT)
-		    || player_walled_right() && key_down(K_RIGHT))
+		if (player_walled_left() && key_down(CONF_KEY_LEFT)
+		    || player_walled_right() && key_down(CONF_KEY_RIGHT))
 		{
 			g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
 		}

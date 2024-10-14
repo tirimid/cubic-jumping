@@ -30,11 +30,11 @@ static menu_request req = MR_NONE;
 void
 main_menu_loop(void)
 {
-	ui_button b_continue = ui_button_create(80, 300, "Continue", NULL);
-	ui_button b_play = ui_button_create(80, 340, "Play from beginning", btn_play_from_beginning);
-	ui_button b_play_custom = ui_button_create(80, 380, "Play custom level", NULL);
-	ui_button b_editor = ui_button_create(80, 420, "Level editor", NULL);
-	ui_button b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
+	ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
+	ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
+	ui_button b_play_custom = ui_button_create(80, 460, "Play custom level", NULL);
+	ui_button b_editor = ui_button_create(80, 500, "Level editor", NULL);
+	ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
 	
 	// `in_menu` is irrelevant for the main menu since it is the main launch
 	// screen for game functionality, and it doesn't really make sense to
@@ -86,7 +86,7 @@ main_menu_loop(void)
 			
 			// draw UI.
 			{
-				text_draw_str("CUBIC JUMPING", 80, 100);
+				text_draw_str("CUBIC JUMPING", 80, 60);
 				
 				ui_button_draw(&b_continue);
 				ui_button_draw(&b_play);
@@ -108,8 +108,8 @@ main_menu_loop(void)
 menu_request
 level_end_menu_loop(void)
 {
-	ui_button b_next = ui_button_create(80, 300, "Next level", btn_req_next);
-	ui_button b_retry = ui_button_create(80, 340, "Retry level", btn_req_retry);
+	ui_button b_next = ui_button_create(80, 380, "Next level", btn_req_next);
+	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_req_retry);
 	
 	in_menu = true;
 	req = MR_NONE;
@@ -162,17 +162,30 @@ level_end_menu_loop(void)
 			{
 				uint64_t il_time_s = g_game.il_time_ms / 1000;
 				uint64_t il_time_m = il_time_s / 60;
+				uint64_t total_time_s = g_game.total_time_ms / 1000;
+				uint64_t total_time_m = total_time_s / 60;
 				
-				static char il_buf[32];
-				sprintf(il_buf,
-				        "IL: %01lu:%02lu.%lu",
+				static char time_buf[64];
+				sprintf(time_buf,
+				        "Time: %01lu:%02lu.%lu (%01lu:%02lu.%lu)",
 				        il_time_m,
 				        il_time_s % 60,
-				        g_game.il_time_ms % 1000);
+				        g_game.il_time_ms % 1000 / 10,
+				        total_time_m,
+				        total_time_s % 60,
+				        g_game.total_time_ms % 1000 / 10);
 				
-				text_draw_str("Level complete", 80, 100);
+				static char deaths_buf[64];
+				sprintf(deaths_buf,
+				        "Deaths: %u (%u)",
+				        g_game.il_deaths,
+				        g_game.total_deaths);
+				
+				text_draw_str("Level complete", 80, 60);
+				
 				text_draw_str(g_map.name, 80, 140);
-				text_draw_str(il_buf, 80, 180);
+				text_draw_str(time_buf, 80, 180);
+				text_draw_str(deaths_buf, 80, 220);
 				
 				ui_button_draw(&b_next);
 				ui_button_draw(&b_retry);
@@ -193,9 +206,9 @@ level_end_menu_loop(void)
 menu_request
 pause_menu_loop(void)
 {
-	ui_button b_resume = ui_button_create(80, 300, "Resume", btn_exit_menu);
-	ui_button b_main_menu = ui_button_create(80, 340, "Main menu", btn_req_exit);
-	ui_button b_exit = ui_button_create(80, 380, "Exit to desktop", btn_exit_to_desktop);
+	ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
+	ui_button b_main_menu = ui_button_create(80, 420, "Main menu", btn_req_exit);
+	ui_button b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
 	
 	in_menu = true;
 	req = MR_NONE;
@@ -229,7 +242,7 @@ pause_menu_loop(void)
 			}
 		}
 		
-		if (key_pressed(K_MENU))
+		if (key_pressed(CONF_KEY_MENU))
 		{
 			keybd_post_update();
 			mouse_post_update();
@@ -251,7 +264,7 @@ pause_menu_loop(void)
 			
 			// draw UI.
 			{
-				text_draw_str("Paused", 80, 100);
+				text_draw_str("Paused", 80, 60);
 				
 				ui_button_draw(&b_resume);
 				ui_button_draw(&b_main_menu);
@@ -375,6 +388,7 @@ static void
 btn_play_from_beginning(void)
 {
 	map_list_load(MLI_C0E0);
+	g_game.total_time_ms = 0;
 	game_loop();
 }
 

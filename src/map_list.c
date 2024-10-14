@@ -88,6 +88,7 @@ map_list_load(map_list_item item)
 	
 	game_disable_switches();
 	g_game.il_time_ms = 0;
+	g_game.il_deaths = 0;
 	
 	text_list_term();
 	

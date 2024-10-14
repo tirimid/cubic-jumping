@@ -5,8 +5,9 @@
 
 typedef struct game
 {
+	uint64_t il_time_ms, total_time_ms;
 	unsigned off_switches;
-	uint64_t il_time_ms;
+	unsigned il_deaths, total_deaths;
 } game;
 
 extern game g_game;

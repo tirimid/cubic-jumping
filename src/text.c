@@ -5,7 +5,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "conf.h"
 #include "util.h"
 #include "wnd.h"
 
@@ -88,7 +87,7 @@ text_draw_str(char const *s, int x, int y)
 	for (char const *c = s; *c; ++c)
 	{
 		text_draw_ch(*c, x, y);
-		x += CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f);
+		x += TEXT_EFF_WIDTH;
 	}
 }
 
@@ -96,7 +95,7 @@ void
 text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
 {
 	size_t i = 0;
-	for (int dy = py; dy < py + sy; dy += CONF_TEXT_SCALE * (TEXT_FONT_HEIGHT + 0.5f))
+	for (int dy = py; dy < py + sy; dy += TEXT_EFF_HEIGHT)
 	{
 		// skip all non-renderable characters at start of line.
 		while (s[i] && !font[s[i]])
@@ -110,13 +109,13 @@ text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
 			
 			size_t draw_len = drawable_len_at(s, i);
 			draw_len = MAX(draw_len, 1);
-			if (dx + draw_len * CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f) >= px + sx)
+			if (dx + draw_len * TEXT_EFF_WIDTH >= px + sx)
 				break;
 			
 			for (size_t j = i; j < i + draw_len; ++j)
 			{
 				text_draw_ch(s[j], dx, dy);
-				dx += CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f);
+				dx += TEXT_EFF_WIDTH;
 			}
 			
 			i += draw_len;

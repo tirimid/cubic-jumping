@@ -88,3 +88,28 @@ ui_button_draw(ui_button const *btn)
 		              btn->y + CONF_BUTTON_PADDING);
 	}
 }
+
+ui_text_box
+ui_text_box_create(int x, int y, size_t ndraw, char *out, size_t nmax)
+{
+	return (ui_text_box)
+	{
+		.x = x,
+		.y = y,
+		.out = out,
+		.nmax = nmax,
+		.ndraw = ndraw,
+	};
+}
+
+void
+ui_text_box_update(ui_text_box *tb)
+{
+	// TODO: implement.
+}
+
+void
+ui_text_box_draw(ui_text_box const *tb)
+{
+	// TODO: implement.
+}

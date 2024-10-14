@@ -5,18 +5,6 @@
 
 #include <SDL2/SDL.h>
 
-typedef enum key
-{
-	K_LEFT = 0,
-	K_RIGHT,
-	K_JUMP,
-	K_FALL,
-	K_POWERJUMP,
-	K_MENU,
-	
-	K_END__,
-} key;
-
 typedef enum mouse_button
 {
 	MB_LEFT = 0,
@@ -29,8 +17,8 @@ typedef enum mouse_button
 // keyboard input functionality.
 void keybd_set_key_state(SDL_Event const *e, bool pressed);
 void keybd_post_update(void);
-bool key_down(key k);
-bool key_pressed(key k);
+bool key_down(SDL_Keycode k);
+bool key_pressed(SDL_Keycode k);
 
 // mouse input functionality.
 void mouse_press_button(SDL_Event const *e);

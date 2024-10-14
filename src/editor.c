@@ -172,8 +172,8 @@ update_editor(void)
 {
 	// move camera.
 	{
-		float mv_horiz = key_down(K_RIGHT) - key_down(K_LEFT);
-		float mv_vert = key_down(K_FALL) - key_down(K_JUMP);
+		float mv_horiz = key_down(CONF_EDITOR_KEY_RIGHT) - key_down(CONF_EDITOR_KEY_LEFT);
+		float mv_vert = key_down(CONF_EDITOR_KEY_DOWN) - key_down(CONF_EDITOR_KEY_UP);
 		g_cam.pos_x += CONF_EDITOR_CAM_SPEED * mv_horiz;
 		g_cam.pos_y += CONF_EDITOR_CAM_SPEED * mv_vert;
 	}

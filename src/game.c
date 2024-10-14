@@ -51,7 +51,7 @@ game_loop(void)
 			}
 		}
 		
-		if (key_pressed(K_MENU))
+		if (key_pressed(CONF_KEY_MENU))
 		{
 			keybd_post_update();
 			if (pause_menu_loop() == MR_EXIT)
@@ -90,6 +90,7 @@ game_loop(void)
 			SDL_Delay(tick_time_left);
 		
 		g_game.il_time_ms += CONF_TICK_MS;
+		g_game.total_time_ms += CONF_TICK_MS;
 	}
 }
 
@@ -229,8 +230,19 @@ draw_indicators(void)
 		        "%01lu:%02lu.%lu",
 		        il_time_m,
 		        il_time_s % 60,
-		        g_game.il_time_ms % 1000);
+		        g_game.il_time_ms % 1000 / 10);
 		
-		text_draw_str(buf, CONF_TIMER_OFF_X, CONF_TIMER_OFF_Y);
+		text_draw_str(buf, 10, 10);
+	}
+	
+	// draw IL death counter.
+	{
+		static char buf[32];
+		sprintf(buf,
+		        "%u death%s",
+		        g_game.il_deaths,
+		        g_game.il_deaths == 1 ? "" : "s");
+		
+		text_draw_str(buf, 10, 50);
 	}
 }
