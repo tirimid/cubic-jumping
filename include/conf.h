@@ -20,7 +20,7 @@
 
 // gamerule options.
 #define CONF_TICK_MS 10
-#define CONF_FRICTION 1.25f
+#define CONF_FRICTION 1.22f
 #define CONF_WALL_SLIDE_FRICTION 1.25f
 #define CONF_DRAG 1.005f
 #define CONF_PLAYER_SIZE 0.8f
@@ -43,6 +43,8 @@
 #define CONF_SHOW_TRIGGERS 0 // 1 = show triggers, 0 = don't.
 #define CONF_COLOR_BG {239, 239, 239}
 #define CONF_COLOR_BG_SQUARE {232, 232, 232}
+#define CONF_COLOR_BG_DVD_A {180, 230, 0}
+#define CONF_COLOR_BG_DVD_B {0, 230, 180}
 #define CONF_COLOR_PLAYER {255, 0, 0}
 #define CONF_COLOR_TRIGGER_MSG {255, 179, 0}
 #define CONF_COLOR_TRIGGER_KILL {210, 0, 0}
@@ -78,6 +80,9 @@
 #define CONF_BG_SQUARE_GAP 16
 #define CONF_BG_SQUARE_SPEED_X 0.2f
 #define CONF_BG_SQUARE_SPEED_Y 0.1f
+#define CONF_BG_DVD_SIZE 370
+#define CONF_BG_DVD_SPEED 1
+#define CONF_BG_DVD_COL_SPEED 0.005f
 #define CONF_CAM_SPEED 0.05f
 #define CONF_CAM_ZOOM_SPEED 0.025f
 #define CONF_CAM_MIN_ZOOM 0.15f

@@ -1,5 +1,6 @@
 #include "menus.h"
 
+#include <setjmp.h>
 #include <stdbool.h>
 
 #include <SDL.h>
@@ -8,35 +9,41 @@
 #include "game.h"
 #include "input.h"
 #include "map.h"
+#include "map_list.h"
 #include "text.h"
 #include "ui.h"
 #include "util.h"
 #include "wnd.h"
 
+static void main_draw_bg(void);
 static void pause_draw_bg(void);
-static void btn_quit(void);
-static void btn_main_menu(void);
+static void btn_exit_menu(void);
 static void btn_exit_to_desktop(void);
+static void btn_play_from_beginning(void);
+static void btn_req_exit(void);
+static void btn_req_next(void);
+static void btn_req_retry(void);
 
 static bool in_menu = false;
+static menu_request_t req = MR_NONE;
 
 void
 main_menu_loop(void)
 {
-	// TODO: implement.
-}
-
-void
-level_end_menu_loop(void)
-{
-	ui_button_t b_next_level = ui_button_create(80, 300, "Next level", btn_quit);
+	ui_button_t b_continue = ui_button_create(80, 300, "Continue", NULL);
+	ui_button_t b_play = ui_button_create(80, 340, "Play from beginning", btn_play_from_beginning);
+	ui_button_t b_play_custom = ui_button_create(80, 380, "Play custom level", NULL);
+	ui_button_t b_editor = ui_button_create(80, 420, "Level editor", NULL);
+	ui_button_t b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
 	
-	in_menu = true;
-	while (in_menu)
+	// `in_menu` is irrelevant for the main menu since it is the main launch
+	// screen for game functionality, and it doesn't really make sense to
+	// "quit" the main menu.
+	for (;;)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
-		SDL_Event e;
+ 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
 			switch (e.type)
@@ -62,14 +69,89 @@ level_end_menu_loop(void)
 			}
 		}
 		
-		// update pause menu.
+		// update main menu.
 		{
-			ui_button_update(&b_next_level);
+			ui_button_update(&b_continue);
+			ui_button_update(&b_play);
+			ui_button_update(&b_play_custom);
+			ui_button_update(&b_editor);
+			ui_button_update(&b_exit);
 			keybd_post_update();
 			mouse_post_update();
 		}
 		
 		// draw pause menu.
+		{
+			main_draw_bg();
+			
+			// draw UI.
+			{
+				text_draw_str("CUBIC JUMPING", 80, 100);
+				
+				ui_button_draw(&b_continue);
+				ui_button_draw(&b_play);
+				ui_button_draw(&b_play_custom);
+				ui_button_draw(&b_editor);
+				ui_button_draw(&b_exit);
+			}
+			
+			SDL_RenderPresent(g_rend);
+		}
+		
+		uint64_t tick_end = get_unix_time_ms();
+		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
+		if (tick_time_left > 0)
+			SDL_Delay(tick_time_left);
+	}
+}
+
+menu_request_t
+level_end_menu_loop(void)
+{
+	ui_button_t b_next = ui_button_create(80, 300, "Next level", btn_req_next);
+	ui_button_t b_retry = ui_button_create(80, 340, "Retry level", btn_req_retry);
+	
+	in_menu = true;
+	req = MR_NONE;
+	while (in_menu)
+	{
+		uint64_t tick_begin = get_unix_time_ms();
+		
+ 		SDL_Event e;
+		while (SDL_PollEvent(&e))
+		{
+			switch (e.type)
+			{
+			case SDL_QUIT:
+				exit(0);
+			case SDL_KEYDOWN:
+				if (!e.key.repeat)
+					keybd_set_key_state(&e, true);
+				break;
+			case SDL_KEYUP:
+				if (!e.key.repeat)
+					keybd_set_key_state(&e, false);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				mouse_release_button(&e);
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				mouse_press_button(&e);
+				break;
+			default:
+				break;
+			}
+		}
+		
+		// update level end menu.
+		{
+			ui_button_update(&b_next);
+			ui_button_update(&b_retry);
+			keybd_post_update();
+			mouse_post_update();
+		}
+		
+		// draw level end menu.
 		{
 			static uint8_t cbg[] = CONF_COLOR_LEVEL_END_BG;
 			
@@ -92,7 +174,8 @@ level_end_menu_loop(void)
 				text_draw_str(g_map.name, 80, 140);
 				text_draw_str(il_buf, 80, 180);
 				
-				ui_button_draw(&b_next_level);
+				ui_button_draw(&b_next);
+				ui_button_draw(&b_retry);
 			}
 			
 			SDL_RenderPresent(g_rend);
@@ -103,16 +186,19 @@ level_end_menu_loop(void)
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
 	}
+	
+	return req;
 }
 
-void
+menu_request_t
 pause_menu_loop(void)
 {
-	ui_button_t b_resume = ui_button_create(80, 300, "Resume", btn_quit);
-	ui_button_t b_main_menu = ui_button_create(80, 340, "Main menu", btn_main_menu);
+	ui_button_t b_resume = ui_button_create(80, 300, "Resume", btn_exit_menu);
+	ui_button_t b_main_menu = ui_button_create(80, 340, "Main menu", btn_req_exit);
 	ui_button_t b_exit = ui_button_create(80, 380, "Exit to desktop", btn_exit_to_desktop);
 	
 	in_menu = true;
+	req = MR_NONE;
 	while (in_menu)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
@@ -147,7 +233,7 @@ pause_menu_loop(void)
 		{
 			keybd_post_update();
 			mouse_post_update();
-			return;
+			return req;
 		}
 		
 		// update pause menu.
@@ -179,6 +265,58 @@ pause_menu_loop(void)
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
+	}
+	
+	return req;
+}
+
+static void
+main_draw_bg(void)
+{
+	// draw basic background squares effect.
+	{
+		pause_draw_bg();
+	}
+	
+	// draw DVD screensaver.
+	{
+		static uint8_t cbgda[] = CONF_COLOR_BG_DVD_A;
+		static uint8_t cbgdb[] = CONF_COLOR_BG_DVD_B;
+		
+		static int pos_x = 0, pos_y = 0;
+		static int speed_x = CONF_BG_DVD_SPEED, speed_y = CONF_BG_DVD_SPEED;
+		static float col_lerp = 0.0f, col_speed = CONF_BG_DVD_COL_SPEED;
+		
+		pos_x += speed_x;
+		pos_y += speed_y;
+		
+		if (pos_x < 0 || pos_x + CONF_BG_DVD_SIZE >= CONF_WND_WIDTH)
+			speed_x *= -1;
+		if (pos_y < 0 || pos_y + CONF_BG_DVD_SIZE >= CONF_WND_HEIGHT)
+			speed_y *= -1;
+		
+		col_lerp += col_speed;
+		if (col_lerp < 0.0f || col_lerp > 1.0f)
+			col_speed *= -1.0f;
+		col_lerp = CLAMP(0.0f, col_lerp, 1.0f);
+		
+		SDL_Rect r =
+		{
+			.x = pos_x,
+			.y = pos_y,
+			.w = CONF_BG_DVD_SIZE,
+			.h = CONF_BG_DVD_SIZE,
+		};
+		
+		uint8_t col[3] =
+		{
+			lerp(cbgda[0], cbgdb[0], col_lerp),
+			lerp(cbgda[1], cbgdb[1], col_lerp),
+			lerp(cbgda[2], cbgdb[2], col_lerp),
+		};
+		
+		SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
+		SDL_RenderFillRect(g_rend, &r);
 	}
 }
 
@@ -222,19 +360,41 @@ pause_draw_bg(void)
 }
 
 static void
-btn_quit(void)
+btn_exit_menu(void)
 {
 	in_menu = false;
-}
-
-static void
-btn_main_menu(void)
-{
-	// TODO: implement.
 }
 
 static void
 btn_exit_to_desktop(void)
 {
 	exit(0);
+}
+
+static void
+btn_play_from_beginning(void)
+{
+	map_list_load(MLI_C0E0);
+	game_loop();
+}
+
+static void
+btn_req_exit(void)
+{
+	req = MR_EXIT;
+	in_menu = false;
+}
+
+static void
+btn_req_next(void)
+{
+	req = MR_NEXT;
+	in_menu = false;
+}
+
+static void
+btn_req_retry(void)
+{
+	req = MR_RETRY;
+	in_menu = false;
 }

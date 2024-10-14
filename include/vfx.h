@@ -15,6 +15,7 @@ typedef struct particle
 	unsigned char type;
 } particle_t;
 
+void vfx_clear_particles(void);
 void vfx_put_particle(particle_type_t type, float x, float y);
 void vfx_update(void);
 void vfx_draw(void);

@@ -15,6 +15,12 @@ static size_t nparticles = 0;
 static particle_t particles[CONF_MAX_PARTICLES];
 
 void
+vfx_clear_particles(void)
+{
+	nparticles = 0;
+}
+
+void
 vfx_put_particle(particle_type_t type, float x, float y)
 {
 	if (nparticles >= CONF_MAX_PARTICLES)

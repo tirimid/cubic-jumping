@@ -25,12 +25,6 @@ static void fill_out_of_bounds(void);
 static void draw_indicators(void);
 
 void
-game_init(map_list_item_t first_map)
-{
-	map_list_load(first_map);
-}
-
-void
 game_loop(void)
 {
 	for (;;)
@@ -60,7 +54,8 @@ game_loop(void)
 		if (key_pressed(K_MENU))
 		{
 			keybd_post_update();
-			pause_menu_loop();
+			if (pause_menu_loop() == MR_EXIT)
+				return;
 			continue;
 		}
 		

@@ -7,7 +7,9 @@
 #include "map.h"
 #include "menus.h"
 #include "player.h"
+#include "text_list.h"
 #include "triggers.h"
+#include "vfx.h"
 
 // compiled map data.
 #include "cte0.hfm"
@@ -87,6 +89,10 @@ map_list_load(map_list_item_t item)
 	game_disable_switches();
 	g_game.il_time_ms = 0;
 	
+	text_list_term();
+	
+	vfx_clear_particles();
+	
 	cur_item = item;
 }
 
@@ -112,7 +118,14 @@ map_list_load_next(void)
 		; // TODO: show game end screen upon finishing final level.
 	else
 	{
-		level_end_menu_loop();
-		map_list_load(cur_item + 1);
+		switch (level_end_menu_loop())
+		{
+		case MR_NEXT:
+			map_list_load(cur_item + 1);
+			break;
+		case MR_RETRY:
+			map_list_load(cur_item);
+			break;
+		}
 	}
 }

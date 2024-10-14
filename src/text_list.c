@@ -41,6 +41,7 @@ void
 text_list_term(void)
 {
 	queue_front_ticks = 0;
+	nqueued = 0;
 }
 
 void
