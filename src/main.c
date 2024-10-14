@@ -14,7 +14,7 @@
 
 #ifdef BUILD_TARGET_WINDOWS
 #define ENTRY_FN \
-	extern "C" int APIENTRY \
+	int APIENTRY \
 	WinMain(HINSTANCE h_inst, \
 	        HINSTANCE h_prev_inst, \
 	        LPSTR lp_cmd_line, \
