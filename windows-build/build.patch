@@ -1,24 +1,29 @@
 diff --git a/Makefile b/Makefile
-index ea4b86d..4bc929f 100644
+index cd399bd..21733e7 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -9,10 +9,12 @@ CFLAGS := \
+@@ -8,12 +8,17 @@ CFLAGS := \
+ 	-pedantic \
  	-O3 \
  	-Iinclude \
++	-I/mingw64/include \
  	-Imaps \
 -	$(shell sdl2-config --cflags)
-+	-I/mingw64/include \
 +	$(shell sdl2-config --cflags) \
-+	-DBUILD_TARGET_WINDOWS
++	-DBUILD_TARGET_WINDOWS \
++	-mwindows
  
  LDFLAGS := \
--	$(shell sdl2-config --libs) -lm
-+	-L/mingw64/lib $(shell sdl2-config --libs) -lm
++	-L/mingw64/lib \
+ 	$(shell sdl2-config --libs) \
+-	-lm
++	-lm \
++	-mwindows
  
  SRCS := $(wildcard src/*.c)
  OBJS := $(patsubst src/%,lib/%.o,$(SRCS))
 diff --git a/mincbuild.conf b/mincbuild.conf
-index 3db996b..ad9acdc 100644
+index 3db996b..a466984 100644
 --- a/mincbuild.conf
 +++ b/mincbuild.conf
 @@ -1,8 +1,8 @@
@@ -27,8 +32,8 @@ index 3db996b..ad9acdc 100644
  ld = /usr/bin/gcc
 -cflags = -std=c99 -pedantic -O3 $(sdl2-config --cflags)
 -ldflags = $(sdl2-config --libs)
-+cflags = -std=c99 -pedantic -O3 $(sdl2-config --cflags) -DBUILD_TARGET_WINDOWS
-+ldflags = -L/mingw64/lib $(sdl2-config --libs)
++cflags = -std=c99 -pedantic -O3 $(sdl2-config --cflags) -DBUILD_TARGET_WINDOWS -mwindows
++ldflags = -L/mingw64/lib $(sdl2-config --libs) -mwindows
  
  # project.
  src_dir = src
@@ -37,7 +42,7 @@ index 3db996b..ad9acdc 100644
  # dependencies.
  # SDL2 config done via `sdl2-config` in `cflags` and `ldflags`.
 -incs = maps
-+incs = maps /mingw64/include
++incs = /mingw64/include maps
  libs = m
  
  # toolchain information.
