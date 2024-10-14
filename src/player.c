@@ -104,7 +104,6 @@ update_playing(void)
 	// need to initially check collisions prior to player movement being
 	// applied in order to fix bug when you can jump on kill blocks.
 	{
-		compute_collision_distances();
 		test_and_apply_collisions();
 	}
 	
@@ -156,7 +155,6 @@ update_playing(void)
 	
 	// need to also apply collsions after all velocity changes.
 	{
-		compute_collision_distances();
 		test_and_apply_collisions();
 	}
 	
@@ -433,20 +431,7 @@ compute_collision_distances(void)
 static void
 test_and_apply_collisions(void)
 {
-	if (-g_player.vel_x >= g_player.dist_left
-	    && g_player.dist_left < g_player.dist_right)
-	{
-		collide_left();
-		collide(g_player.near_left);
-	}
-	
-	if (g_player.vel_x >= g_player.dist_right
-	    && g_player.dist_right < g_player.dist_left)
-	{
-		collide_right();
-		collide(g_player.near_right);
-	}
-	
+	compute_collision_distances();
 	if (-g_player.vel_y >= g_player.dist_top
 	    && g_player.dist_top < g_player.dist_bottom)
 	{
@@ -454,6 +439,33 @@ test_and_apply_collisions(void)
 		collide(g_player.near_top);
 	}
 	
+	compute_collision_distances();
+	if (-g_player.vel_x >= g_player.dist_left
+	    && g_player.dist_left < g_player.dist_right)
+	{
+		collide_left();
+		collide(g_player.near_left);
+	}
+	
+	compute_collision_distances();
+	if (g_player.vel_x >= g_player.dist_right
+	    && g_player.dist_right < g_player.dist_left)
+	{
+		collide_right();
+		collide(g_player.near_right);
+	}
+	
+#if 0
+	compute_collision_distances();
+	if (-g_player.vel_y >= g_player.dist_top
+	    && g_player.dist_top < g_player.dist_bottom)
+	{
+		collide_top();
+		collide(g_player.near_top);
+	}
+#endif
+	
+	compute_collision_distances();
 	if (g_player.vel_y >= g_player.dist_bottom
 	    && g_player.dist_bottom < g_player.dist_top)
 	{

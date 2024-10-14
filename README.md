@@ -12,21 +12,17 @@ interesting ways.
 
 * Make (for build, optional)
 * mincbuild (for build, optional)
-* SDL2
-* `sdl2-config`
+* SDL2 with `sdl2-config`
 
 ## Management
 
+* If on Windows, first navigate to `windows-build/` and run `./setup.sh`
 * To build the program, run `make` or `mincbuild`
 
 ## Usage
 
-After build, you can run the program in a few ways. To have them listed in your
-terminal, run the following:
-
-```
-$ ./cubic-jumping help
-```
+After build, run the program in the same way as any other. Either start it from
+the command line, or launch it graphically.
 
 ## Contributing
 
