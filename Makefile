@@ -8,12 +8,11 @@ CFLAGS := \
 	-pedantic \
 	-O3 \
 	-Iinclude \
-	-Imaps \
-	$(shell sdl2-config --cflags)
+	-Imaps
 
 LDFLAGS := \
-	$(shell sdl2-config --libs) \
-	-lm
+	-lm \
+	-lSDL2
 
 SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%,lib/%.o,$(SRCS))

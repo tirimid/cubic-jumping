@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #ifdef BUILD_TARGET_WINDOWS
 #include <Windows.h>

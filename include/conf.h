@@ -1,7 +1,7 @@
 #ifndef CONF_H
 #define CONF_H
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 // window options.
 #define CONF_WND_TITLE "Cubic Jumping"

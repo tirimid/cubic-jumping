@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include "cam.h"
 #include "conf.h"

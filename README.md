@@ -12,14 +12,15 @@ interesting ways.
 
 * Make (for build, optional)
 * mincbuild (for build, optional)
-* SDL2 with `sdl2-config`
-* MSYS2 with MinGW-W64 (for windows build)
+* SDL2
+* MSYS2 with MinGW64 (for windows build)
 * wget (for windows build setup)
 * unzip (for windows build setup)
 
 ## Management
 
-* If on Windows, first navigate to `windows-build/` and run `./setup.sh`
+* If on Windows, navigate to `windows-build/` and run `./setup.sh` under
+  MSYS2/MinGW64 in order to set up the build
 * To build the program, run `make` or `mincbuild`
 
 ## Usage
