@@ -12,7 +12,8 @@ CFLAGS := \
 	$(shell sdl2-config --cflags)
 
 LDFLAGS := \
-	$(shell sdl2-config --libs) -lm
+	$(shell sdl2-config --libs) \
+	-lm
 
 SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%,lib/%.o,$(SRCS))

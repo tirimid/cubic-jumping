@@ -13,6 +13,9 @@ interesting ways.
 * Make (for build, optional)
 * mincbuild (for build, optional)
 * SDL2 with `sdl2-config`
+* MSYS2 with MinGW-W64 (for windows build)
+* wget (for windows build setup)
+* unzip (for windows build setup)
 
 ## Management
 

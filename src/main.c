@@ -5,11 +5,27 @@
 
 #include <SDL.h>
 
+#ifdef BUILD_TARGET_WINDOWS
+#include <Windows.h>
+#endif
+
 #include "menus.h"
 #include "wnd.h"
 
-int
-main(int argc, char *argv[])
+#ifdef BUILD_TARGET_WINDOWS
+#define ENTRY_FN \
+	extern "C" int APIENTRY \
+	WinMain(HINSTANCE h_inst, \
+	        HINSTANCE h_prev_inst, \
+	        LPSTR lp_cmd_line, \
+	        int n_cmd_show)
+#else
+#define ENTRY_FN \
+	int \
+	main(void)
+#endif
+
+ENTRY_FN
 {
 	// initialize non-game systems.
 	{
