@@ -28,10 +28,6 @@ static map_list_item cur_item;
 static item item_data[MLI_END__] =
 {
 	{
-		// dummy: null map.
-		.map = NULL,
-	},
-	{
 		// dummy: custom map.
 		.map = NULL,
 	},
@@ -55,12 +51,6 @@ static item item_data[MLI_END__] =
 void
 map_list_load(map_list_item item)
 {
-	// unload map if custom one is already loaded to prevent memory leak.
-	{
-		if (cur_item == MLI_CUSTOM)
-			free(g_map.data);
-	}
-	
 	// init gameplay elements.
 	{
 		g_map = *item_data[item].map;
@@ -107,13 +97,6 @@ map_list_load(map_list_item item)
 int
 map_list_load_custom(char const *path)
 {
-	// unload map if custom one is already loaded to prevent memory leak.
-	{
-		if (cur_item == MLI_CUSTOM)
-			free(g_map.data);
-		cur_item = MLI_NULL;
-	}
-	
 	// init gameplay elements.
 	{
 		if (map_load_from_file(path))
@@ -181,9 +164,12 @@ void
 map_list_load_next(void)
 {
 	if (cur_item == MLI_CUSTOM)
-		; // TODO: go back to main menu.
+		g_game.running = false;
 	else if (cur_item == MLI_END__ - 1)
-		; // TODO: show game end screen upon finishing final level.
+	{
+		// TODO: scroll credits or something.
+		g_game.running = false;
+	}
 	else
 	{
 		switch (level_end_menu_loop())
@@ -193,6 +179,8 @@ map_list_load_next(void)
 			break;
 		case MR_RETRY:
 			map_list_hard_reload();
+			break;
+		default:
 			break;
 		}
 	}

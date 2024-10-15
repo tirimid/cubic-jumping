@@ -111,6 +111,15 @@ update_playing(void)
 	// need to initially check collisions prior to player movement being
 	// applied in order to fix bug when you can jump on kill blocks.
 	{
+		// the short circuit mechanism exists as a way to allow certain
+		// collision tiles to demand exclusive collision handling instead of
+		// the others.
+		// for example, the level end tiles need to short circuit, as
+		// otherwise the player landing on a level end tile could cause the
+		// level end menu to open multiple times in a row as a result of
+		// collision being tested twice during a player cycle.
+		g_player.short_circuit = false;
+		
 		test_and_apply_collisions();
 	}
 	
@@ -205,9 +214,11 @@ collide(map_tile *tile)
 	switch (tile->type)
 	{
 	case MTT_KILL:
+		g_player.short_circuit = true;
 		player_die();
 		break;
 	case MTT_END:
+		g_player.short_circuit = true;
 		if (g_game.off_switches == 0)
 			map_list_load_next();
 		break;
@@ -438,6 +449,9 @@ compute_collision_distances(void)
 static void
 test_and_apply_collisions(void)
 {
+	if (g_player.short_circuit)
+		return;
+	
 	compute_collision_distances();
 	if (-g_player.vel_y >= g_player.dist_top
 	    && g_player.dist_top < g_player.dist_bottom)
@@ -445,6 +459,9 @@ test_and_apply_collisions(void)
 		collide_top();
 		collide(g_player.near_top);
 	}
+	
+	if (g_player.short_circuit)
+		return;
 	
 	compute_collision_distances();
 	if (-g_player.vel_x >= g_player.dist_left
@@ -454,6 +471,9 @@ test_and_apply_collisions(void)
 		collide(g_player.near_left);
 	}
 	
+	if (g_player.short_circuit)
+		return;
+	
 	compute_collision_distances();
 	if (g_player.vel_x >= g_player.dist_right
 	    && g_player.dist_right < g_player.dist_left)
@@ -461,6 +481,9 @@ test_and_apply_collisions(void)
 		collide_right();
 		collide(g_player.near_right);
 	}
+	
+	if (g_player.short_circuit)
+		return;
 	
 	compute_collision_distances();
 	if (g_player.vel_y >= g_player.dist_bottom

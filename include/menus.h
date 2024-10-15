@@ -1,23 +1,18 @@
 #ifndef MENUS_H
 #define MENUS_H
 
-// menu requests allow the menus to demand something of their caller.
-// e.g. they can request `MR_EXIT` to make the caller exit to the main menu or
-// something.
-// they can also be used internally to communicate between different stages of
-// the same menu.
+// used for communication between menus and sometimes their callers.
 typedef enum menu_request
 {
 	MR_NONE = 0,
-	MR_EXIT,
+	MR_SELECT,
 	MR_NEXT,
 	MR_RETRY,
-	MR_SELECT,
 } menu_request;
 
 void main_menu_loop(void);
 char const *custom_level_select_menu_loop(void);
 menu_request level_end_menu_loop(void);
-menu_request pause_menu_loop(void);
+void pause_menu_loop(void);
 
 #endif

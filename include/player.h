@@ -22,6 +22,7 @@ typedef struct player
 	// collision handling data.
 	float dist_left, dist_right, dist_top, dist_bottom;
 	map_tile *near_left, *near_right, *near_top, *near_bottom;
+	bool short_circuit;
 	
 	// visual data.
 	unsigned trace_spawn_ticks;

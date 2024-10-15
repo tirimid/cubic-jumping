@@ -1,16 +1,19 @@
 #include "menus.h"
 
-#include <setjmp.h>
 #include <stdbool.h>
 
 #include <SDL2/SDL.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "conf.h"
+#include "editor.h"
 #include "game.h"
 #include "input.h"
 #include "map.h"
 #include "map_list.h"
 #include "text.h"
+#include "triggers.h"
 #include "ui.h"
 #include "util.h"
 #include "wnd.h"
@@ -23,11 +26,12 @@ static void btn_exit_menu(void);
 static void btn_exit_to_desktop(void);
 static void btn_play_from_beginning(void);
 static void btn_play_custom_level(void);
+static void btn_level_editor(void);
 static void btn_force_retry(void);
-static void btn_req_exit(void);
+static void btn_main_menu(void);
+static void btn_req_select(void);
 static void btn_req_next(void);
 static void btn_req_retry(void);
-static void btn_req_select(void);
 
 static bool in_menu = false;
 static menu_request req = MR_NONE;
@@ -38,7 +42,7 @@ main_menu_loop(void)
 	ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
 	ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
 	ui_button b_play_custom = ui_button_create(80, 460, "Play custom level", btn_play_custom_level);
-	ui_button b_editor = ui_button_create(80, 500, "Level editor", NULL);
+	ui_button b_editor = ui_button_create(80, 500, "Level editor", btn_level_editor);
 	ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
 	
 	// `in_menu` is irrelevant for the main menu since it is the main launch
@@ -113,11 +117,11 @@ main_menu_loop(void)
 char const *
 custom_level_select_menu_loop(void)
 {
-	static char path_buf[MAX_LEVEL_SEL_PATH_SIZE] = "maps/cte0.hfm\0";
+	static char path_buf[MAX_LEVEL_SEL_PATH_SIZE];
 	
-	ui_text_field tf_path = ui_text_field_create(80, 380, 25, path_buf, MAX_LEVEL_SEL_PATH_SIZE - 1);
+	ui_text_field tf_path = ui_text_field_create(80, 380, 20, path_buf, MAX_LEVEL_SEL_PATH_SIZE - 1);
 	ui_button b_select = ui_button_create(80, 420, "Select level", btn_req_select);
-	ui_button b_back = ui_button_create(80, 460, "Back", btn_req_exit);
+	ui_button b_back = ui_button_create(80, 460, "Back", btn_exit_menu);
 	
 	in_menu = true;
 	req = MR_NONE;
@@ -193,6 +197,7 @@ level_end_menu_loop(void)
 {
 	ui_button b_next = ui_button_create(80, 380, "Next level", btn_req_next);
 	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_req_retry);
+	ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
 	
 	in_menu = true;
 	req = MR_NONE;
@@ -230,6 +235,7 @@ level_end_menu_loop(void)
 		{
 			ui_button_update(&b_next);
 			ui_button_update(&b_retry);
+			ui_button_update(&b_main_menu);
 			keybd_post_update();
 			mouse_post_update();
 		}
@@ -272,6 +278,7 @@ level_end_menu_loop(void)
 				
 				ui_button_draw(&b_next);
 				ui_button_draw(&b_retry);
+				ui_button_draw(&b_main_menu);
 			}
 			
 			SDL_RenderPresent(g_rend);
@@ -286,16 +293,15 @@ level_end_menu_loop(void)
 	return req;
 }
 
-menu_request
+void
 pause_menu_loop(void)
 {
 	ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
 	ui_button b_retry = ui_button_create(80, 380, "Retry level", btn_force_retry);
-	ui_button b_main_menu = ui_button_create(80, 420, "Main menu", btn_req_exit);
+	ui_button b_main_menu = ui_button_create(80, 420, "Main menu", btn_main_menu);
 	ui_button b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
 	
 	in_menu = true;
-	req = MR_NONE;
 	while (in_menu)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
@@ -330,7 +336,7 @@ pause_menu_loop(void)
 		{
 			keybd_post_update();
 			mouse_post_update();
-			return req;
+			return;
 		}
 		
 		// update pause menu.
@@ -365,8 +371,6 @@ pause_menu_loop(void)
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
 	}
-	
-	return req;
 }
 
 static void
@@ -476,6 +480,7 @@ btn_play_from_beginning(void)
 	map_list_load(MLI_C0E0);
 	g_game.total_time_ms = 0;
 	g_game.total_deaths = 0;
+	g_game.running = true;
 	game_loop();
 }
 
@@ -491,7 +496,57 @@ btn_play_custom_level(void)
 	
 	g_game.total_time_ms = 0;
 	g_game.total_deaths = 0;
+	g_game.running = true;
 	game_loop();
+	
+	free(g_map.data);
+	g_ntriggers = 0;
+}
+
+static void
+btn_level_editor(void)
+{
+	char const *path = custom_level_select_menu_loop();
+	if (!path)
+		return;
+	
+	struct stat stat_buf;
+	if (stat(path, &stat_buf))
+	{
+		// determine map name based on file path.
+		char name[MAX_LEVEL_SEL_PATH_SIZE + 1] = {0};
+		{
+			size_t len = strlen(path);
+			
+			size_t first = len;
+			while (first > 0 && path[first - 1] != '/')
+				--first;
+			
+			size_t last = first;
+			while (last < len && strncmp(&path[last], ".hfm", 4))
+				++last;
+			
+			strncpy(name, &path[first], last - first);
+		}
+		
+		if (!name[0])
+		{
+			log_err("menus: could not determine name for new map!");
+			return;
+		}
+		
+		// try to create map file if doesn't exist.
+		if (map_create_file(path, name))
+			return;
+	}
+	
+	if (editor_init(path))
+		return;
+	
+	editor_loop();
+	
+	free(g_map.data);
+	g_ntriggers = 0;
 }
 
 static void
@@ -502,29 +557,29 @@ btn_force_retry(void)
 }
 
 static void
-btn_req_exit(void)
+btn_main_menu(void)
 {
-	req = MR_EXIT;
 	in_menu = false;
-}
-
-static void
-btn_req_next(void)
-{
-	req = MR_NEXT;
-	in_menu = false;
-}
-
-static void
-btn_req_retry(void)
-{
-	req = MR_RETRY;
-	in_menu = false;
+	g_game.running = false;
 }
 
 static void
 btn_req_select(void)
 {
-	req = MR_SELECT;
 	in_menu = false;
+	req = MR_SELECT;
+}
+
+static void
+btn_req_next(void)
+{
+	in_menu = false;
+	req = MR_NEXT;
+}
+
+static void
+btn_req_retry(void)
+{
+	in_menu = false;
+	req = MR_RETRY;
 }

@@ -24,7 +24,7 @@ map_create_file(char const *file, char const *name)
 	unsigned name_len = strlen(name);
 	if (name_len > MAP_MAX_NAME_LEN)
 	{
-		log_err("map: map name is too long (>%u)!", name_len);
+		log_err("map: map name is too long (%u > %u)!", name_len, MAP_MAX_NAME_LEN);
 		return 1;
 	}
 	
@@ -39,8 +39,8 @@ map_create_file(char const *file, char const *name)
 	{
 		fprintf(fp, "//CJ");
 		
-		char name_buf[9] = {0};
-		strcpy(name_buf, name);
+		char name_buf[MAP_MAX_NAME_LEN] = {0};
+		strncpy(name_buf, name, MAP_MAX_NAME_LEN);
 		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
 			wr_uint_8(fp, name_buf[i]);
 		
@@ -68,7 +68,7 @@ map_create_file(char const *file, char const *name)
 		        "#include <stddef.h>\n"
 		        "#include \"map.h\"\n"
 		        "#include \"triggers.h\"\n"
-		        "#define %s_NTRIGGERS 0"
+		        "#define %s_NTRIGGERS 0\n"
 		        "static map_tile %s_map_data[] =\n"
 		        "{\n"
 		        "{1},\n"
@@ -96,6 +96,8 @@ map_create_file(char const *file, char const *name)
 		        name,
 		        name);
 	}
+	
+	fclose(fp);
 	
 	return 0;
 }

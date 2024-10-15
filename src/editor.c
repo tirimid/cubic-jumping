@@ -39,6 +39,7 @@ static void btn_save(void);
 static void btn_arg_add(void);
 static void btn_arg_sub(void);
 static void btn_single(void);
+static void btn_exit(void);
 
 static char const *map_file;
 static edit_mode mode = EM_TILE_P;
@@ -47,6 +48,7 @@ static bool unsaved = false;
 static float drag_orig_x = NO_DRAG_REGION, drag_orig_y = NO_DRAG_REGION;
 static uint32_t arg = 0;
 static bool single_use = true;
+static bool running;
 
 int
 editor_init(char const *file)
@@ -55,13 +57,25 @@ editor_init(char const *file)
 	if (map_load_from_file(file))
 		return 1;
 	
+	// init editor state.
+	{
+		mode = EM_TILE_P;
+		type = 0;
+		unsaved = false;
+		drag_orig_x = drag_orig_y = NO_DRAG_REGION;
+		arg = 0;
+		single_use = true;
+		running = true;
+	}
+	
+	// init camera state.
+	{
+		g_cam.pos_x = 0.0f;
+		g_cam.pos_y = 0.0f;
+		g_cam.zoom = CONF_CAM_MAX_ZOOM;
+	}
+	
 	return 0;
-}
-
-void
-editor_quit(void)
-{
-	free(g_map.data);
 }
 
 void
@@ -79,8 +93,9 @@ editor_loop(void)
 	ui_button b_single = ui_button_create(575, 50, "Single", btn_single);
 	ui_button b_type_next = ui_button_create(320, 90, "Type>", btn_type_next);
 	ui_button b_type_prev = ui_button_create(450, 90, "Type<", btn_type_prev);
+	ui_button b_exit = ui_button_create(580, 90, "Exit", btn_exit);
 	
-	for (;;)
+	while (running)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
@@ -126,6 +141,7 @@ editor_loop(void)
 				ui_button_update(&b_arg_add);
 				ui_button_update(&b_arg_sub);
 				ui_button_update(&b_single);
+				ui_button_update(&b_exit);
 			}
 			
 			update_editor();
@@ -155,6 +171,7 @@ editor_loop(void)
 				ui_button_draw(&b_arg_add);
 				ui_button_draw(&b_arg_sub);
 				ui_button_draw(&b_single);
+				ui_button_draw(&b_exit);
 			}
 			
 			SDL_RenderPresent(g_rend);
@@ -618,4 +635,10 @@ static void
 btn_single(void)
 {
 	single_use = !single_use;
+}
+
+static void
+btn_exit(void)
+{
+	running = false;
 }

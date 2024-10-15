@@ -27,7 +27,7 @@ static void draw_indicators(void);
 void
 game_loop(void)
 {
-	for (;;)
+	while (g_game.running)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
@@ -54,8 +54,7 @@ game_loop(void)
 		if (key_pressed(CONF_KEY_MENU))
 		{
 			keybd_post_update();
-			if (pause_menu_loop() == MR_EXIT)
-				return;
+			pause_menu_loop();
 			continue;
 		}
 		

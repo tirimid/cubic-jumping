@@ -3,10 +3,8 @@
 
 typedef enum map_list_item
 {
-	MLI_NULL = 0,
-	
 	// custom map.
-	MLI_CUSTOM,
+	MLI_CUSTOM = 0,
 	
 	// chapter 0.
 	MLI_C0E0,
