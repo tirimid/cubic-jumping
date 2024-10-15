@@ -16,6 +16,7 @@
 #include "c0e0.hfm"
 #include "c0e1.hfm"
 #include "c0e2.hfm"
+#include "c0e3.hfm"
 
 typedef struct item
 {
@@ -46,6 +47,11 @@ static item item_data[MLI_END__] =
 		.map = &c0e2_map,
 		.triggers = c0e2_triggers,
 		.ntriggers = c0e2_NTRIGGERS,
+	},
+	{
+		.map = &c0e3_map,
+		.triggers = c0e3_triggers,
+		.ntriggers = c0e3_NTRIGGERS,
 	},
 };
 
