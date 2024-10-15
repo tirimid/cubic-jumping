@@ -20,6 +20,7 @@ static unsigned box_ticks_lut[] =
 {
 	[TLI_CTE0_TEST] = 500,
 	
+	// c0e0.
 	[TLI_C0E0_HOW_TO_MOVE] = 500,
 	[TLI_C0E0_HOW_TO_JUMP] = 500,
 	[TLI_C0E0_HOW_TO_WALLJUMP] = 500,
@@ -27,13 +28,20 @@ static unsigned box_ticks_lut[] =
 	[TLI_C0E0_HOW_TO_SLIDE] = 500,
 	[TLI_C0E0_HOW_TO_WIN] = 500,
 	
+	// c0e1.
 	[TLI_C0E1_KILL_INTRO] = 500,
 	[TLI_C0E1_MOMENTUM_INTRO] = 500,
 	[TLI_C0E1_HOW_TO_POWERJUMP] = 500,
-	[TLI_C0E1_HOW_TO_FALL] = 500,
 	
+	// c0e2.
 	[TLI_C0E2_BOUNCE_INTRO] = 500,
-	[TLI_C0E2_CONTROL_FALL_SPEED] = 500,
+	
+	// c0e3.
+	[TLI_C0E3_LEAP_OF_FAITH] = 500,
+	
+	// c0e4.
+	[TLI_C0E4_HOW_TO_AIR_CONTROL] = 500,
+	[TLI_C0E4_LAUNCH_INTRO] = 500,
 };
 
 static text_list_item queue[QUEUED_MAX];
@@ -108,6 +116,8 @@ gen_box_text(text_list_item item)
 	case TLI_CTE0_TEST:
 		sprintf(box_text, "Hello world");
 		break;
+		
+		// c0e0.
 	case TLI_C0E0_HOW_TO_MOVE:
 		sprintf(box_text, "Move left and right using [%s] and [%s]", SDL_GetKeyName(CONF_KEY_LEFT), SDL_GetKeyName(CONF_KEY_RIGHT));
 		break;
@@ -126,6 +136,8 @@ gen_box_text(text_list_item item)
 	case TLI_C0E0_HOW_TO_WIN:
 		sprintf(box_text, "Finish the level by entering the yellow portal");
 		break;
+		
+		// c0e1.
 	case TLI_C0E1_KILL_INTRO:
 		sprintf(box_text, "Don't fall into the kill tiles!");
 		break;
@@ -135,14 +147,23 @@ gen_box_text(text_list_item item)
 	case TLI_C0E1_HOW_TO_POWERJUMP:
 		sprintf(box_text, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(CONF_KEY_POWERJUMP));
 		break;
-	case TLI_C0E1_HOW_TO_FALL:
-		sprintf(box_text, "Fall faster by holding [%s] in the air", SDL_GetKeyName(CONF_KEY_FALL));
-		break;
+		
+		// c0e2.
 	case TLI_C0E2_BOUNCE_INTRO:
-		sprintf(box_text, "Bounce tiles will bounce you off with a force proportional to how fast you fall on them");
+		sprintf(box_text, "Bounce tiles' restitution is proportional to the velocity at which you hit them");
 		break;
-	case TLI_C0E2_CONTROL_FALL_SPEED:
-		sprintf(box_text, "Control how much bounce-off you get by varying your fall speed");
+		
+		// c0e3.
+	case TLI_C0E3_LEAP_OF_FAITH:
+		sprintf(box_text, "Leap of faith!");
+		break;
+		
+		// c0e4.
+	case TLI_C0E4_HOW_TO_AIR_CONTROL:
+		sprintf(box_text, "Move in the opposite direction of your velocity to slow down mid-air");
+		break;
+	case TLI_C0E4_LAUNCH_INTRO:
+		sprintf(box_text, "Launch tiles give you a sudden boost of velocity");
 		break;
 	}
 }

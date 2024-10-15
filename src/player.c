@@ -129,8 +129,8 @@ update_playing(void)
 		mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
 		g_player.vel_x += mv_horiz;
 		
-		if (key_down(CONF_KEY_FALL))
-			g_player.vel_y += CONF_PLAYER_FALL_ACCEL;
+		if (!player_grounded() && key_pressed(CONF_KEY_DASH_DOWN))
+			g_player.vel_y = CONF_PLAYER_DASH_DOWN_SPEED;
 		
 		if (player_grounded() && key_down(CONF_KEY_JUMP))
 			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
@@ -210,6 +210,9 @@ update_dead(void)
 static void
 collide(map_tile *tile)
 {
+	if (!tile)
+		return;
+	
 	// implement behavior that doesn't depend on collision direction.
 	switch (tile->type)
 	{
@@ -218,9 +221,11 @@ collide(map_tile *tile)
 		player_die();
 		break;
 	case MTT_END:
-		g_player.short_circuit = true;
 		if (g_game.off_switches == 0)
+		{
+			g_player.short_circuit = true;
 			map_list_load_next();
+		}
 		break;
 	case MTT_SWITCH_OFF:
 		tile->type = MTT_SWITCH_ON;

@@ -6,6 +6,7 @@ typedef enum text_list_item
 {
 	TLI_CTE0_TEST = 0x0,
 	
+	// c0e0.
 	TLI_C0E0_HOW_TO_MOVE = 0x1,
 	TLI_C0E0_HOW_TO_JUMP = 0x2,
 	TLI_C0E0_HOW_TO_WALLJUMP = 0x3,
@@ -13,13 +14,20 @@ typedef enum text_list_item
 	TLI_C0E0_HOW_TO_SLIDE = 0x5,
 	TLI_C0E0_HOW_TO_WIN = 0x6,
 	
+	// c0e1.
 	TLI_C0E1_KILL_INTRO = 0x7,
 	TLI_C0E1_MOMENTUM_INTRO = 0x8,
 	TLI_C0E1_HOW_TO_POWERJUMP = 0x9,
-	TLI_C0E1_HOW_TO_FALL = 0xa,
 	
-	TLI_C0E2_BOUNCE_INTRO = 0xb,
-	TLI_C0E2_CONTROL_FALL_SPEED = 0xc,
+	// c0e2.
+	TLI_C0E2_BOUNCE_INTRO = 0xa,
+	
+	// c0e3.
+	TLI_C0E3_LEAP_OF_FAITH = 0xb,
+	
+	// c0e4.
+	TLI_C0E4_HOW_TO_AIR_CONTROL = 0xc,
+	TLI_C0E4_LAUNCH_INTRO = 0xd,
 	
 	TLI_END__,
 } text_list_item;

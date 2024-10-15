@@ -11,6 +11,7 @@ typedef enum map_list_item
 	MLI_C0E1,
 	MLI_C0E2,
 	MLI_C0E3,
+	MLI_C0E4,
 	
 	MLI_END__,
 } map_list_item;

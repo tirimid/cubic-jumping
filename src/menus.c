@@ -297,9 +297,9 @@ void
 pause_menu_loop(void)
 {
 	ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
-	ui_button b_retry = ui_button_create(80, 380, "Retry level", btn_force_retry);
-	ui_button b_main_menu = ui_button_create(80, 420, "Main menu", btn_main_menu);
-	ui_button b_exit = ui_button_create(80, 460, "Exit to desktop", btn_exit_to_desktop);
+	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_force_retry);
+	ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
+	ui_button b_exit = ui_button_create(80, 500, "Exit to desktop", btn_exit_to_desktop);
 	
 	in_menu = true;
 	while (in_menu)
