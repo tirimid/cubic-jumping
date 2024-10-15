@@ -47,6 +47,13 @@ key_pressed(SDL_Keycode k)
 	return k_press_states[k];
 }
 
+bool
+key_shift_held(void)
+{
+	SDL_Keymod km = SDL_GetModState();
+	return km & KMOD_LSHIFT || km & KMOD_RSHIFT;
+}
+
 void
 mouse_press_button(SDL_Event const *e)
 {

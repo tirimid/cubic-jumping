@@ -227,7 +227,7 @@ draw_indicators(void)
 		
 		static char buf[32];
 		sprintf(buf,
-		        "%01lu:%02lu.%lu",
+		        "%lu:%02lu.%02lu",
 		        il_time_m,
 		        il_time_s % 60,
 		        g_game.il_time_ms % 1000 / 10);

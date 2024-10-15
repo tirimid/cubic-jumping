@@ -3,10 +3,10 @@
 
 typedef enum map_list_item
 {
-	// chapter test.
-	MLI_CTE0 = 0,
-	MLI_CTE1,
-	MLI_CTE2,
+	MLI_NULL = 0,
+	
+	// custom map.
+	MLI_CUSTOM,
 	
 	// chapter 0.
 	MLI_C0E0,
@@ -17,7 +17,9 @@ typedef enum map_list_item
 } map_list_item;
 
 void map_list_load(map_list_item item);
-void map_list_reload(void);
+int map_list_load_custom(char const *path);
+void map_list_hard_reload(void);
+void map_list_soft_reload(void);
 void map_list_load_next(void);
 
 #endif

@@ -19,6 +19,7 @@ void keybd_set_key_state(SDL_Event const *e, bool pressed);
 void keybd_post_update(void);
 bool key_down(SDL_Keycode k);
 bool key_pressed(SDL_Keycode k);
+bool key_shift_held(void);
 
 // mouse input functionality.
 void mouse_press_button(SDL_Event const *e);

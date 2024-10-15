@@ -35,7 +35,7 @@ typedef struct map
 
 extern map g_map;
 
-// editor functionality.
+// editor / custom map functionality.
 int map_create_file(char const *file, char const *name);
 int map_load_from_file(char const *file);
 void map_grow(uint32_t dx, uint32_t dy);

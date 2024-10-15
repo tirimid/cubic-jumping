@@ -1,6 +1,7 @@
 #include "map_list.h"
 
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "cam.h"
 #include "game.h"
@@ -12,9 +13,6 @@
 #include "vfx.h"
 
 // compiled map data.
-#include "cte0.hfm"
-#include "cte1.hfm"
-#include "cte2.hfm"
 #include "c0e0.hfm"
 #include "c0e1.hfm"
 #include "c0e2.hfm"
@@ -30,19 +28,12 @@ static map_list_item cur_item;
 static item item_data[MLI_END__] =
 {
 	{
-		.map = &cte0_map,
-		.triggers = cte0_triggers,
-		.ntriggers = cte0_NTRIGGERS,
+		// dummy: null map.
+		.map = NULL,
 	},
 	{
-		.map = &cte1_map,
-		.triggers = cte1_triggers,
-		.ntriggers = cte1_NTRIGGERS,
-	},
-	{
-		.map = &cte2_map,
-		.triggers = cte2_triggers,
-		.ntriggers = cte2_NTRIGGERS,
+		// dummy: custom map.
+		.map = NULL,
 	},
 	{
 		.map = &c0e0_map,
@@ -64,41 +55,115 @@ static item item_data[MLI_END__] =
 void
 map_list_load(map_list_item item)
 {
-	g_map = *item_data[item].map;
-	
-	g_ntriggers = 0;
-	for (size_t i = 0; i < item_data[item].ntriggers; ++i)
-		triggers_add_trigger(&item_data[item].triggers[i]);
-	
-	g_player_state = PS_PLAYING;
-	g_player = (player)
+	// unload map if custom one is already loaded to prevent memory leak.
 	{
-		.pos_x = g_map.player_spawn_x,
-		.pos_y = g_map.player_spawn_y,
-		.vel_x = 0.0f,
-		.vel_y = 0.0f,
-	};
+		if (cur_item == MLI_CUSTOM)
+			free(g_map.data);
+	}
 	
-	g_cam = (cam)
+	// init gameplay elements.
 	{
-		.pos_x = g_map.player_spawn_x,
-		.pos_y = g_map.player_spawn_y,
-		.zoom = 1.0f,
-	};
+		g_map = *item_data[item].map;
+		
+		g_ntriggers = 0;
+		for (size_t i = 0; i < item_data[item].ntriggers; ++i)
+			triggers_add_trigger(&item_data[item].triggers[i]);
+		
+		g_player_state = PS_PLAYING;
+		g_player = (player)
+		{
+			.pos_x = g_map.player_spawn_x,
+			.pos_y = g_map.player_spawn_y,
+			.vel_x = 0.0f,
+			.vel_y = 0.0f,
+		};
+		
+		game_disable_switches();
+	}
 	
-	game_disable_switches();
-	g_game.il_time_ms = 0;
-	g_game.il_deaths = 0;
+	// init aesthetic elements.
+	{
+		g_cam = (cam)
+		{
+			.pos_x = g_map.player_spawn_x,
+			.pos_y = g_map.player_spawn_y,
+			.zoom = 1.0f,
+		};
+		
+		g_game.il_time_ms = 0;
+		g_game.il_deaths = 0;
+		
+		text_list_term();
+		
+		vfx_clear_particles();
+	}
 	
-	text_list_term();
+	// register map list item as being loaded.
+	{
+		cur_item = item;
+	}
+}
+
+int
+map_list_load_custom(char const *path)
+{
+	// unload map if custom one is already loaded to prevent memory leak.
+	{
+		if (cur_item == MLI_CUSTOM)
+			free(g_map.data);
+		cur_item = MLI_NULL;
+	}
 	
-	vfx_clear_particles();
+	// init gameplay elements.
+	{
+		if (map_load_from_file(path))
+			return 1;
+		
+		g_player_state = PS_PLAYING;
+		g_player = (player)
+		{
+			.pos_x = g_map.player_spawn_x,
+			.pos_y = g_map.player_spawn_y,
+			.vel_x = 0.0f,
+			.vel_y = 0.0f,
+		};
+		
+		game_disable_switches();
+	}
 	
-	cur_item = item;
+	// init aesthetic elements.
+	{
+		g_cam = (cam)
+		{
+			.pos_x = g_map.player_spawn_x,
+			.pos_y = g_map.player_spawn_y,
+			.zoom = 1.0f,
+		};
+		
+		g_game.il_time_ms = 0;
+		g_game.il_deaths = 0;
+		
+		text_list_term();
+		
+		vfx_clear_particles();
+	}
+	
+	// register map list item as being loaded.
+	{
+		cur_item = MLI_CUSTOM;
+	}
+	
+	return 0;
 }
 
 void
-map_list_reload(void)
+map_list_hard_reload(void)
+{
+	map_list_load(cur_item);
+}
+
+void
+map_list_soft_reload(void)
 {
 	g_player_state = PS_PLAYING;
 	g_player = (player)
@@ -115,7 +180,9 @@ map_list_reload(void)
 void
 map_list_load_next(void)
 {
-	if (cur_item == MLI_END__ - 1)
+	if (cur_item == MLI_CUSTOM)
+		; // TODO: go back to main menu.
+	else if (cur_item == MLI_END__ - 1)
 		; // TODO: show game end screen upon finishing final level.
 	else
 	{
@@ -125,7 +192,7 @@ map_list_load_next(void)
 			map_list_load(cur_item + 1);
 			break;
 		case MR_RETRY:
-			map_list_load(cur_item);
+			map_list_hard_reload();
 			break;
 		}
 	}

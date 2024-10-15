@@ -19,11 +19,11 @@ cam_update(void)
 	// pan camera towards player destination.
 	{
 		g_cam.pos_x = lerp(g_cam.pos_x,
-		                   g_player.pos_x + CONF_PLAYER_SIZE / 2.0f + CONF_CAM_LOOKAHEAD * g_player.vel_x,
+		                   g_player.pos_x + CONF_PLAYER_SIZE / 2.0f + CONF_CAM_LOOKAHEAD_X * g_player.vel_x,
 		                   CONF_CAM_SPEED);
 		
 		g_cam.pos_y = lerp(g_cam.pos_y,
-		                   g_player.pos_y + CONF_PLAYER_SIZE / 2.0f + CONF_CAM_LOOKAHEAD * g_player.vel_y,
+		                   g_player.pos_y + CONF_PLAYER_SIZE / 2.0f + CONF_CAM_LOOKAHEAD_Y * g_player.vel_y,
 		                   CONF_CAM_SPEED);
 	}
 	

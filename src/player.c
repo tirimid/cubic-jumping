@@ -191,7 +191,7 @@ update_dead(void)
 	if (g_player.dead_ticks == 0)
 	{
 		// map list reload simulates a respawn procedure.
-		map_list_reload();
+		map_list_soft_reload();
 		return;
 	}
 	
