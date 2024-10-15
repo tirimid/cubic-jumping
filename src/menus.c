@@ -299,7 +299,6 @@ pause_menu_loop(void)
 	ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
 	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_force_retry);
 	ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
-	ui_button b_exit = ui_button_create(80, 500, "Exit to desktop", btn_exit_to_desktop);
 	
 	in_menu = true;
 	while (in_menu)
@@ -344,7 +343,6 @@ pause_menu_loop(void)
 			ui_button_update(&b_resume);
 			ui_button_update(&b_retry);
 			ui_button_update(&b_main_menu);
-			ui_button_update(&b_exit);
 			keybd_post_update();
 			mouse_post_update();
 		}
@@ -360,7 +358,6 @@ pause_menu_loop(void)
 				ui_button_draw(&b_resume);
 				ui_button_draw(&b_retry);
 				ui_button_draw(&b_main_menu);
-				ui_button_draw(&b_exit);
 			}
 			
 			SDL_RenderPresent(g_rend);

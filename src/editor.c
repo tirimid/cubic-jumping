@@ -335,6 +335,7 @@ update_editor(void)
 				    && drag_y < trigger->pos_y + trigger->size_y)
 				{
 					triggers_rm_trigger(i);
+					unsaved = true;
 				}
 			}
 		}
