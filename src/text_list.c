@@ -31,6 +31,9 @@ static unsigned box_ticks_lut[] =
 	[TLI_C0E1_MOMENTUM_INTRO] = 500,
 	[TLI_C0E1_HOW_TO_POWERJUMP] = 500,
 	[TLI_C0E1_HOW_TO_FALL] = 500,
+	
+	[TLI_C0E2_BOUNCE_INTRO] = 500,
+	[TLI_C0E2_CONTROL_FALL_SPEED] = 500,
 };
 
 static text_list_item queue[QUEUED_MAX];
@@ -124,16 +127,22 @@ gen_box_text(text_list_item item)
 		sprintf(box_text, "Finish the level by entering the yellow portal");
 		break;
 	case TLI_C0E1_KILL_INTRO:
-		sprintf(box_text, "Don't fall into the kill blocks!");
+		sprintf(box_text, "Don't fall into the kill tiles!");
 		break;
 	case TLI_C0E1_MOMENTUM_INTRO:
-		sprintf(box_text, "Use the momentum from a prior jump to jump over the kill blocks");
+		sprintf(box_text, "Use the momentum from a prior jump to jump over the kill tiles");
 		break;
 	case TLI_C0E1_HOW_TO_POWERJUMP:
 		sprintf(box_text, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(CONF_KEY_POWERJUMP));
 		break;
 	case TLI_C0E1_HOW_TO_FALL:
 		sprintf(box_text, "Fall faster by holding [%s] in the air", SDL_GetKeyName(CONF_KEY_FALL));
+		break;
+	case TLI_C0E2_BOUNCE_INTRO:
+		sprintf(box_text, "Bounce tiles will bounce you off with a force proportional to how fast you fall on them");
+		break;
+	case TLI_C0E2_CONTROL_FALL_SPEED:
+		sprintf(box_text, "Control how much bounce-off you get by varying your fall speed");
 		break;
 	}
 }

@@ -24,6 +24,7 @@ typedef struct item
 	size_t ntriggers;
 } item;
 
+static char const *cur_custom;
 static map_list_item cur_item;
 static item item_data[MLI_END__] =
 {
@@ -134,6 +135,7 @@ map_list_load_custom(char const *path)
 	// register map list item as being loaded.
 	{
 		cur_item = MLI_CUSTOM;
+		cur_custom = path;
 	}
 	
 	return 0;
@@ -142,7 +144,13 @@ map_list_load_custom(char const *path)
 void
 map_list_hard_reload(void)
 {
-	map_list_load(cur_item);
+	if (cur_item == MLI_CUSTOM)
+	{
+		free(g_map.data);
+		map_list_load_custom(cur_custom);
+	}
+	else
+		map_list_load(cur_item);
 }
 
 void
@@ -163,25 +171,23 @@ map_list_soft_reload(void)
 void
 map_list_load_next(void)
 {
-	if (cur_item == MLI_CUSTOM)
-		g_game.running = false;
-	else if (cur_item == MLI_END__ - 1)
+	switch (level_end_menu_loop())
 	{
-		// TODO: scroll credits or something.
-		g_game.running = false;
-	}
-	else
-	{
-		switch (level_end_menu_loop())
+	case MR_NEXT:
+		if (cur_item == MLI_CUSTOM)
+			g_game.running = false;
+		else if (cur_item == MLI_END__ - 1)
 		{
-		case MR_NEXT:
-			map_list_load(cur_item + 1);
-			break;
-		case MR_RETRY:
-			map_list_hard_reload();
-			break;
-		default:
-			break;
+			// TODO: scroll game credits or something.
+			g_game.running = false;
 		}
+		else
+			map_list_load(cur_item + 1);
+		break;
+	case MR_RETRY:
+		map_list_hard_reload();
+		break;
+	default:
+		break;
 	}
 }

@@ -18,6 +18,9 @@ typedef enum text_list_item
 	TLI_C0E1_HOW_TO_POWERJUMP = 0x9,
 	TLI_C0E1_HOW_TO_FALL = 0xa,
 	
+	TLI_C0E2_BOUNCE_INTRO = 0xb,
+	TLI_C0E2_CONTROL_FALL_SPEED = 0xc,
+	
 	TLI_END__,
 } text_list_item;
 

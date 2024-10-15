@@ -195,7 +195,7 @@ custom_level_select_menu_loop(void)
 menu_request
 level_end_menu_loop(void)
 {
-	ui_button b_next = ui_button_create(80, 380, "Next level", btn_req_next);
+	ui_button b_next = ui_button_create(80, 380, "Continue", btn_req_next);
 	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_req_retry);
 	ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
 	
