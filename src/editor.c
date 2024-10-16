@@ -180,8 +180,7 @@ editor_loop(void)
 		
 		uint64_t tick_end = get_unix_time_ms();
 		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		if (tick_time_left > 0)
-			SDL_Delay(tick_time_left);
+		SDL_Delay(tick_time_left * (tick_time_left > 0));
 	}
 }
 

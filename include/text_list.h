@@ -41,6 +41,9 @@ typedef enum text_list_item
 	TLI_C0E8_EXPLOIT_RESTITUTION = 0x12,
 	TLI_C0E8_DODGE_OBSTACLES = 0x13,
 	
+	// c0e9.
+	TLI_C0E9_SLIPPERY_INTRO = 0x14,
+	
 	TLI_END__,
 } text_list_item;
 

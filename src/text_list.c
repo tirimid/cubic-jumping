@@ -161,5 +161,10 @@ gen_box_text(text_list_item item)
 	case TLI_C0E8_DODGE_OBSTACLES:
 		sprintf(box_text, "Dodge obstacles by rapidly changing your vertical velocity");
 		break;
+		
+		// c0e9.
+	case TLI_C0E9_SLIPPERY_INTRO:
+		sprintf(box_text, "You can't get a proper grip on slippery tiles");
+		break;
 	}
 }

@@ -189,7 +189,8 @@ update_playing(void)
 		
 		if (!g_player_cap_mask.no_walljump
 		    && player_walled_left()
-		    && key_down(g_options.k_jump))
+		    && key_down(g_options.k_jump)
+		    && g_player.near_left->type != MTT_SLIPPERY)
 		{
 			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
@@ -197,7 +198,8 @@ update_playing(void)
 		
 		if (!g_player_cap_mask.no_walljump
 		    && player_walled_right()
-		    && key_down(g_options.k_jump))
+		    && key_down(g_options.k_jump)
+		    && g_player.near_right->type != MTT_SLIPPERY)
 		{
 			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
@@ -206,9 +208,11 @@ update_playing(void)
 		if (!g_player_cap_mask.no_wallslide
 		    && player_walled_left()
 		    && key_down(g_options.k_left)
+		    && g_player.near_left->type != MTT_SLIPPERY
 		    || !g_player_cap_mask.no_wallslide
 		    && player_walled_right()
-		    && key_down(g_options.k_right))
+		    && key_down(g_options.k_right)
+		    && g_player.near_right->type != MTT_SLIPPERY)
 		{
 			g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
 		}

@@ -66,13 +66,12 @@ game_loop(void)
 			SDL_RenderPresent(g_rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		if (tick_time_left > 0)
-			SDL_Delay(tick_time_left);
-		
 		g_game.il_time_ms += CONF_TICK_MS;
 		g_game.total_time_ms += CONF_TICK_MS;
+		
+		uint64_t tick_end = get_unix_time_ms();
+		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
+		SDL_Delay(tick_time_left * (tick_time_left > 0));
 	}
 }
 

@@ -17,6 +17,7 @@ typedef enum map_tile_type
 	MTT_SWITCH_OFF,
 	MTT_SWITCH_ON,
 	MTT_END_OFF,
+	MTT_SLIPPERY,
 	
 	MTT_END__,
 } map_tile_type;

@@ -23,6 +23,7 @@
 #include "c0e6.hfm"
 #include "c0e7.hfm"
 #include "c0e8.hfm"
+#include "c0e9.hfm"
 
 #define INCLUDE_MAP(name) \
 	{ \
@@ -57,6 +58,7 @@ static item item_data[MLI_END__] =
 	INCLUDE_MAP(c0e6),
 	INCLUDE_MAP(c0e7),
 	INCLUDE_MAP(c0e8),
+	INCLUDE_MAP(c0e9),
 };
 
 void
