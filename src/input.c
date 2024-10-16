@@ -1,11 +1,53 @@
 #include "input.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 // just assume that 1024 is a big enough array size.
 static bool k_down_states[1024], k_press_states[1024];
+static bool k_text_input_states[128];
 static bool m_down_states[MB_END__], m_press_states[MB_END__], m_release_states[MB_END__];
+
+void
+input_handle_events(void)
+{
+	SDL_Event e;
+	while (SDL_PollEvent(&e))
+	{
+		switch (e.type)
+		{
+		case SDL_QUIT:
+			exit(0);
+		case SDL_KEYDOWN:
+			if (!e.key.repeat)
+				keybd_set_key_state(&e, true);
+			break;
+		case SDL_KEYUP:
+			if (!e.key.repeat)
+				keybd_set_key_state(&e, false);
+			break;
+		case SDL_MOUSEBUTTONUP:
+			mouse_release_button(&e);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			mouse_press_button(&e);
+			break;
+		case SDL_TEXTINPUT:
+			keybd_register_text_input(&e);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void
+input_post_update(void)
+{
+	keybd_post_update();
+	mouse_post_update();
+}
 
 void
 keybd_set_key_state(SDL_Event const *e, bool pressed)
@@ -20,9 +62,22 @@ keybd_set_key_state(SDL_Event const *e, bool pressed)
 }
 
 void
+keybd_register_text_input(SDL_Event const *e)
+{
+	unsigned char ch = e->text.text[0];
+	
+	// disregard non-ASCII input.
+	if (ch & 0x80)
+		return;
+	
+	k_text_input_states[ch] = true;
+}
+
+void
 keybd_post_update(void)
 {
 	memset(k_press_states, 0, sizeof(k_press_states));
+	memset(k_text_input_states, 0, sizeof(k_text_input_states));
 }
 
 bool
@@ -45,6 +100,12 @@ key_pressed(SDL_Keycode k)
 		k += 128;
 	}
 	return k_press_states[k];
+}
+
+bool
+key_text_input_received(char ch)
+{
+	return k_text_input_states[ch];
 }
 
 bool

@@ -84,10 +84,18 @@ text_draw_ch(char ch, int x, int y)
 void
 text_draw_str(char const *s, int x, int y)
 {
+	int dx = 0, dy = 0;
 	for (char const *c = s; *c; ++c)
 	{
-		text_draw_ch(*c, x, y);
-		x += TEXT_EFF_WIDTH;
+		if (*c == '\n')
+		{
+			dx = 0;
+			dy += TEXT_EFF_HEIGHT;
+			continue;
+		}
+		
+		text_draw_ch(*c, x + dx, y + dy);
+		dx += TEXT_EFF_WIDTH;
 	}
 }
 

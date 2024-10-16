@@ -52,31 +52,7 @@ main_menu_loop(void)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
- 		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			switch (e.type)
-			{
-			case SDL_QUIT:
-				exit(0);
-			case SDL_KEYDOWN:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, true);
-				break;
-			case SDL_KEYUP:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, false);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				mouse_release_button(&e);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				mouse_press_button(&e);
-				break;
-			default:
-				break;
-			}
-		}
+ 		input_handle_events();
 		
 		// update main menu.
 		{
@@ -85,8 +61,7 @@ main_menu_loop(void)
 			ui_button_update(&b_play_custom);
 			ui_button_update(&b_editor);
 			ui_button_update(&b_exit);
-			keybd_post_update();
-			mouse_post_update();
+			input_post_update();
 		}
 		
 		// draw pause menu.
@@ -129,39 +104,14 @@ custom_level_select_menu_loop(void)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
- 		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			switch (e.type)
-			{
-			case SDL_QUIT:
-				exit(0);
-			case SDL_KEYDOWN:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, true);
-				break;
-			case SDL_KEYUP:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, false);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				mouse_release_button(&e);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				mouse_press_button(&e);
-				break;
-			default:
-				break;
-			}
-		}
+		input_handle_events();
 		
 		// update level select menu.
 		{
 			ui_text_field_update(&tf_path);
 			ui_button_update(&b_select);
 			ui_button_update(&b_back);
-			keybd_post_update();
-			mouse_post_update();
+			input_post_update();
 		}
 		
 		// draw level select menu.
@@ -205,39 +155,14 @@ level_end_menu_loop(void)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
- 		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			switch (e.type)
-			{
-			case SDL_QUIT:
-				exit(0);
-			case SDL_KEYDOWN:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, true);
-				break;
-			case SDL_KEYUP:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, false);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				mouse_release_button(&e);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				mouse_press_button(&e);
-				break;
-			default:
-				break;
-			}
-		}
+ 		input_handle_events();
 		
 		// update level end menu.
 		{
 			ui_button_update(&b_next);
 			ui_button_update(&b_retry);
 			ui_button_update(&b_main_menu);
-			keybd_post_update();
-			mouse_post_update();
+			input_post_update();
 		}
 		
 		// draw level end menu.
@@ -305,46 +230,17 @@ pause_menu_loop(void)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
-		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			switch (e.type)
-			{
-			case SDL_QUIT:
-				exit(0);
-			case SDL_KEYDOWN:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, true);
-				break;
-			case SDL_KEYUP:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, false);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				mouse_release_button(&e);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				mouse_press_button(&e);
-				break;
-			default:
-				break;
-			}
-		}
-		
-		if (key_pressed(CONF_KEY_MENU))
-		{
-			keybd_post_update();
-			mouse_post_update();
-			return;
-		}
+		input_handle_events();
 		
 		// update pause menu.
 		{
+			if (key_pressed(CONF_KEY_MENU))
+				in_menu = false;
+			
 			ui_button_update(&b_resume);
 			ui_button_update(&b_retry);
 			ui_button_update(&b_main_menu);
-			keybd_post_update();
-			mouse_post_update();
+			input_post_update();
 		}
 		
 		// draw pause menu.

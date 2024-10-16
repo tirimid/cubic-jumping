@@ -16,5 +16,6 @@ extern game g_game;
 
 void game_loop(void);
 void game_disable_switches(void);
+void game_enable_switch(void);
 
 #endif

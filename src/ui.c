@@ -174,17 +174,15 @@ ui_text_field_update(ui_text_field *tf)
 			if (!isprint(i))
 				continue;
 			
-			if (key_pressed(i))
+			if (key_text_input_received(i))
 			{
-				unsigned char ch = key_shift_held() ? toupper(i) : i;
-				
 				memmove(&tf->out[tf->csr + 1],
 				        &tf->out[tf->csr],
 				        tf->len - tf->csr);
 				
 				++tf->csr;
 				tf->first_draw += tf->csr - tf->first_draw >= tf->ndraw;
-				tf->out[tf->csr - 1] = ch;
+				tf->out[tf->csr - 1] = i;
 				
 				++tf->len;
 				tf->out[tf->len] = 0;

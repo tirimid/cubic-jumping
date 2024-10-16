@@ -56,19 +56,19 @@ player_draw(void)
 bool
 player_grounded(void)
 {
-	return g_player.dist_bottom < COL_THRESHOLD;
+	return g_player.dist_bottom < COL_THRESHOLD && !g_player.short_circuit;
 }
 
 bool
 player_walled_left(void)
 {
-	return g_player.dist_left < COL_THRESHOLD;
+	return g_player.dist_left < COL_THRESHOLD && !g_player.short_circuit;
 }
 
 bool
 player_walled_right(void)
 {
-	return g_player.dist_right < COL_THRESHOLD;
+	return g_player.dist_right < COL_THRESHOLD && !g_player.short_circuit;
 }
 
 void
@@ -125,9 +125,12 @@ update_playing(void)
 	
 	// apply user movement input velocity.
 	{
-		float mv_horiz = key_down(CONF_KEY_RIGHT) - key_down(CONF_KEY_LEFT);
-		mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
-		g_player.vel_x += mv_horiz;
+		if (player_grounded() || !player_grounded() && g_player.air_control)
+		{
+			float mv_horiz = key_down(CONF_KEY_RIGHT) - key_down(CONF_KEY_LEFT);
+			mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
+			g_player.vel_x += mv_horiz;
+		}
 		
 		if (!player_grounded() && key_pressed(CONF_KEY_DASH_DOWN))
 			g_player.vel_y = CONF_PLAYER_DASH_DOWN_SPEED;
@@ -213,6 +216,8 @@ collide(map_tile *tile)
 	if (!tile)
 		return;
 	
+	g_player.air_control = true;
+	
 	// implement behavior that doesn't depend on collision direction.
 	switch (tile->type)
 	{
@@ -220,16 +225,13 @@ collide(map_tile *tile)
 		g_player.short_circuit = true;
 		player_die();
 		break;
-	case MTT_END:
-		if (g_game.off_switches == 0)
-		{
-			g_player.short_circuit = true;
-			map_list_load_next();
-		}
+	case MTT_END_ON:
+		g_player.short_circuit = true;
+		map_list_load_next();
 		break;
 	case MTT_SWITCH_OFF:
 		tile->type = MTT_SWITCH_ON;
-		--g_game.off_switches;
+		game_enable_switch();
 		break;
 	default:
 		break;
@@ -250,8 +252,10 @@ collide_left(void)
 		g_player.vel_x *= -CONF_RESTITUTION;
 		break;
 	case MTT_LAUNCH:
-		g_player.vel_x = CONF_LAUNCH_FORCE_X;
-		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		g_player.air_control = false;
+		g_player.short_circuit = true;
+		g_player.vel_x = CONF_WALL_LAUNCH_FORCE_X;
+		g_player.vel_y = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
 	default:
 		g_player.vel_x = 0.0f;
@@ -273,8 +277,10 @@ collide_right(void)
 		g_player.vel_x *= -CONF_RESTITUTION;
 		break;
 	case MTT_LAUNCH:
-		g_player.vel_x = -CONF_LAUNCH_FORCE_X;
-		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		g_player.air_control = false;
+		g_player.short_circuit = true;
+		g_player.vel_x = -CONF_WALL_LAUNCH_FORCE_X;
+		g_player.vel_y = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
 	default:
 		g_player.vel_x = 0.0f;
@@ -296,7 +302,7 @@ collide_bottom(void)
 		g_player.vel_y *= -CONF_RESTITUTION;
 		break;
 	case MTT_LAUNCH:
-		g_player.vel_y = -CONF_LAUNCH_FORCE_Y;
+		g_player.vel_y = -CONF_LAUNCH_FORCE;
 		break;
 	default:
 		g_player.vel_y = 0.0f;
@@ -461,8 +467,8 @@ test_and_apply_collisions(void)
 	if (-g_player.vel_y >= g_player.dist_top
 	    && g_player.dist_top < g_player.dist_bottom)
 	{
-		collide_top();
 		collide(g_player.near_top);
+		collide_top();
 	}
 	
 	if (g_player.short_circuit)
@@ -472,8 +478,8 @@ test_and_apply_collisions(void)
 	if (-g_player.vel_x >= g_player.dist_left
 	    && g_player.dist_left < g_player.dist_right)
 	{
-		collide_left();
 		collide(g_player.near_left);
+		collide_left();
 	}
 	
 	if (g_player.short_circuit)
@@ -483,8 +489,8 @@ test_and_apply_collisions(void)
 	if (g_player.vel_x >= g_player.dist_right
 	    && g_player.dist_right < g_player.dist_left)
 	{
-		collide_right();
 		collide(g_player.near_right);
+		collide_right();
 	}
 	
 	if (g_player.short_circuit)
@@ -494,7 +500,7 @@ test_and_apply_collisions(void)
 	if (g_player.vel_y >= g_player.dist_bottom
 	    && g_player.dist_bottom < g_player.dist_top)
 	{
-		collide_bottom();
 		collide(g_player.near_bottom);
+		collide_bottom();
 	}
 }

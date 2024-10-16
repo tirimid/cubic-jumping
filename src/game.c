@@ -31,29 +31,11 @@ game_loop(void)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
 		
-		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			switch (e.type)
-			{
-			case SDL_QUIT:
-				exit(0);
-			case SDL_KEYDOWN:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, true);
-				break;
-			case SDL_KEYUP:
-				if (!e.key.repeat)
-					keybd_set_key_state(&e, false);
-				break;
-			default:
-				break;
-			}
-		}
+		input_handle_events();
 		
 		if (key_pressed(CONF_KEY_MENU))
 		{
-			keybd_post_update();
+			input_post_update();
 			pause_menu_loop();
 			continue;
 		}
@@ -65,7 +47,7 @@ game_loop(void)
 			vfx_update();
 			cam_update();
 			text_list_update();
-			keybd_post_update();
+			input_post_update();
 		}
 		
 		// draw game.
@@ -106,6 +88,29 @@ game_disable_switches(void)
 		}
 		else if (g_map.data[i].type == MTT_SWITCH_OFF)
 			++g_game.off_switches;
+	}
+	
+	if (g_game.off_switches > 0)
+	{
+		for (size_t i = 0, size = g_map.size_x * g_map.size_y; i < size; ++i)
+		{
+			if (g_map.data[i].type == MTT_END_ON)
+				g_map.data[i].type = MTT_END_OFF;
+		}
+	}
+}
+
+void
+game_enable_switch(void)
+{
+	--g_game.off_switches;
+	if (g_game.off_switches == 0)
+	{
+		for (size_t i = 0, size = g_map.size_x * g_map.size_y; i < size; ++i)
+		{
+			if (g_map.data[i].type == MTT_END_OFF)
+				g_map.data[i].type = MTT_END_ON;
+		}
 	}
 }
 

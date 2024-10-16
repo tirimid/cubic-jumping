@@ -8,6 +8,7 @@
 #include "map.h"
 #include "menus.h"
 #include "player.h"
+#include "sequences.h"
 #include "text_list.h"
 #include "triggers.h"
 #include "vfx.h"
@@ -18,6 +19,16 @@
 #include "c0e2.hfm"
 #include "c0e3.hfm"
 #include "c0e4.hfm"
+#include "c0e5.hfm"
+#include "c0e6.hfm"
+#include "c0e7.hfm"
+
+#define INCLUDE_MAP(name) \
+	{ \
+		.map = &name##_map, \
+		.triggers = name##_triggers, \
+		.ntriggers = name##_NTRIGGERS, \
+	}
 
 typedef struct item
 {
@@ -34,31 +45,16 @@ static item item_data[MLI_END__] =
 		// dummy: custom map.
 		.map = NULL,
 	},
-	{
-		.map = &c0e0_map,
-		.triggers = c0e0_triggers,
-		.ntriggers = c0e0_NTRIGGERS,
-	},
-	{
-		.map = &c0e1_map,
-		.triggers = c0e1_triggers,
-		.ntriggers = c0e1_NTRIGGERS,
-	},
-	{
-		.map = &c0e2_map,
-		.triggers = c0e2_triggers,
-		.ntriggers = c0e2_NTRIGGERS,
-	},
-	{
-		.map = &c0e3_map,
-		.triggers = c0e3_triggers,
-		.ntriggers = c0e3_NTRIGGERS,
-	},
-	{
-		.map = &c0e4_map,
-		.triggers = c0e4_triggers,
-		.ntriggers = c0e4_NTRIGGERS,
-	},
+	
+	// chapter 0.
+	INCLUDE_MAP(c0e0),
+	INCLUDE_MAP(c0e1),
+	INCLUDE_MAP(c0e2),
+	INCLUDE_MAP(c0e3),
+	INCLUDE_MAP(c0e4),
+	INCLUDE_MAP(c0e5),
+	INCLUDE_MAP(c0e6),
+	INCLUDE_MAP(c0e7),
 };
 
 void
@@ -190,7 +186,8 @@ map_list_load_next(void)
 			g_game.running = false;
 		else if (cur_item == MLI_END__ - 1)
 		{
-			// TODO: scroll game credits or something.
+			// TODO: uncomment when credits sequence is done.
+			//credits_sequence();
 			g_game.running = false;
 		}
 		else

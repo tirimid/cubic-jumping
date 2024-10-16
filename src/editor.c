@@ -191,8 +191,9 @@ update_editor(void)
 	{
 		float mv_horiz = key_down(CONF_EDITOR_KEY_RIGHT) - key_down(CONF_EDITOR_KEY_LEFT);
 		float mv_vert = key_down(CONF_EDITOR_KEY_DOWN) - key_down(CONF_EDITOR_KEY_UP);
-		g_cam.pos_x += CONF_EDITOR_CAM_SPEED * mv_horiz;
-		g_cam.pos_y += CONF_EDITOR_CAM_SPEED * mv_vert;
+		float speed = key_shift_held() ? CONF_EDITOR_CAM_SPEED_FAST : CONF_EDITOR_CAM_SPEED;
+		g_cam.pos_x += speed * mv_horiz;
+		g_cam.pos_y += speed * mv_vert;
 	}
 	
 	// mouse interaction based on mode.

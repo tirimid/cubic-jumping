@@ -16,5 +16,6 @@ float rand_float(float max); // ranges from [0, max].
 int rand_int(int max); // ranges from [0, max).
 void game_to_screen_coord(int *out_x, int *out_y, float x, float y);
 void screen_to_game_coord(float *out_x, float *out_y, int x, int y);
+unsigned count_lines(char const *s);
 
 #endif

@@ -13,9 +13,10 @@ typedef enum map_tile_type
 	MTT_KILL,
 	MTT_BOUNCE,
 	MTT_LAUNCH,
-	MTT_END,
+	MTT_END_ON,
 	MTT_SWITCH_OFF,
 	MTT_SWITCH_ON,
+	MTT_END_OFF,
 	
 	MTT_END__,
 } map_tile_type;

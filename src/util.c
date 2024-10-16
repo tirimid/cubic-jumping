@@ -97,3 +97,12 @@ screen_to_game_coord(float *out_x, float *out_y, int x, int y)
 	*out_x = (x - CONF_WND_WIDTH / 2) / (g_cam.zoom * CONF_DRAW_SCALE) + g_cam.pos_x;
 	*out_y = (y - CONF_WND_HEIGHT / 2) / (g_cam.zoom * CONF_DRAW_SCALE) + g_cam.pos_y;
 }
+
+unsigned
+count_lines(char const *s)
+{
+	unsigned n = 1;
+	for (size_t i = 0; s[i]; ++i)
+		n += s[i] == '\n';
+	return n;
+}

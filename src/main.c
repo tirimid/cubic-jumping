@@ -10,6 +10,7 @@
 #endif
 
 #include "menus.h"
+#include "sequences.h"
 #include "wnd.h"
 
 #ifdef BUILD_TARGET_WINDOWS
@@ -37,10 +38,15 @@ ENTRY_FN
 		atexit(SDL_Quit);
 		
 		srand(time(NULL));
+		
+		SDL_StartTextInput();
 	}
 	
 	if (wnd_init())
 		return 1;
+	
+	// TODO: uncomment when intro sequence is done.
+	//intro_sequence();
 	
 	main_menu_loop();
 	

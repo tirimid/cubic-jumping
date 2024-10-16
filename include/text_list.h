@@ -29,6 +29,13 @@ typedef enum text_list_item
 	TLI_C0E4_HOW_TO_AIR_CONTROL = 0xc,
 	TLI_C0E4_LAUNCH_INTRO = 0xd,
 	
+	// c0e5.
+	TLI_C0E5_HORIZONTAL_LAUNCH_INTRO = 0xe,
+	
+	// c0e6.
+	TLI_C0E6_END_OFF_INTRO = 0xf,
+	TLI_C0E6_SWITCH_INTRO = 0x10,
+	
 	TLI_END__,
 } text_list_item;
 

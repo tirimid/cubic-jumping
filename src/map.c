@@ -390,9 +390,10 @@ map_tile_color(map_tile_type type)
 		CONF_COLOR_KILL,
 		CONF_COLOR_BOUNCE,
 		CONF_COLOR_LAUNCH,
-		CONF_COLOR_END,
+		CONF_COLOR_END_ON,
 		CONF_COLOR_SWITCH_OFF,
 		CONF_COLOR_SWITCH_ON,
+		CONF_COLOR_END_OFF,
 	};
 	
 	return colors[type];
@@ -404,6 +405,7 @@ map_tile_collision(map_tile_type type)
 	static bool collision[MTT_END__] =
 	{
 		false,
+		true,
 		true,
 		true,
 		true,

@@ -18,6 +18,7 @@ typedef struct player
 	// movement data.
 	float pos_x, pos_y;
 	float vel_x, vel_y;
+	bool air_control;
 	
 	// collision handling data.
 	float dist_left, dist_right, dist_top, dist_bottom;

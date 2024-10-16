@@ -9,40 +9,11 @@
 #include "text.h"
 
 #define QUEUED_MAX 64
+#define TEXT_TICKS 500
 
 static void gen_box_text(text_list_item item);
 
 static char box_text[512];
-
-// when creating a text box with the text list item, the tick duration for the
-// visibility of the box should be looked up from this LUT.
-static unsigned box_ticks_lut[] =
-{
-	[TLI_CTE0_TEST] = 500,
-	
-	// c0e0.
-	[TLI_C0E0_HOW_TO_MOVE] = 500,
-	[TLI_C0E0_HOW_TO_JUMP] = 500,
-	[TLI_C0E0_HOW_TO_WALLJUMP] = 500,
-	[TLI_C0E0_HOW_TO_CLIMB] = 500,
-	[TLI_C0E0_HOW_TO_SLIDE] = 500,
-	[TLI_C0E0_HOW_TO_WIN] = 500,
-	
-	// c0e1.
-	[TLI_C0E1_KILL_INTRO] = 500,
-	[TLI_C0E1_MOMENTUM_INTRO] = 500,
-	[TLI_C0E1_HOW_TO_POWERJUMP] = 500,
-	
-	// c0e2.
-	[TLI_C0E2_BOUNCE_INTRO] = 500,
-	
-	// c0e3.
-	[TLI_C0E3_LEAP_OF_FAITH] = 500,
-	
-	// c0e4.
-	[TLI_C0E4_HOW_TO_AIR_CONTROL] = 500,
-	[TLI_C0E4_LAUNCH_INTRO] = 500,
-};
 
 static text_list_item queue[QUEUED_MAX];
 static unsigned queue_front_ticks = 0;
@@ -63,7 +34,7 @@ text_list_enqueue(text_list_item item)
 		if (nqueued == 0)
 		{
 			gen_box_text(item);
-			queue_front_ticks = box_ticks_lut[item];
+			queue_front_ticks = TEXT_TICKS;
 		}
 		
 		queue[nqueued++] = item;
@@ -92,7 +63,7 @@ text_list_update(void)
 		// set new textbox parameters.
 		{
 			gen_box_text(queue[0]);
-			queue_front_ticks = box_ticks_lut[queue[0]];
+			queue_front_ticks = TEXT_TICKS;
 		}
 		
 		return;
@@ -164,6 +135,19 @@ gen_box_text(text_list_item item)
 		break;
 	case TLI_C0E4_LAUNCH_INTRO:
 		sprintf(box_text, "Launch tiles give you a sudden boost of velocity");
+		break;
+		
+		// c0e5.
+	case TLI_C0E5_HORIZONTAL_LAUNCH_INTRO:
+		sprintf(box_text, "Hitting a launch tile from the side will give you a boost of horizontal velocity");
+		break;
+		
+		// c0e6.
+	case TLI_C0E6_END_OFF_INTRO:
+		sprintf(box_text, "Wait, the end portal is disabled?");
+		break;
+	case TLI_C0E6_SWITCH_INTRO:
+		sprintf(box_text, "Try hitting those switch tiles...");
 		break;
 	}
 }
