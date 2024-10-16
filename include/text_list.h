@@ -36,6 +36,11 @@ typedef enum text_list_item
 	TLI_C0E6_END_OFF_INTRO = 0xf,
 	TLI_C0E6_SWITCH_INTRO = 0x10,
 	
+	// c0e8.
+	TLI_C0E8_HOW_TO_DASH_DOWN = 0x11,
+	TLI_C0E8_EXPLOIT_RESTITUTION = 0x12,
+	TLI_C0E8_DODGE_OBSTACLES = 0x13,
+	
 	TLI_END__,
 } text_list_item;
 

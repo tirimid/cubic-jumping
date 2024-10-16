@@ -13,6 +13,21 @@ typedef enum player_state
 	PS_DEAD,
 } player_state;
 
+typedef enum player_cap_id
+{
+	PCI_JUMP = 0,
+	PCI_WALLJUMP,
+	PCI_WALLSLIDE,
+	PCI_POWERJUMP,
+	PCI_DASH_DOWN,
+} player_cap_id;
+
+typedef struct player_cap_mask
+{
+	bool no_jump, no_walljump, no_wallslide;
+	bool no_powerjump, no_dash_down;
+} player_cap_mask;
+
 typedef struct player
 {
 	// movement data.
@@ -32,6 +47,7 @@ typedef struct player
 
 extern player g_player;
 extern player_state g_player_state;
+extern player_cap_mask g_player_cap_mask;
 
 void player_update(void);
 void player_draw(void);
@@ -39,5 +55,6 @@ bool player_grounded(void);
 bool player_walled_left(void);
 bool player_walled_right(void);
 void player_die(void);
+void player_set_cap_mask(player_cap_id id, bool state);
 
 #endif

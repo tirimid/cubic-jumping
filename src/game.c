@@ -10,6 +10,7 @@
 #include "map.h"
 #include "map_list.h"
 #include "menus.h"
+#include "options.h"
 #include "player.h"
 #include "text.h"
 #include "text_list.h"
@@ -33,7 +34,7 @@ game_loop(void)
 		
 		input_handle_events();
 		
-		if (key_pressed(CONF_KEY_MENU))
+		if (key_pressed(g_options.k_menu))
 		{
 			input_post_update();
 			pause_menu_loop();

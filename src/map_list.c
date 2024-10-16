@@ -22,6 +22,7 @@
 #include "c0e5.hfm"
 #include "c0e6.hfm"
 #include "c0e7.hfm"
+#include "c0e8.hfm"
 
 #define INCLUDE_MAP(name) \
 	{ \
@@ -55,6 +56,7 @@ static item item_data[MLI_END__] =
 	INCLUDE_MAP(c0e5),
 	INCLUDE_MAP(c0e6),
 	INCLUDE_MAP(c0e7),
+	INCLUDE_MAP(c0e8),
 };
 
 void
@@ -76,6 +78,7 @@ map_list_load(map_list_item item)
 			.vel_x = 0.0f,
 			.vel_y = 0.0f,
 		};
+		g_player_cap_mask = (player_cap_mask){0};
 		
 		game_disable_switches();
 	}
@@ -119,6 +122,7 @@ map_list_load_custom(char const *path)
 			.vel_x = 0.0f,
 			.vel_y = 0.0f,
 		};
+		g_player_cap_mask = (player_cap_mask){0};
 		
 		game_disable_switches();
 	}

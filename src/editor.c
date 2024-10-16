@@ -8,6 +8,7 @@
 #include "conf.h"
 #include "input.h"
 #include "map.h"
+#include "options.h"
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
@@ -189,8 +190,8 @@ update_editor(void)
 {
 	// move camera.
 	{
-		float mv_horiz = key_down(CONF_EDITOR_KEY_RIGHT) - key_down(CONF_EDITOR_KEY_LEFT);
-		float mv_vert = key_down(CONF_EDITOR_KEY_DOWN) - key_down(CONF_EDITOR_KEY_UP);
+		float mv_horiz = key_down(g_options.k_editor_right) - key_down(g_options.k_editor_left);
+		float mv_vert = key_down(g_options.k_editor_down) - key_down(g_options.k_editor_up);
 		float speed = key_shift_held() ? CONF_EDITOR_CAM_SPEED_FAST : CONF_EDITOR_CAM_SPEED;
 		g_cam.pos_x += speed * mv_horiz;
 		g_cam.pos_y += speed * mv_vert;

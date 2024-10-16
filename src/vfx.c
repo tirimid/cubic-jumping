@@ -50,6 +50,17 @@ vfx_put_particle(particle_type type, float x, float y)
 			.type = PT_PLAYER_SHARD,
 		};
 		break;
+	case PT_AIR_PUFF:
+		particles[nparticles++] = (particle)
+		{
+			.pos_x = x,
+			.pos_y = y,
+			.vel_x = rand_float(CONF_AIR_PUFF_SPEED_X_RANGE) - CONF_AIR_PUFF_SPEED_X_RANGE / 2.0f,
+			.vel_y = -rand_float(CONF_AIR_PUFF_SPEED_Y_RANGE),
+			.lifetime = rand_int(CONF_AIR_PUFF_LIFETIME_RANGE),
+			.type = PT_AIR_PUFF,
+		};
+		break;
 	}
 }
 
@@ -76,10 +87,10 @@ vfx_update(void)
 		
 		switch (particles[i].type)
 		{
-		case PT_PLAYER_TRACE:
-			break;
 		case PT_PLAYER_SHARD:
 			particles[i].vel_y += CONF_GRAVITY;
+			break;
+		default:
 			break;
 		}
 		
@@ -124,6 +135,16 @@ vfx_draw(void)
 			max_lifetime = CONF_PLAYER_SHARD_LIFETIME_RANGE;
 			
 			break;
+		}
+		case PT_AIR_PUFF:
+		{
+			static uint8_t cap[] = CONF_COLOR_AIR_PUFF;
+			
+			ca = cap;
+			cb = cap;
+			size_a = CONF_AIR_PUFF_SIZE_A;
+			size_b = CONF_AIR_PUFF_SIZE_B;
+			max_lifetime = CONF_AIR_PUFF_LIFETIME_RANGE;
 		}
 		}
 		

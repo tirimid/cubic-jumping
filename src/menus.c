@@ -12,6 +12,7 @@
 #include "input.h"
 #include "map.h"
 #include "map_list.h"
+#include "options.h"
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
@@ -25,24 +26,25 @@ static void pause_draw_bg(void);
 static void btn_exit_menu(void);
 static void btn_exit_to_desktop(void);
 static void btn_play_from_beginning(void);
+static void btn_play_edit_custom_level(void);
 static void btn_play_custom_level(void);
-static void btn_level_editor(void);
+static void btn_edit_custom_level(void);
 static void btn_force_retry(void);
 static void btn_main_menu(void);
-static void btn_req_select(void);
 static void btn_req_next(void);
 static void btn_req_retry(void);
 
 static bool in_menu = false;
 static menu_request req = MR_NONE;
+static char custom_level_path[MAX_LEVEL_SEL_PATH_SIZE];
 
 void
 main_menu_loop(void)
 {
 	ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
 	ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
-	ui_button b_play_custom = ui_button_create(80, 460, "Play custom level", btn_play_custom_level);
-	ui_button b_editor = ui_button_create(80, 500, "Level editor", btn_level_editor);
+	ui_button b_play_custom = ui_button_create(80, 460, "Play or edit custom level", btn_play_edit_custom_level);
+	ui_button b_editor = ui_button_create(80, 500, "Options", NULL);
 	ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
 	
 	// `in_menu` is irrelevant for the main menu since it is the main launch
@@ -89,17 +91,15 @@ main_menu_loop(void)
 	}
 }
 
-char const *
+void
 custom_level_select_menu_loop(void)
 {
-	static char path_buf[MAX_LEVEL_SEL_PATH_SIZE];
-	
-	ui_text_field tf_path = ui_text_field_create(80, 380, 20, path_buf, MAX_LEVEL_SEL_PATH_SIZE - 1);
-	ui_button b_select = ui_button_create(80, 420, "Select level", btn_req_select);
-	ui_button b_back = ui_button_create(80, 460, "Back", btn_exit_menu);
+	ui_text_field tf_path = ui_text_field_create(80, 380, 20, custom_level_path, MAX_LEVEL_SEL_PATH_SIZE - 1);
+	ui_button b_play_level = ui_button_create(80, 420, "Play custom level", btn_play_custom_level);
+	ui_button b_edit_level = ui_button_create(80, 460, "Edit custom level", btn_edit_custom_level);
+	ui_button b_back = ui_button_create(80, 500, "Back", btn_exit_menu);
 	
 	in_menu = true;
-	req = MR_NONE;
 	while (in_menu)
 	{
 		uint64_t tick_begin = get_unix_time_ms();
@@ -109,7 +109,8 @@ custom_level_select_menu_loop(void)
 		// update level select menu.
 		{
 			ui_text_field_update(&tf_path);
-			ui_button_update(&b_select);
+			ui_button_update(&b_play_level);
+			ui_button_update(&b_edit_level);
 			ui_button_update(&b_back);
 			input_post_update();
 		}
@@ -123,7 +124,8 @@ custom_level_select_menu_loop(void)
 				text_draw_str("Select level", 80, 60);
 				
 				ui_text_field_draw(&tf_path);
-				ui_button_draw(&b_select);
+				ui_button_draw(&b_play_level);
+				ui_button_draw(&b_edit_level);
 				ui_button_draw(&b_back);
 			}
 			
@@ -135,11 +137,6 @@ custom_level_select_menu_loop(void)
 		if (tick_time_left > 0)
 			SDL_Delay(tick_time_left);
 	}
-	
-	if (req == MR_SELECT)
-		return path_buf;
-	else
-		return NULL;
 }
 
 menu_request
@@ -234,7 +231,7 @@ pause_menu_loop(void)
 		
 		// update pause menu.
 		{
-			if (key_pressed(CONF_KEY_MENU))
+			if (key_pressed(g_options.k_menu))
 				in_menu = false;
 			
 			ui_button_update(&b_resume);
@@ -378,13 +375,15 @@ btn_play_from_beginning(void)
 }
 
 static void
+btn_play_edit_custom_level(void)
+{
+	custom_level_select_menu_loop();
+}
+
+static void
 btn_play_custom_level(void)
 {
-	char const *path = custom_level_select_menu_loop();
-	if (!path)
-		return;
-	
-	if (map_list_load_custom(path))
+	if (map_list_load_custom(custom_level_path))
 		return;
 	
 	g_game.total_time_ms = 0;
@@ -397,29 +396,28 @@ btn_play_custom_level(void)
 }
 
 static void
-btn_level_editor(void)
+btn_edit_custom_level(void)
 {
-	char const *path = custom_level_select_menu_loop();
-	if (!path)
-		return;
-	
 	struct stat stat_buf;
-	if (stat(path, &stat_buf))
+	if (stat(custom_level_path, &stat_buf))
 	{
 		// determine map name based on file path.
 		char name[MAX_LEVEL_SEL_PATH_SIZE + 1] = {0};
 		{
-			size_t len = strlen(path);
+			size_t len = strlen(custom_level_path);
 			
 			size_t first = len;
-			while (first > 0 && path[first - 1] != '/')
+			while (first > 0 && custom_level_path[first - 1] != '/')
 				--first;
 			
 			size_t last = first;
-			while (last < len && strncmp(&path[last], ".hfm", 4))
+			while (last < len
+			       && strncmp(&custom_level_path[last], ".hfm", 4))
+			{
 				++last;
+			}
 			
-			strncpy(name, &path[first], last - first);
+			strncpy(name, &custom_level_path[first], last - first);
 		}
 		
 		if (!name[0])
@@ -429,11 +427,11 @@ btn_level_editor(void)
 		}
 		
 		// try to create map file if doesn't exist.
-		if (map_create_file(path, name))
+		if (map_create_file(custom_level_path, name))
 			return;
 	}
 	
-	if (editor_init(path))
+	if (editor_init(custom_level_path))
 		return;
 	
 	editor_loop();
@@ -454,13 +452,6 @@ btn_main_menu(void)
 {
 	in_menu = false;
 	g_game.running = false;
-}
-
-static void
-btn_req_select(void)
-{
-	in_menu = false;
-	req = MR_SELECT;
 }
 
 static void

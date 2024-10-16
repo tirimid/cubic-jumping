@@ -5,6 +5,7 @@ typedef enum particle_type
 {
 	PT_PLAYER_TRACE = 0,
 	PT_PLAYER_SHARD,
+	PT_AIR_PUFF,
 } particle_type;
 
 typedef struct particle

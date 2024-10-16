@@ -8,6 +8,7 @@
 #include "input.h"
 #include "map.h"
 #include "map_list.h"
+#include "options.h"
 #include "util.h"
 #include "vfx.h"
 #include "wnd.h"
@@ -16,6 +17,7 @@
 
 player g_player;
 player_state g_player_state;
+player_cap_mask g_player_cap_mask;
 
 static void update_playing(void);
 static void update_dead(void);
@@ -92,6 +94,29 @@ player_die(void)
 	}
 }
 
+void
+player_set_cap_mask(player_cap_id id, bool state)
+{
+	switch (id)
+	{
+	case PCI_JUMP:
+		g_player_cap_mask.no_jump = state;
+		break;
+	case PCI_WALLJUMP:
+		g_player_cap_mask.no_walljump = state;
+		break;
+	case PCI_WALLSLIDE:
+		g_player_cap_mask.no_wallslide = state;
+		break;
+	case PCI_POWERJUMP:
+		g_player_cap_mask.no_powerjump = state;
+		break;
+	case PCI_DASH_DOWN:
+		g_player_cap_mask.no_dash_down = state;
+		break;
+	}
+}
+
 static void
 update_playing(void)
 {
@@ -127,17 +152,33 @@ update_playing(void)
 	{
 		if (player_grounded() || !player_grounded() && g_player.air_control)
 		{
-			float mv_horiz = key_down(CONF_KEY_RIGHT) - key_down(CONF_KEY_LEFT);
+			float mv_horiz = key_down(g_options.k_right) - key_down(g_options.k_left);
 			mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
 			g_player.vel_x += mv_horiz;
 		}
 		
-		if (!player_grounded() && key_pressed(CONF_KEY_DASH_DOWN))
+		if (!g_player_cap_mask.no_dash_down
+		    && !player_grounded()
+		    && key_pressed(g_options.k_dash_down))
+		{
 			g_player.vel_y = CONF_PLAYER_DASH_DOWN_SPEED;
+			for (int i = 0; i < CONF_AIR_PUFF_CNT; ++i)
+			{
+				vfx_put_particle(PT_AIR_PUFF,
+				                 g_player.pos_x + CONF_PLAYER_SIZE / 2.0f,
+				                 g_player.pos_y + CONF_PLAYER_SIZE / 2.0f);
+			}
+		}
 		
-		if (player_grounded() && key_down(CONF_KEY_JUMP))
+		if (!g_player_cap_mask.no_jump
+		    && player_grounded()
+		    && key_down(g_options.k_jump))
+		{
 			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
-		else if (player_grounded() && key_down(CONF_KEY_POWERJUMP))
+		}
+		else if (!g_player_cap_mask.no_powerjump
+		         && player_grounded()
+		         && key_down(g_options.k_powerjump))
 		{
 			if (g_player.vel_x > 0.0f)
 				g_player.vel_x = CONF_PLAYER_POWERJUMP_FORCE_X;
@@ -146,20 +187,28 @@ update_playing(void)
 			g_player.vel_y = -CONF_PLAYER_POWERJUMP_FORCE_Y;
 		}
 		
-		if (player_walled_left() && key_down(CONF_KEY_JUMP))
+		if (!g_player_cap_mask.no_walljump
+		    && player_walled_left()
+		    && key_down(g_options.k_jump))
 		{
 			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
 		
-		if (player_walled_right() && key_down(CONF_KEY_JUMP))
+		if (!g_player_cap_mask.no_walljump
+		    && player_walled_right()
+		    && key_down(g_options.k_jump))
 		{
 			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 		}
 		
-		if (player_walled_left() && key_down(CONF_KEY_LEFT)
-		    || player_walled_right() && key_down(CONF_KEY_RIGHT))
+		if (!g_player_cap_mask.no_wallslide
+		    && player_walled_left()
+		    && key_down(g_options.k_left)
+		    || !g_player_cap_mask.no_wallslide
+		    && player_walled_right()
+		    && key_down(g_options.k_right))
 		{
 			g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
 		}

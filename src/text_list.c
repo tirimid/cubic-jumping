@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 
 #include "conf.h"
+#include "options.h"
 #include "text.h"
 
 #define QUEUED_MAX 64
@@ -90,10 +91,10 @@ gen_box_text(text_list_item item)
 		
 		// c0e0.
 	case TLI_C0E0_HOW_TO_MOVE:
-		sprintf(box_text, "Move left and right using [%s] and [%s]", SDL_GetKeyName(CONF_KEY_LEFT), SDL_GetKeyName(CONF_KEY_RIGHT));
+		sprintf(box_text, "Move left and right using [%s] and [%s]", SDL_GetKeyName(g_options.k_left), SDL_GetKeyName(g_options.k_right));
 		break;
 	case TLI_C0E0_HOW_TO_JUMP:
-		sprintf(box_text, "Jump using [%s]", SDL_GetKeyName(CONF_KEY_JUMP));
+		sprintf(box_text, "Jump using [%s]", SDL_GetKeyName(g_options.k_jump));
 		break;
 	case TLI_C0E0_HOW_TO_WALLJUMP:
 		sprintf(box_text, "Walljump by jumping while in contact with a wall");
@@ -116,7 +117,7 @@ gen_box_text(text_list_item item)
 		sprintf(box_text, "Use the momentum from a prior jump to jump over the kill tiles");
 		break;
 	case TLI_C0E1_HOW_TO_POWERJUMP:
-		sprintf(box_text, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(CONF_KEY_POWERJUMP));
+		sprintf(box_text, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(g_options.k_powerjump));
 		break;
 		
 		// c0e2.
@@ -148,6 +149,17 @@ gen_box_text(text_list_item item)
 		break;
 	case TLI_C0E6_SWITCH_INTRO:
 		sprintf(box_text, "Try hitting those switch tiles...");
+		break;
+		
+		// c0e8.
+	case TLI_C0E8_HOW_TO_DASH_DOWN:
+		sprintf(box_text, "Dash downwards using [%s]", SDL_GetKeyName(g_options.k_dash_down));
+		break;
+	case TLI_C0E8_EXPLOIT_RESTITUTION:
+		sprintf(box_text, "Try exploiting the restitution of the bounce tiles to get somewhere you shouldn't be able to");
+		break;
+	case TLI_C0E8_DODGE_OBSTACLES:
+		sprintf(box_text, "Dodge obstacles by rapidly changing your vertical velocity");
 		break;
 	}
 }

@@ -25,6 +25,8 @@ trigger_color(trigger_type type)
 		CONF_COLOR_TRIGGER_MSG,
 		CONF_COLOR_TRIGGER_KILL,
 		CONF_COLOR_TRIGGER_MSG_TERM,
+		CONF_COLOR_TRIGGER_CAP_ENABLE,
+		CONF_COLOR_TRIGGER_CAP_DISABLE,
 	};
 	
 	return colors[type];
@@ -111,6 +113,12 @@ collide(trigger const *trigger, size_t ind)
 		break;
 	case TT_MSG_TERM:
 		text_list_term();
+		break;
+	case TT_CAP_ENABLE:
+		player_set_cap_mask(trigger->arg, false);
+		break;
+	case TT_CAP_DISABLE:
+		player_set_cap_mask(trigger->arg, true);
 		break;
 	default:
 		break;

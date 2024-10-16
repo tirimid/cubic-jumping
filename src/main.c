@@ -9,7 +9,9 @@
 #include <Windows.h>
 #endif
 
+#include "conf.h"
 #include "menus.h"
+#include "options.h"
 #include "sequences.h"
 #include "wnd.h"
 
@@ -42,8 +44,14 @@ ENTRY_FN
 		SDL_StartTextInput();
 	}
 	
-	if (wnd_init())
-		return 1;
+	// initialize game systems.
+	{
+		if (options_read_from_file(CONF_OPTIONS_FILE))
+			options_return_to_default(CONF_OPTIONS_FILE);
+		
+		if (wnd_init())
+			return 1;
+	}
 	
 	// TODO: uncomment when intro sequence is done.
 	//intro_sequence();

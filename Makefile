@@ -12,7 +12,8 @@ CFLAGS := \
 
 LDFLAGS := \
 	-lm \
-	-lSDL2
+	-lSDL2 \
+	-lSDL2_mixer
 
 SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%,lib/%.o,$(SRCS))
