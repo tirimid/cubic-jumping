@@ -13,5 +13,6 @@ void main_menu_loop(void);
 void custom_level_select_menu_loop(void);
 menu_request level_end_menu_loop(void);
 void pause_menu_loop(void);
+void options_menu_loop(void);
 
 #endif

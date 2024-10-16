@@ -60,17 +60,52 @@ options_read_from_file(char const *path)
 		    || opts_get_keycode(fp, "k_editor_up", &g_options.k_editor_up)
 		    || opts_get_keycode(fp, "k_editor_down", &g_options.k_editor_down))
 		{
+			fclose(fp);
 			return 1;
 		}
 	}
 	
+	fclose(fp);
 	return 0;
 }
 
 int
 options_write_to_file(char const *path)
 {
-	// TODO: implement.
+	FILE *fp = fopen(path, "wb");
+	if (!fp)
+	{
+		log_err("options: could not open configuration for reading - %s!", path);
+		return 1;
+	}
+	
+	// write keybind options.
+	{
+		fprintf(fp,
+		        "# keybind options.\n"
+		        "k_left = %s\n"
+		        "k_right = %s\n"
+		        "k_jump = %s\n"
+		        "k_dash_down = %s\n"
+		        "k_powerjump = %s\n"
+		        "k_menu = %s\n"
+		        "k_editor_left = %s\n"
+		        "k_editor_right = %s\n"
+		        "k_editor_up = %s\n"
+		        "k_editor_down = %s\n",
+		        SDL_GetKeyName(g_options.k_left),
+		        SDL_GetKeyName(g_options.k_right),
+		        SDL_GetKeyName(g_options.k_jump),
+		        SDL_GetKeyName(g_options.k_dash_down),
+		        SDL_GetKeyName(g_options.k_powerjump),
+		        SDL_GetKeyName(g_options.k_menu),
+		        SDL_GetKeyName(g_options.k_editor_left),
+		        SDL_GetKeyName(g_options.k_editor_right),
+		        SDL_GetKeyName(g_options.k_editor_up),
+		        SDL_GetKeyName(g_options.k_editor_down));
+	}
+	
+	fclose(fp);
 }
 
 static int

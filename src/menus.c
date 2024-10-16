@@ -31,6 +31,7 @@ static void btn_play_custom_level(void);
 static void btn_edit_custom_level(void);
 static void btn_force_retry(void);
 static void btn_main_menu(void);
+static void btn_options(void);
 static void btn_req_next(void);
 static void btn_req_retry(void);
 
@@ -44,7 +45,7 @@ main_menu_loop(void)
 	ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
 	ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
 	ui_button b_play_custom = ui_button_create(80, 460, "Play or edit custom level", btn_play_edit_custom_level);
-	ui_button b_editor = ui_button_create(80, 500, "Options", NULL);
+	ui_button b_editor = ui_button_create(80, 500, "Options", btn_options);
 	ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
 	
 	// `in_menu` is irrelevant for the main menu since it is the main launch
@@ -108,6 +109,9 @@ custom_level_select_menu_loop(void)
 		
 		// update level select menu.
 		{
+			if (key_pressed(g_options.k_menu))
+				in_menu = false;
+			
 			ui_text_field_update(&tf_path);
 			ui_button_update(&b_play_level);
 			ui_button_update(&b_edit_level);
@@ -253,6 +257,34 @@ pause_menu_loop(void)
 				ui_button_draw(&b_main_menu);
 			}
 			
+			SDL_RenderPresent(g_rend);
+		}
+		
+		uint64_t tick_end = get_unix_time_ms();
+		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
+		if (tick_time_left > 0)
+			SDL_Delay(tick_time_left);
+	}
+}
+
+void
+options_menu_loop(void)
+{
+	in_menu = true;
+	while (in_menu)
+	{
+		uint64_t tick_begin = get_unix_time_ms();
+		
+		input_handle_events();
+		
+		// update options menu.
+		{
+			input_post_update();
+		}
+		
+		// draw options menu.
+		{
+			main_draw_bg();
 			SDL_RenderPresent(g_rend);
 		}
 		
@@ -452,6 +484,12 @@ btn_main_menu(void)
 {
 	in_menu = false;
 	g_game.running = false;
+}
+
+static void
+btn_options(void)
+{
+	options_menu_loop();
 }
 
 static void

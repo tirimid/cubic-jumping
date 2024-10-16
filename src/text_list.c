@@ -10,7 +10,7 @@
 #include "text.h"
 
 #define QUEUED_MAX 64
-#define TEXT_TICKS 500
+#define TEXT_TICKS 550
 
 static void gen_box_text(text_list_item item);
 
