@@ -15,3 +15,4 @@ cd ..
 cd ..
 git apply windows-build/build.patch
 cp windows-build/sdl2-dll/*.dll .
+cp /usr/bin/msys-2.0.dll .
