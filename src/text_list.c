@@ -166,5 +166,10 @@ gen_box_text(text_list_item item)
 	case TLI_C0E9_SLIPPERY_INTRO:
 		sprintf(box_text, "You can't get a proper grip on slippery tiles");
 		break;
+		
+		// c0e11.
+	case TLI_C0E11_GRIP_INTRO:
+		sprintf(box_text, "Grip tiles are rougher than normal, allowing you to climb up them");
+		break;
 	}
 }

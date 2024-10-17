@@ -70,6 +70,7 @@ credits_sequence(void)
 		"- satsualex\n"
 		"- tirimid\n"
 		"- tqwqk\n"
+		"- Wercles\n"
 		"\n\n\n\n\n"
 		"Special thanks\n"
 		"- azmr (header font creator)\n"

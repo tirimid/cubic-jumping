@@ -18,6 +18,7 @@ typedef enum map_tile_type
 	MTT_SWITCH_ON,
 	MTT_END_OFF,
 	MTT_SLIPPERY,
+	MTT_GRIP,
 	
 	MTT_END__,
 } map_tile_type;
@@ -47,6 +48,7 @@ int map_write_to_file(char const *file);
 // game and base rendering functionality.
 uint8_t const *map_tile_color(map_tile_type type);
 bool map_tile_collision(map_tile_type type);
+bool map_tile_slippery(map_tile_type type);
 bool map_tile_climbable(map_tile_type type);
 void map_draw(void);
 void map_draw_outlines(void);

@@ -395,6 +395,7 @@ map_tile_color(map_tile_type type)
 		CONF_COLOR_SWITCH_ON,
 		CONF_COLOR_END_OFF,
 		CONF_COLOR_SLIPPERY,
+		CONF_COLOR_GRIP,
 	};
 	
 	return colors[type];
@@ -415,29 +416,52 @@ map_tile_collision(map_tile_type type)
 		true, // switch on.
 		true, // end off.
 		true, // slippery.
+		true, // grip.
 	};
 	
 	return collision[type];
 }
 
 bool
-map_tile_climbable(map_tile_type type)
+map_tile_slippery(map_tile_type type)
 {
-	static bool climbability[MTT_END__] =
+	static bool slippery[MTT_END__] =
 	{
 		false, // air.
-		true, // ground.
-		true, // kill.
-		true, // bounce.
-		true, // launch.
-		true, // end on.
-		true, // switch off.
-		true, // switch on.
-		true, // end off.
-		false, // slippery.
+		false, // ground.
+		false, // kill.
+		false, // bounce.
+		false, // launch.
+		false, // end on.
+		false, // switch off.
+		false, // switch on.
+		false, // end off.
+		true, // slippery.
+		false, // grip.
 	};
 	
-	return climbability[type];
+	return slippery[type];
+}
+
+bool
+map_tile_climbable(map_tile_type type)
+{
+	static bool climbable[MTT_END__] =
+	{
+		false, // air.
+		false, // ground.
+		false, // kill.
+		false, // bounce.
+		false, // launch.
+		false, // end on.
+		false, // switch off.
+		false, // switch on.
+		false, // end off.
+		false, // slippery.
+		true, // grip.
+	};
+	
+	return climbable[type];
 }
 
 void

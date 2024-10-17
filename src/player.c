@@ -193,10 +193,32 @@ update_playing(void)
 			sound_play_sfx(SI_POWERJUMP);
 		}
 		
+		if (!g_player_cap_mask.no_wallslide
+		    && player_walled_left()
+		    && key_down(g_options.k_left)
+		    && !map_tile_slippery(g_player.near_left->type))
+		{
+			if (map_tile_climbable(g_player.near_left->type))
+				g_player.vel_y = -CONF_CLIMB_SPEED;
+			else
+				g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
+		}
+		
+		if (!g_player_cap_mask.no_wallslide
+		    && player_walled_right()
+		    && key_down(g_options.k_right)
+		    && !map_tile_slippery(g_player.near_right->type))
+		{
+			if (map_tile_climbable(g_player.near_right->type))
+				g_player.vel_y = -CONF_CLIMB_SPEED;
+			else
+				g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
+		}
+		
 		if (!g_player_cap_mask.no_walljump
 		    && player_walled_left()
 		    && key_down(g_options.k_jump)
-		    && map_tile_climbable(g_player.near_left->type))
+		    && !map_tile_slippery(g_player.near_left->type))
 		{
 			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
@@ -206,23 +228,11 @@ update_playing(void)
 		if (!g_player_cap_mask.no_walljump
 		    && player_walled_right()
 		    && key_down(g_options.k_jump)
-		    && map_tile_climbable(g_player.near_right->type))
+		    && !map_tile_slippery(g_player.near_right->type))
 		{
 			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
 			sound_play_sfx(SI_WALLJUMP);
-		}
-		
-		if (!g_player_cap_mask.no_wallslide
-		    && player_walled_left()
-		    && key_down(g_options.k_left)
-		    && map_tile_climbable(g_player.near_left->type)
-		    || !g_player_cap_mask.no_wallslide
-		    && player_walled_right()
-		    && key_down(g_options.k_right)
-		    && map_tile_climbable(g_player.near_right->type))
-		{
-			g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
 		}
 	}
 	
@@ -287,7 +297,13 @@ collide(map_tile *tile)
 		player_die();
 		break;
 	case MTT_BOUNCE:
-		sound_play_sfx(SI_BOUNCE);
+		if (g_player.vel_x < -CONF_MIN_RESTITUTION_SPEED
+		    || g_player.vel_x > CONF_MIN_RESTITUTION_SPEED
+		    || g_player.vel_y < -CONF_MIN_RESTITUTION_SPEED
+		    || g_player.vel_y > CONF_MIN_RESTITUTION_SPEED)
+		{
+			sound_play_sfx(SI_BOUNCE);
+		}
 		break;
 	case MTT_LAUNCH:
 		sound_play_sfx(SI_LAUNCH);
@@ -318,7 +334,10 @@ collide_left(void)
 	switch (g_player.near_left->type)
 	{
 	case MTT_BOUNCE:
-		g_player.vel_x *= -CONF_RESTITUTION;
+		if (g_player.vel_x < -CONF_MIN_RESTITUTION_SPEED)
+			g_player.vel_x *= -CONF_RESTITUTION;
+		else
+			g_player.vel_x = 0.0f;
 		break;
 	case MTT_LAUNCH:
 		g_player.air_control = false;
@@ -343,7 +362,10 @@ collide_right(void)
 	switch (g_player.near_right->type)
 	{
 	case MTT_BOUNCE:
-		g_player.vel_x *= -CONF_RESTITUTION;
+		if (g_player.vel_x > CONF_MIN_RESTITUTION_SPEED)
+			g_player.vel_x *= -CONF_RESTITUTION;
+		else
+			g_player.vel_x = 0.0f;
 		break;
 	case MTT_LAUNCH:
 		g_player.air_control = false;
@@ -368,7 +390,10 @@ collide_bottom(void)
 	switch (g_player.near_bottom->type)
 	{
 	case MTT_BOUNCE:
-		g_player.vel_y *= -CONF_RESTITUTION;
+		if (g_player.vel_y > CONF_MIN_RESTITUTION_SPEED)
+			g_player.vel_y *= -CONF_RESTITUTION;
+		else
+			g_player.vel_y = 0.0f;
 		break;
 	case MTT_LAUNCH:
 		g_player.vel_y = -CONF_LAUNCH_FORCE;
@@ -390,7 +415,10 @@ collide_top(void)
 	switch (g_player.near_top->type)
 	{
 	case MTT_BOUNCE:
-		g_player.vel_y *= -CONF_RESTITUTION;
+		if (g_player.vel_y < -CONF_MIN_RESTITUTION_SPEED)
+			g_player.vel_y *= -CONF_RESTITUTION;
+		else
+			g_player.vel_y = 0.0f;
 		break;
 	default:
 		g_player.vel_y = 0.0f;

@@ -44,6 +44,9 @@ typedef enum text_list_item
 	// c0e9.
 	TLI_C0E9_SLIPPERY_INTRO = 0x14,
 	
+	// c0e11.
+	TLI_C0E11_GRIP_INTRO = 0x15,
+	
 	TLI_END__,
 } text_list_item;
 
