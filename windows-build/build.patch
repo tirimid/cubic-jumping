@@ -1,13 +1,14 @@
 diff --git a/Makefile b/Makefile
-index 02e95e8..b8780bd 100644
+index 02e95e8..70b5bc1 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -8,13 +8,17 @@ CFLAGS := \
+@@ -8,13 +8,18 @@ CFLAGS := \
  	-pedantic \
  	-O3 \
  	-Iinclude \
 -	-I.
 +	-I. \
++	-I/mingw64/include \
 +	-DBUILD_TARGET_WINDOWS \
 +	-mwindows
  
@@ -23,7 +24,7 @@ index 02e95e8..b8780bd 100644
  SRCS := $(wildcard src/*.c)
  OBJS := $(patsubst src/%,lib/%.o,$(SRCS))
 diff --git a/mincbuild.conf b/mincbuild.conf
-index 562b27e..6861758 100644
+index 562b27e..72bd26f 100644
 --- a/mincbuild.conf
 +++ b/mincbuild.conf
 @@ -1,8 +1,8 @@
@@ -37,6 +38,15 @@ index 562b27e..6861758 100644
  
  # project.
  src_dir = src
+@@ -14,7 +14,7 @@ src_exts = c
+ hdr_exts = h
+ 
+ # dependencies.
+-incs = .
++incs = /mingw64/include .
+ libs = m SDL2 SDL2_image SDL2_mixer
+ 
+ # toolchain information.
 @@ -22,6 +22,6 @@ cc_cmd_fmt = %c %f -o %o -c %s %i
  cc_inc_fmt = -I%i
  ld_obj_fmt = %o
