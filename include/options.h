@@ -9,6 +9,9 @@ typedef struct options
 	SDL_Keycode k_left, k_right, k_jump, k_dash_down, k_powerjump;
 	SDL_Keycode k_menu;
 	SDL_Keycode k_editor_left, k_editor_right, k_editor_up, k_editor_down;
+	
+	// sound options.
+	float sfx_volume;
 } options;
 
 extern options g_options;

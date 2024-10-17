@@ -47,6 +47,7 @@ int map_write_to_file(char const *file);
 // game and base rendering functionality.
 uint8_t const *map_tile_color(map_tile_type type);
 bool map_tile_collision(map_tile_type type);
+bool map_tile_climbable(map_tile_type type);
 void map_draw(void);
 void map_draw_outlines(void);
 map_tile *map_get(uint32_t x, uint32_t y);

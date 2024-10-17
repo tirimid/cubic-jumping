@@ -60,6 +60,7 @@ credits_sequence(void)
 		"- tirimid\n"
 		"\n\n\n\n\n"
 		"Music and sounds\n"
+		"- tirimid\n"
 		"\n\n\n\n\n"
 		"Level design\n"
 		"- tirimid\n"

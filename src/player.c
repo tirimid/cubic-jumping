@@ -9,6 +9,7 @@
 #include "map.h"
 #include "map_list.h"
 #include "options.h"
+#include "sound.h"
 #include "util.h"
 #include "vfx.h"
 #include "wnd.h"
@@ -92,6 +93,8 @@ player_die(void)
 		                 g_player.pos_x + CONF_PLAYER_SIZE / 2.0f,
 		                 g_player.pos_y + CONF_PLAYER_SIZE / 2.0f);
 	}
+	
+	sound_play_sfx(SI_DEATH);
 }
 
 void
@@ -168,6 +171,7 @@ update_playing(void)
 				                 g_player.pos_x + CONF_PLAYER_SIZE / 2.0f,
 				                 g_player.pos_y + CONF_PLAYER_SIZE / 2.0f);
 			}
+			sound_play_sfx(SI_DASH_DOWN);
 		}
 		
 		if (!g_player_cap_mask.no_jump
@@ -175,6 +179,7 @@ update_playing(void)
 		    && key_down(g_options.k_jump))
 		{
 			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
+			sound_play_sfx(SI_JUMP);
 		}
 		else if (!g_player_cap_mask.no_powerjump
 		         && player_grounded()
@@ -185,34 +190,37 @@ update_playing(void)
 			else if (g_player.vel_x < 0.0f)
 				g_player.vel_x = -CONF_PLAYER_POWERJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_POWERJUMP_FORCE_Y;
+			sound_play_sfx(SI_POWERJUMP);
 		}
 		
 		if (!g_player_cap_mask.no_walljump
 		    && player_walled_left()
 		    && key_down(g_options.k_jump)
-		    && g_player.near_left->type != MTT_SLIPPERY)
+		    && map_tile_climbable(g_player.near_left->type))
 		{
 			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			sound_play_sfx(SI_WALLJUMP);
 		}
 		
 		if (!g_player_cap_mask.no_walljump
 		    && player_walled_right()
 		    && key_down(g_options.k_jump)
-		    && g_player.near_right->type != MTT_SLIPPERY)
+		    && map_tile_climbable(g_player.near_right->type))
 		{
 			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			sound_play_sfx(SI_WALLJUMP);
 		}
 		
 		if (!g_player_cap_mask.no_wallslide
 		    && player_walled_left()
 		    && key_down(g_options.k_left)
-		    && g_player.near_left->type != MTT_SLIPPERY
+		    && map_tile_climbable(g_player.near_left->type)
 		    || !g_player_cap_mask.no_wallslide
 		    && player_walled_right()
 		    && key_down(g_options.k_right)
-		    && g_player.near_right->type != MTT_SLIPPERY)
+		    && map_tile_climbable(g_player.near_right->type))
 		{
 			g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
 		}
@@ -278,12 +286,20 @@ collide(map_tile *tile)
 		g_player.short_circuit = true;
 		player_die();
 		break;
+	case MTT_BOUNCE:
+		sound_play_sfx(SI_BOUNCE);
+		break;
+	case MTT_LAUNCH:
+		sound_play_sfx(SI_LAUNCH);
+		break;
 	case MTT_END_ON:
 		g_player.short_circuit = true;
+		sound_play_sfx(SI_END);
 		map_list_load_next();
 		break;
 	case MTT_SWITCH_OFF:
 		tile->type = MTT_SWITCH_ON;
+		sound_play_sfx(SI_SWITCH);
 		game_enable_switch();
 		break;
 	default:

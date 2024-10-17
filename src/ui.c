@@ -261,3 +261,97 @@ ui_text_field_draw(ui_text_field const *tf)
 		SDL_RenderFillRect(g_rend, &r);
 	}
 }
+
+ui_slider
+ui_slider_create(int x,
+                 int y,
+                 int w,
+                 int h,
+                 float initial,
+                 void (*callback)(float))
+{
+	return (ui_slider)
+	{
+		.x = x,
+		.y = y,
+		.w = w,
+		.h = h,
+		.val = initial,
+		.callback = callback,
+	};
+}
+
+void
+ui_slider_update(ui_slider *s)
+{
+	int mouse_x, mouse_y;
+	mouse_pos(&mouse_x, &mouse_y);
+	
+	if (mouse_x >= s->x
+	    && mouse_x < s->x + s->w
+	    && mouse_y >= s->y
+	    && mouse_y < s->y + s->h)
+	{
+		s->hovered = true;
+		if (mouse_down(MB_LEFT))
+		{
+			s->val = (float)(mouse_x - s->x) / s->w;
+			if (s->callback)
+				s->callback(s->val);
+			s->pressed = true;
+		}
+		else if (mouse_released(MB_LEFT))
+			s->pressed = false;
+	}
+	else
+	{
+		s->hovered = false;
+		s->pressed = false;
+	}
+}
+
+void
+ui_slider_draw(ui_slider const *s)
+{
+	// set frame color based on slider state.
+	{
+		static uint8_t cs[] = CONF_COLOR_SLIDER;
+		static uint8_t csh[] = CONF_COLOR_SLIDER_HOVERED;
+		static uint8_t csp[] = CONF_COLOR_SLIDER_PRESSED;
+		
+		if (s->pressed)
+			SDL_SetRenderDrawColor(g_rend, csp[0], csp[1], csp[2], 255);
+		else if (s->hovered)
+			SDL_SetRenderDrawColor(g_rend, csh[0], csh[1], csh[2], 255);
+		else
+			SDL_SetRenderDrawColor(g_rend, cs[0], cs[1], cs[2], 255);
+	}
+	
+	// draw frame.
+	{
+		SDL_Rect r =
+		{
+			.x = s->x,
+			.y = s->y,
+			.w = s->w,
+			.h = s->h,
+		};
+		SDL_RenderFillRect(g_rend, &r);
+	}
+	
+	// draw slider cursor.
+	{
+		static uint8_t csc[] = CONF_COLOR_SLIDER_CURSOR;
+		
+		SDL_Rect r =
+		{
+			.x = s->x + s->val * s->w - CONF_SLIDER_CURSOR_WIDTH / 2.0f,
+			.y = s->y,
+			.w = CONF_SLIDER_CURSOR_WIDTH,
+			.h = s->h,
+		};
+		
+		SDL_SetRenderDrawColor(g_rend, csc[0], csc[1], csc[2], 255);
+		SDL_RenderFillRect(g_rend, &r);
+	}
+}

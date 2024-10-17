@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #ifdef BUILD_TARGET_WINDOWS
 #include <Windows.h>
@@ -13,6 +14,8 @@
 #include "menus.h"
 #include "options.h"
 #include "sequences.h"
+#include "sound.h"
+#include "util.h"
 #include "wnd.h"
 
 #ifdef BUILD_TARGET_WINDOWS
@@ -32,12 +35,19 @@ ENTRY_FN
 {
 	// initialize non-game systems.
 	{
-		if (SDL_Init(SDL_INIT_VIDEO))
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
 		{
 			fprintf(stderr, "main: failed to init SDL2!\n");
 			return 1;
 		}
 		atexit(SDL_Quit);
+		
+		if (Mix_Init(0))
+		{
+			log_err("main: failed to init SDL2 mixer!");
+			return 1;
+		}
+		atexit(Mix_Quit);
 		
 		srand(time(NULL));
 		
@@ -51,6 +61,10 @@ ENTRY_FN
 		
 		if (wnd_init())
 			return 1;
+		
+		if (sound_init())
+			return 1;
+		sound_set_sfx_volume(g_options.sfx_volume);
 	}
 	
 	// TODO: uncomment when intro sequence is done.

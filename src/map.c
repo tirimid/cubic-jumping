@@ -405,19 +405,39 @@ map_tile_collision(map_tile_type type)
 {
 	static bool collision[MTT_END__] =
 	{
-		false,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
+		false, // air.
+		true, // ground.
+		true, // kill.
+		true, // bounce.
+		true, // launch.
+		true, // end on.
+		true, // switch off.
+		true, // switch on.
+		true, // end off.
+		true, // slippery.
 	};
 	
 	return collision[type];
+}
+
+bool
+map_tile_climbable(map_tile_type type)
+{
+	static bool climbability[MTT_END__] =
+	{
+		false, // air.
+		true, // ground.
+		true, // kill.
+		true, // bounce.
+		true, // launch.
+		true, // end on.
+		true, // switch off.
+		true, // switch on.
+		true, // end off.
+		false, // slippery.
+	};
+	
+	return climbability[type];
 }
 
 void

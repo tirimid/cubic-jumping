@@ -13,6 +13,7 @@
 #include "map.h"
 #include "map_list.h"
 #include "options.h"
+#include "sound.h"
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
@@ -38,10 +39,8 @@ static void btn_detect_key_jump(void);
 static void btn_detect_key_dash_down(void);
 static void btn_detect_key_powerjump(void);
 static void btn_detect_key_menu(void);
-static void btn_detect_key_editor_left(void);
-static void btn_detect_key_editor_right(void);
-static void btn_detect_key_editor_up(void);
-static void btn_detect_key_editor_down(void);
+static void sldr_sfx_volume(float vol);
+static void btn_exit_options_menu(void);
 static void btn_req_next(void);
 static void btn_req_retry(void);
 
@@ -282,11 +281,8 @@ options_menu_loop(void)
 	ui_button b_k_dash_down = ui_button_create(80, 260, "[Dash down]", btn_detect_key_dash_down);
 	ui_button b_k_powerjump = ui_button_create(80, 300, "[Powerjump]", btn_detect_key_powerjump);
 	ui_button b_k_menu = ui_button_create(80, 340, "[Menu]", btn_detect_key_menu);
-	ui_button b_k_editor_left = ui_button_create(80, 380, "[Editor left]", btn_detect_key_editor_left);
-	ui_button b_k_editor_right = ui_button_create(80, 420, "[Editor right]", btn_detect_key_editor_right);
-	ui_button b_k_editor_up = ui_button_create(80, 460, "[Editor up]", btn_detect_key_editor_up);
-	ui_button b_k_editor_down = ui_button_create(80, 500, "[Editor down]", btn_detect_key_editor_down);
-	ui_button b_back = ui_button_create(80, 540, "Back", btn_exit_menu);
+	ui_slider s_sfx_volume = ui_slider_create(400, 390, 200, 20, g_options.sfx_volume, sldr_sfx_volume);
+	ui_button b_back = ui_button_create(80, 420, "Back", btn_exit_options_menu);
 	
 	in_menu = true;
 	while (in_menu)
@@ -303,10 +299,7 @@ options_menu_loop(void)
 			ui_button_update(&b_k_dash_down);
 			ui_button_update(&b_k_powerjump);
 			ui_button_update(&b_k_menu);
-			ui_button_update(&b_k_editor_left);
-			ui_button_update(&b_k_editor_right);
-			ui_button_update(&b_k_editor_up);
-			ui_button_update(&b_k_editor_down);
+			ui_slider_update(&s_sfx_volume);
 			ui_button_update(&b_back);
 			
 			input_post_update();
@@ -326,10 +319,7 @@ options_menu_loop(void)
 				ui_button_draw(&b_k_dash_down);
 				ui_button_draw(&b_k_powerjump);
 				ui_button_draw(&b_k_menu);
-				ui_button_draw(&b_k_editor_left);
-				ui_button_draw(&b_k_editor_right);
-				ui_button_draw(&b_k_editor_up);
-				ui_button_draw(&b_k_editor_down);
+				ui_slider_draw(&s_sfx_volume);
 				ui_button_draw(&b_back);
 				
 				text_draw_str(SDL_GetKeyName(g_options.k_left), 450, 140);
@@ -338,10 +328,7 @@ options_menu_loop(void)
 				text_draw_str(SDL_GetKeyName(g_options.k_dash_down), 450, 260);
 				text_draw_str(SDL_GetKeyName(g_options.k_powerjump), 450, 300);
 				text_draw_str(SDL_GetKeyName(g_options.k_menu), 450, 340);
-				text_draw_str(SDL_GetKeyName(g_options.k_editor_left), 450, 380);
-				text_draw_str(SDL_GetKeyName(g_options.k_editor_right), 450, 420);
-				text_draw_str(SDL_GetKeyName(g_options.k_editor_up), 450, 460);
-				text_draw_str(SDL_GetKeyName(g_options.k_editor_down), 450, 500);
+				text_draw_str("SFX volume", 80, 385);
 			}
 			
 			SDL_RenderPresent(g_rend);
@@ -597,70 +584,50 @@ static void
 btn_detect_key_left(void)
 {
 	g_options.k_left = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
 }
 
 static void
 btn_detect_key_right(void)
 {
 	g_options.k_right = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
 }
 
 static void
 btn_detect_key_jump(void)
 {
 	g_options.k_jump = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
 }
 
 static void
 btn_detect_key_dash_down(void)
 {
 	g_options.k_dash_down = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
 }
 
 static void
 btn_detect_key_powerjump(void)
 {
 	g_options.k_powerjump = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
 }
 
 static void
 btn_detect_key_menu(void)
 {
 	g_options.k_menu = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
 }
 
 static void
-btn_detect_key_editor_left(void)
+sldr_sfx_volume(float vol)
 {
-	g_options.k_editor_left = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
+	g_options.sfx_volume = vol;
+	sound_set_sfx_volume(vol);
 }
 
 static void
-btn_detect_key_editor_right(void)
+btn_exit_options_menu(void)
 {
-	g_options.k_editor_right = key_detect_menu_loop();
 	options_write_to_file(CONF_OPTIONS_FILE);
-}
-
-static void
-btn_detect_key_editor_up(void)
-{
-	g_options.k_editor_up = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
-}
-
-static void
-btn_detect_key_editor_down(void)
-{
-	g_options.k_editor_down = key_detect_menu_loop();
-	options_write_to_file(CONF_OPTIONS_FILE);
+	in_menu = false;
 }
 
 static void

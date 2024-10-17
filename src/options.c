@@ -1,6 +1,7 @@
 #include "options.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -15,6 +16,7 @@ options g_options;
 
 static int opts_get_raw(FILE *fp, char const *key, char out[]);
 static int opts_get_keycode(FILE *fp, char const *key, SDL_Keycode *out);
+static int opts_get_float(FILE *fp, char const *key, float *out);
 
 void
 options_return_to_default(char const *path)
@@ -32,6 +34,9 @@ options_return_to_default(char const *path)
 		.k_editor_right = CONF_DEFAULT_K_EDITOR_RIGHT,
 		.k_editor_up = CONF_DEFAULT_K_EDITOR_UP,
 		.k_editor_down = CONF_DEFAULT_K_EDITOR_DOWN,
+		
+		// sound options.
+		.sfx_volume = CONF_DEFAULT_SFX_VOLUME,
 	};
 	
 	options_write_to_file(path);
@@ -59,6 +64,15 @@ options_read_from_file(char const *path)
 		    || opts_get_keycode(fp, "k_editor_right", &g_options.k_editor_right)
 		    || opts_get_keycode(fp, "k_editor_up", &g_options.k_editor_up)
 		    || opts_get_keycode(fp, "k_editor_down", &g_options.k_editor_down))
+		{
+			fclose(fp);
+			return 1;
+		}
+	}
+	
+	// read sound options.
+	{
+		if (opts_get_float(fp, "sfx_volume", &g_options.sfx_volume))
 		{
 			fclose(fp);
 			return 1;
@@ -103,6 +117,14 @@ options_write_to_file(char const *path)
 		        SDL_GetKeyName(g_options.k_editor_right),
 		        SDL_GetKeyName(g_options.k_editor_up),
 		        SDL_GetKeyName(g_options.k_editor_down));
+	}
+	
+	// write audio options.
+	{
+		fprintf(fp,
+		        "\n# sound options.\n"
+		        "sfx_volume = %f\n",
+		        g_options.sfx_volume);
 	}
 	
 	fclose(fp);
@@ -158,6 +180,24 @@ opts_get_keycode(FILE *fp, char const *key, SDL_Keycode *out)
 	if (*out == SDLK_UNKNOWN)
 	{
 		log_err("options: unknown keycode for key %s - '%s'!", key, buf);
+		return 1;
+	}
+	
+	return 0;
+}
+
+static int
+opts_get_float(FILE *fp, char const *key, float *out)
+{
+	char buf[VAL_BUF_SIZE] = {0};
+	if (opts_get_raw(fp, key, buf))
+		return 1;
+	
+	errno = 0;
+	*out = strtof(buf, NULL);
+	if (errno)
+	{
+		log_err("options: invalid floating point value for key %s - '%s'!", key, buf);
 		return 1;
 	}
 	

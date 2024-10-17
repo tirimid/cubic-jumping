@@ -8,7 +8,8 @@ CFLAGS := \
 	-pedantic \
 	-O3 \
 	-Iinclude \
-	-Imaps
+	-Imaps \
+	-Isounds
 
 LDFLAGS := \
 	-lm \

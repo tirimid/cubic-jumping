@@ -13,6 +13,7 @@ interesting ways.
 * Make (for build, optional)
 * mincbuild (for build, optional)
 * SDL2
+* SDL2 mixer
 * MSYS2 with MinGW64 (for windows build)
 * wget (for windows build setup)
 * unzip (for windows build setup)
