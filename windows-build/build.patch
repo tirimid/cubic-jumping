@@ -1,14 +1,14 @@
 diff --git a/Makefile b/Makefile
-index 269e707..12a79c5 100644
+index 0970126..667ae5e 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -8,12 +8,17 @@ CFLAGS := \
- 	-pedantic \
+@@ -9,12 +9,17 @@ CFLAGS := \
  	-O3 \
  	-Iinclude \
--	-Imaps
+ 	-Imaps \
+-	-Isounds
++	-Isounds \
 +	-I/mingw64/include \
-+	-Imaps \
 +	-DBUILD_TARGET_WINDOWS \
 +	-mwindows
  
@@ -23,7 +23,7 @@ index 269e707..12a79c5 100644
  SRCS := $(wildcard src/*.c)
  OBJS := $(patsubst src/%,lib/%.o,$(SRCS))
 diff --git a/mincbuild.conf b/mincbuild.conf
-index 9408463..cec222e 100644
+index dbea5f0..f10cc30 100644
 --- a/mincbuild.conf
 +++ b/mincbuild.conf
 @@ -1,8 +1,8 @@
@@ -41,16 +41,8 @@ index 9408463..cec222e 100644
  hdr_exts = h
  
  # dependencies.
--incs = maps
-+incs = maps /mingw64/include
+-incs = maps sounds
++incs = maps sounds /mingw64/include
  libs = m SDL2 SDL2_mixer
  
  # toolchain information.
-@@ -22,6 +22,6 @@ cc_cmd_fmt = %c %f -o %o -c %s %i
- cc_inc_fmt = -I%i
- ld_obj_fmt = %o
- ld_lib_fmt = -l%l
--ld_cmd_fmt = %c -o %b %o %l %f
-+ld_cmd_fmt = %c -o %b %o %f %l
- cc_success_rc = 0
- ld_success_rc = 0
