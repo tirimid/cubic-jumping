@@ -9,15 +9,16 @@
 #include "util.h"
 
 // compiled sound data.
-#include "bounce_wav.h"
-#include "dash_down_wav.h"
-#include "death_wav.h"
-#include "end_wav.h"
-#include "jump_wav.h"
-#include "launch_wav.h"
-#include "powerjump_wav.h"
-#include "switch_wav.h"
-#include "walljump_wav.h"
+#include "sounds/bounce_wav.h"
+#include "sounds/dash_down_wav.h"
+#include "sounds/death_wav.h"
+#include "sounds/end_wav.h"
+#include "sounds/intro_wav.h"
+#include "sounds/jump_wav.h"
+#include "sounds/launch_wav.h"
+#include "sounds/powerjump_wav.h"
+#include "sounds/switch_wav.h"
+#include "sounds/walljump_wav.h"
 
 #define SOUND_FREQ 44100
 #define CHUNK_SIZE 2048
@@ -35,12 +36,13 @@ typedef struct sound
 	Mix_Chunk *chunk;
 } sound;
 
-static sound sounds[SI_END__] =
+static sound sfx_sounds[SI_END__] =
 {
 	INCLUDE_SOUND(bounce),
 	INCLUDE_SOUND(dash_down),
 	INCLUDE_SOUND(death),
 	INCLUDE_SOUND(end),
+	INCLUDE_SOUND(intro),
 	INCLUDE_SOUND(jump),
 	INCLUDE_SOUND(launch),
 	INCLUDE_SOUND(powerjump),
@@ -66,15 +68,15 @@ sound_init(void)
 	{
 		for (size_t i = 0; i < SI_END__; ++i)
 		{
-			SDL_RWops *rwops = SDL_RWFromConstMem(sounds[i].data, sounds[i].size);
+			SDL_RWops *rwops = SDL_RWFromConstMem(sfx_sounds[i].data, sfx_sounds[i].size);
 			if (!rwops)
 			{
 				log_err("sound: failed to create RWops - %s", SDL_GetError());
 				return 1;
 			}
 			
-			sounds[i].chunk = Mix_LoadWAV_RW(rwops, 1);
-			if (!sounds[i].chunk)
+			sfx_sounds[i].chunk = Mix_LoadWAV_RW(rwops, 1);
+			if (!sfx_sounds[i].chunk)
 			{
 				log_err("sound: failed to create Mix_Chunk - %s", Mix_GetError());
 				return 1;
@@ -90,8 +92,8 @@ sound_quit(void)
 {
 	// free sound effect references.
 	{
-		for (size_t i = 0; i < SI_END__ && sounds[i].chunk; ++i)
-			Mix_FreeChunk(sounds[i].chunk);
+		for (size_t i = 0; i < SI_END__ && sfx_sounds[i].chunk; ++i)
+			Mix_FreeChunk(sfx_sounds[i].chunk);
 	}
 	
 	// deinitialize SDL mixer resources.
@@ -110,5 +112,5 @@ sound_set_sfx_volume(float vol)
 void
 sound_play_sfx(sfx_id id)
 {
-	Mix_PlayChannel(-1, sounds[id].chunk, 0);
+	Mix_PlayChannel(-1, sfx_sounds[id].chunk, 0);
 }

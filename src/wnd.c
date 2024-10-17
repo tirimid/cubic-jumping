@@ -22,14 +22,14 @@ wnd_init(void)
 	                         CONF_WND_FLAGS);
 	if (!g_wnd)
 	{
-		log_err("wnd: failed to create window: %s\n", SDL_GetError());
+		log_err("wnd: failed to create window: %s", SDL_GetError());
 		return 1;
 	}
 	
 	g_rend = SDL_CreateRenderer(g_wnd, -1, CONF_REND_FLAGS);
 	if (!g_rend)
 	{
-		log_err("wnd: failed to create renderer: %s\n"), SDL_GetError();
+		log_err("wnd: failed to create renderer: %s"), SDL_GetError();
 		return 1;
 	}
 	

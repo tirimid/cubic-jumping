@@ -14,18 +14,18 @@
 #include "vfx.h"
 
 // compiled map data.
-#include "c0e0.hfm"
-#include "c0e1.hfm"
-#include "c0e2.hfm"
-#include "c0e3.hfm"
-#include "c0e4.hfm"
-#include "c0e5.hfm"
-#include "c0e6.hfm"
-#include "c0e7.hfm"
-#include "c0e8.hfm"
-#include "c0e9.hfm"
-#include "c0e10.hfm"
-#include "c0e11.hfm"
+#include "maps/c0e0.hfm"
+#include "maps/c0e1.hfm"
+#include "maps/c0e2.hfm"
+#include "maps/c0e3.hfm"
+#include "maps/c0e4.hfm"
+#include "maps/c0e5.hfm"
+#include "maps/c0e6.hfm"
+#include "maps/c0e7.hfm"
+#include "maps/c0e8.hfm"
+#include "maps/c0e9.hfm"
+#include "maps/c0e10.hfm"
+#include "maps/c0e11.hfm"
 
 #define INCLUDE_MAP(name) \
 	{ \

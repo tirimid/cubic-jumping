@@ -8,12 +8,12 @@ CFLAGS := \
 	-pedantic \
 	-O3 \
 	-Iinclude \
-	-Imaps \
-	-Isounds
+	-I.
 
 LDFLAGS := \
 	-lm \
 	-lSDL2 \
+	-lSDL2_image \
 	-lSDL2_mixer
 
 SRCS := $(wildcard src/*.c)

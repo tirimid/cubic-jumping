@@ -7,6 +7,7 @@ typedef enum sfx_id
 	SI_DASH_DOWN,
 	SI_DEATH,
 	SI_END,
+	SI_INTRO,
 	SI_JUMP,
 	SI_LAUNCH,
 	SI_POWERJUMP,

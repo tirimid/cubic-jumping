@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
 #ifdef BUILD_TARGET_WINDOWS
@@ -15,8 +16,11 @@
 #include "options.h"
 #include "sequences.h"
 #include "sound.h"
+#include "textures.h"
 #include "util.h"
 #include "wnd.h"
+
+#define INIT_IMG_FLAGS IMG_INIT_PNG
 
 #ifdef BUILD_TARGET_WINDOWS
 #define ENTRY_FN \
@@ -49,6 +53,13 @@ ENTRY_FN
 		}
 		atexit(Mix_Quit);
 		
+		if (IMG_Init(INIT_IMG_FLAGS) & INIT_IMG_FLAGS != INIT_IMG_FLAGS)
+		{
+			log_err("main: failed to init SDL2 image!");
+			return 1;
+		}
+		atexit(IMG_Quit);
+		
 		srand(time(NULL));
 		
 		SDL_StartTextInput();
@@ -65,11 +76,12 @@ ENTRY_FN
 		if (sound_init())
 			return 1;
 		sound_set_sfx_volume(g_options.sfx_volume);
+		
+		if (textures_init())
+			return 1;
 	}
 	
-	// TODO: uncomment when intro sequence is done.
-	//intro_sequence();
-	
+	intro_sequence();
 	main_menu_loop();
 	
 	return 0;

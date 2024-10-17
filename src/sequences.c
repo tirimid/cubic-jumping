@@ -7,7 +7,9 @@
 
 #include "conf.h"
 #include "input.h"
+#include "sound.h"
 #include "text.h"
+#include "textures.h"
 #include "ui.h"
 #include "util.h"
 #include "wnd.h"
@@ -20,6 +22,8 @@ static bool in_seq = false;
 void
 intro_sequence(void)
 {
+	sound_play_sfx(SI_INTRO);
+	
 	unsigned rem_ticks = CONF_INTRO_TICKS;
 	while (rem_ticks > 0)
 	{
@@ -37,6 +41,7 @@ intro_sequence(void)
 		// draw intro sequence.
 		{
 			draw_bg();
+			texture_draw(TI_GAMING_REI_BORDER, 250, 150, 300, 300);
 			SDL_RenderPresent(g_rend);
 		}
 		
@@ -59,22 +64,25 @@ credits_sequence(void)
 		"Programming\n"
 		"- tirimid\n"
 		"\n\n\n\n\n"
-		"Music and sounds\n"
-		"- tirimid\n"
-		"\n\n\n\n\n"
 		"Level design\n"
 		"- tirimid\n"
 		"\n\n\n\n\n"
 		"Playtesting\n"
-		"- brinpos\n"
+		"- Brinpos\n"
 		"- satsualex\n"
 		"- tirimid\n"
 		"- tqwqk\n"
+		"- UltraVedant\n"
 		"- Wercles\n"
+		"\n\n\n\n\n"
+		"Music and sounds\n"
+		"- tirimid\n"
 		"\n\n\n\n\n"
 		"Special thanks\n"
 		"- azmr (header font creator)\n"
-		"\n\n\n\n";
+		"\n\n\n\n\n"
+		"And thank YOU for playing!\n"
+		"\n\n\n";
 	unsigned credits_lines = count_lines(credits);
 	
 	in_seq = true;
