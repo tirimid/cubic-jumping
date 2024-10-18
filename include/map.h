@@ -19,6 +19,7 @@ typedef enum map_tile_type
 	MTT_END_OFF,
 	MTT_SLIPPERY,
 	MTT_GRIP,
+	MTT_WALL,
 	
 	MTT_END__,
 } map_tile_type;

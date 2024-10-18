@@ -396,6 +396,7 @@ map_tile_color(map_tile_type type)
 		CONF_COLOR_END_OFF,
 		CONF_COLOR_SLIPPERY,
 		CONF_COLOR_GRIP,
+		CONF_COLOR_WALL,
 	};
 	
 	return colors[type];
@@ -417,6 +418,7 @@ map_tile_collision(map_tile_type type)
 		true, // end off.
 		true, // slippery.
 		true, // grip.
+		false, // wall.
 	};
 	
 	return collision[type];
@@ -459,6 +461,7 @@ map_tile_climbable(map_tile_type type)
 		false, // end off.
 		false, // slippery.
 		true, // grip.
+		false, // wall.
 	};
 	
 	return climbable[type];
