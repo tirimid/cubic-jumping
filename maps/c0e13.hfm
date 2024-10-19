@@ -1,0 +1,25 @@
+//CJ6330653133000000000000050000000500000002000000030101010101010000000101000000010100000001010101010100000000
+#ifndef c0e13_HFM
+#define c0e13_HFM
+#include <stddef.h>
+#include "map.h"
+#include "triggers.h"
+#define c0e13_NTRIGGERS 0
+static map_tile c0e13_map_data[] =
+{
+{1},{1},{1},{1},{1},{1},{0},{0},{0},{1},{1},{0},{0},{0},{1},{1},{0},{0},{0},{1},{1},{1},{1},{1},{1},
+};
+static map c0e13_map =
+{
+	.size_x = 5,
+	.size_y = 5,
+	.data = c0e13_map_data,
+	.player_spawn_x = 2,
+	.player_spawn_y = 3,
+	.name = "c0e13\0",
+};
+static trigger c0e13_triggers[] =
+{
+{0.0f,0.0f,0.0f,0.0f,0,0,0}
+};
+#endif
