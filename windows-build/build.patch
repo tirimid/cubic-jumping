@@ -1,14 +1,15 @@
 diff --git a/Makefile b/Makefile
-index 02e95e8..70b5bc1 100644
+index d65fe17..c315508 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -8,13 +8,18 @@ CFLAGS := \
- 	-pedantic \
+@@ -9,14 +9,19 @@ CFLAGS := \
  	-O3 \
  	-Iinclude \
--	-I.
-+	-I. \
+ 	-I. \
 +	-I/mingw64/include \
+ 	-fno-strict-aliasing \
+-	-Wall
++	-Wall \
 +	-DBUILD_TARGET_WINDOWS \
 +	-mwindows
  
@@ -24,16 +25,16 @@ index 02e95e8..70b5bc1 100644
  SRCS := $(wildcard src/*.c)
  OBJS := $(patsubst src/%,lib/%.o,$(SRCS))
 diff --git a/mincbuild.conf b/mincbuild.conf
-index 562b27e..72bd26f 100644
+index f78140d..62f592f 100644
 --- a/mincbuild.conf
 +++ b/mincbuild.conf
 @@ -1,8 +1,8 @@
  # toolchain.
  cc = /usr/bin/gcc
  ld = /usr/bin/gcc
--cflags = -std=c99 -pedantic -O3
+-cflags = -std=c99 -pedantic -O3 -fno-strict-aliasing -Wall
 -ldflags = NONE
-+cflags = -std=c99 -pedantic -O3 -DBUILD_TARGET_WINDOWS -mwindows
++cflags = -std=c99 -pedantic -O3 -fno-strict-aliasing -Wall -DBUILD_TARGET_WINDOWS -mwindows
 +ldflags = -L/mingw64/lib -mwindows
  
  # project.
