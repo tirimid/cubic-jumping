@@ -19,7 +19,7 @@
 #include "vfx.h"
 #include "wnd.h"
 
-game g_game;
+struct game g_game;
 
 static void draw_bg(void);
 static void fill_out_of_bounds(void);

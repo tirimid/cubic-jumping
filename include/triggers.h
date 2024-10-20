@@ -7,7 +7,7 @@
 
 #define TRIGGERS_MAX 64
 
-typedef enum trigger_type
+enum trigger_type
 {
 	TT_MSG = 0,
 	TT_KILL,
@@ -16,22 +16,22 @@ typedef enum trigger_type
 	TT_CAP_DISABLE,
 	
 	TT_END__,
-} trigger_type;
+};
 
-typedef struct trigger
+struct trigger
 {
 	float pos_x, pos_y;
 	float size_x, size_y;
 	uint32_t arg; // type-dependent argument.
 	bool single_use;
 	uint8_t type;
-} trigger;
+};
 
-extern trigger g_triggers[TRIGGERS_MAX];
+extern struct trigger g_triggers[TRIGGERS_MAX];
 extern size_t g_ntriggers;
 
-uint8_t const *trigger_color(trigger_type type);
-void triggers_add_trigger(trigger const *trigger);
+uint8_t const *trigger_color(enum trigger_type type);
+void triggers_add_trigger(struct trigger const *trigger);
 void triggers_rm_trigger(size_t ind);
 void triggers_update(void);
 void triggers_draw(void);

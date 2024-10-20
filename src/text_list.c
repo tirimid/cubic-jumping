@@ -12,11 +12,11 @@
 #define QUEUED_MAX 64
 #define TEXT_TICKS 550
 
-static void gen_box_text(text_list_item item);
+static void gen_box_text(enum text_list_item item);
 
 static char box_text[512];
 
-static text_list_item queue[QUEUED_MAX];
+static enum text_list_item queue[QUEUED_MAX];
 static unsigned queue_front_ticks = 0;
 static size_t nqueued = 0;
 
@@ -28,7 +28,7 @@ text_list_term(void)
 }
 
 void
-text_list_enqueue(text_list_item item)
+text_list_enqueue(enum text_list_item item)
 {
 	if (nqueued < QUEUED_MAX)
 	{
@@ -54,7 +54,7 @@ text_list_update(void)
 		{
 			memmove(&queue[0],
 			        &queue[1],
-			        sizeof(text_list_item) * (QUEUED_MAX - 1));
+			        sizeof(enum text_list_item) * (QUEUED_MAX - 1));
 			
 			--nqueued;
 			if (nqueued == 0)
@@ -81,7 +81,7 @@ text_list_draw(void)
 }
 
 static void
-gen_box_text(text_list_item item)
+gen_box_text(enum text_list_item item)
 {
 	switch (item)
 	{
@@ -170,6 +170,10 @@ gen_box_text(text_list_item item)
 		// c0e11.
 	case TLI_C0E11_GRIP_INTRO:
 		sprintf(box_text, "Grip tiles are rougher than normal, allowing you to climb up them");
+		break;
+		
+		// ignore.
+	case TLI_END__:
 		break;
 	}
 }

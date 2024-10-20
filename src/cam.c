@@ -6,7 +6,7 @@
 #include "player.h"
 #include "util.h"
 
-cam g_cam =
+struct cam g_cam =
 {
 	.pos_x = 0.0f,
 	.pos_y = 0.0f,

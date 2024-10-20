@@ -6,7 +6,7 @@
 
 #define MAP_MAX_NAME_LEN 8
 
-typedef enum map_tile_type
+enum map_tile_type
 {
 	MTT_AIR = 0,
 	MTT_GROUND,
@@ -22,22 +22,22 @@ typedef enum map_tile_type
 	MTT_WALL,
 	
 	MTT_END__,
-} map_tile_type;
+};
 
-typedef struct map_tile
+struct map_tile
 {
 	uint8_t type;
-} map_tile;
+};
 
-typedef struct map
+struct map
 {
-	map_tile *data;
+	struct map_tile *data;
 	uint32_t size_x, size_y;
 	uint32_t player_spawn_x, player_spawn_y;
 	char name[MAP_MAX_NAME_LEN + 1];
-} map;
+};
 
-extern map g_map;
+extern struct map g_map;
 
 // editor / custom map functionality.
 int map_create_file(char const *file, char const *name);
@@ -47,12 +47,12 @@ void map_refit_bounds(void);
 int map_write_to_file(char const *file);
 
 // game and base rendering functionality.
-uint8_t const *map_tile_color(map_tile_type type);
-bool map_tile_collision(map_tile_type type);
-bool map_tile_slippery(map_tile_type type);
-bool map_tile_climbable(map_tile_type type);
+uint8_t const *map_tile_color(enum map_tile_type type);
+bool map_tile_collision(enum map_tile_type type);
+bool map_tile_slippery(enum map_tile_type type);
+bool map_tile_climbable(enum map_tile_type type);
 void map_draw(void);
 void map_draw_outlines(void);
-map_tile *map_get(uint32_t x, uint32_t y);
+struct map_tile *map_get(uint32_t x, uint32_t y);
 
 #endif

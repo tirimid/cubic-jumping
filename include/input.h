@@ -5,14 +5,14 @@
 
 #include <SDL2/SDL.h>
 
-typedef enum mouse_button
+enum mouse_button
 {
 	MB_LEFT = 0,
 	MB_RIGHT,
 	MB_MIDDLE,
 	
 	MB_END__,
-} mouse_button;
+};
 
 void input_handle_events(void);
 void input_post_update(void);
@@ -30,9 +30,9 @@ bool key_shift_held(void);
 void mouse_press_button(SDL_Event const *e);
 void mouse_release_button(SDL_Event const *e);
 void mouse_post_update(void);
-bool mouse_down(mouse_button b);
-bool mouse_pressed(mouse_button b);
-bool mouse_released(mouse_button b);
+bool mouse_down(enum mouse_button b);
+bool mouse_pressed(enum mouse_button b);
+bool mouse_released(enum mouse_button b);
 void mouse_pos(int *out_x, int *out_y);
 
 #endif

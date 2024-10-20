@@ -17,13 +17,13 @@
 
 #define NO_DRAG_REGION 0.0f
 
-typedef enum edit_mode
+enum edit_mode
 {
 	EM_TILE_P = 0,
 	EM_TILE_F,
 	EM_TRIGGER,
 	EM_PLAYER,
-} edit_mode;
+};
 
 static void update_editor(void);
 static void draw_bg(void);
@@ -43,7 +43,7 @@ static void btn_single(void);
 static void btn_exit(void);
 
 static char const *map_file;
-static edit_mode mode = EM_TILE_P;
+static enum edit_mode mode = EM_TILE_P;
 static int type = 0;
 static bool unsaved = false;
 static float drag_orig_x = NO_DRAG_REGION, drag_orig_y = NO_DRAG_REGION;
@@ -82,19 +82,19 @@ editor_init(char const *file)
 void
 editor_loop(void)
 {
-	ui_button b_mode_tile_p = ui_button_create(10, 10, "Tile-P", btn_mode_tile_p);
-	ui_button b_mode_tile_f = ui_button_create(160, 10, "Tile-F", btn_mode_tile_f);
-	ui_button b_mode_trigger = ui_button_create(310, 10, "Trigger", btn_mode_trigger);
-	ui_button b_mode_player = ui_button_create(480, 10, "Player", btn_mode_player);
-	ui_button b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
-	ui_button b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
-	ui_button b_save = ui_button_create(260, 50, "Save", btn_save);
-	ui_button b_arg_add = ui_button_create(365, 50, "Arg+", btn_arg_add);
-	ui_button b_arg_sub = ui_button_create(470, 50, "Arg-", btn_arg_sub);
-	ui_button b_single = ui_button_create(575, 50, "Single", btn_single);
-	ui_button b_type_next = ui_button_create(320, 90, "Type>", btn_type_next);
-	ui_button b_type_prev = ui_button_create(450, 90, "Type<", btn_type_prev);
-	ui_button b_exit = ui_button_create(580, 90, "Exit", btn_exit);
+	struct ui_button b_mode_tile_p = ui_button_create(10, 10, "Tile-P", btn_mode_tile_p);
+	struct ui_button b_mode_tile_f = ui_button_create(160, 10, "Tile-F", btn_mode_tile_f);
+	struct ui_button b_mode_trigger = ui_button_create(310, 10, "Trigger", btn_mode_trigger);
+	struct ui_button b_mode_player = ui_button_create(480, 10, "Player", btn_mode_player);
+	struct ui_button b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
+	struct ui_button b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
+	struct ui_button b_save = ui_button_create(260, 50, "Save", btn_save);
+	struct ui_button b_arg_add = ui_button_create(365, 50, "Arg+", btn_arg_add);
+	struct ui_button b_arg_sub = ui_button_create(470, 50, "Arg-", btn_arg_sub);
+	struct ui_button b_single = ui_button_create(575, 50, "Single", btn_single);
+	struct ui_button b_type_next = ui_button_create(320, 90, "Type>", btn_type_next);
+	struct ui_button b_type_prev = ui_button_create(450, 90, "Type<", btn_type_prev);
+	struct ui_button b_exit = ui_button_create(580, 90, "Exit", btn_exit);
 	
 	while (running)
 	{
@@ -310,7 +310,7 @@ update_editor(void)
 				drag_orig_y = tmp;
 			}
 			
-			trigger new_trigger =
+			struct trigger new_trigger =
 			{
 				.pos_x = drag_orig_x,
 				.pos_y = drag_orig_y,
@@ -329,7 +329,7 @@ update_editor(void)
 		{
 			for (size_t i = 0; i < g_ntriggers; ++i)
 			{
-				trigger const *trigger = &g_triggers[i];
+				struct trigger const *trigger = &g_triggers[i];
 				if (drag_x >= trigger->pos_x
 				    && drag_x < trigger->pos_x + trigger->size_x
 				    && drag_y >= trigger->pos_y

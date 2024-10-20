@@ -16,13 +16,13 @@
 
 #define COL_THRESHOLD 0.05f
 
-player g_player;
-player_state g_player_state;
-player_cap_mask g_player_cap_mask;
+struct player g_player;
+enum player_state g_player_state;
+struct player_cap_mask g_player_cap_mask;
 
 static void update_playing(void);
 static void update_dead(void);
-static void collide(map_tile *tile);
+static void collide(struct map_tile *tile);
 static void collide_left(void);
 static void collide_right(void);
 static void collide_bottom(void);
@@ -98,7 +98,7 @@ player_die(void)
 }
 
 void
-player_set_cap_mask(player_cap_id id, bool state)
+player_set_cap_mask(enum player_cap_id id, bool state)
 {
 	switch (id)
 	{
@@ -153,7 +153,7 @@ update_playing(void)
 	
 	// apply user movement input velocity.
 	{
-		if (player_grounded() || !player_grounded() && g_player.air_control)
+		if (player_grounded() || (!player_grounded() && g_player.air_control))
 		{
 			float mv_horiz = key_down(g_options.k_right) - key_down(g_options.k_left);
 			mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
@@ -282,7 +282,7 @@ update_dead(void)
 }
 
 static void
-collide(map_tile *tile)
+collide(struct map_tile *tile)
 {
 	if (!tile)
 		return;
@@ -435,10 +435,10 @@ compute_collision_distances(void)
 	// find nearest left edge.
 	{
 		int cxtl;
-		map_tile *cxtl_tile = NULL;
+		struct map_tile *cxtl_tile = NULL;
 		for (cxtl = g_player.pos_x; cxtl >= 0; --cxtl)
 		{
-			map_tile *tile = map_get(cxtl, g_player.pos_y);
+			struct map_tile *tile = map_get(cxtl, g_player.pos_y);
 			if (map_tile_collision(tile->type))
 			{
 				cxtl_tile = tile;
@@ -447,10 +447,10 @@ compute_collision_distances(void)
 		}
 		
 		int cxbl;
-		map_tile *cxbl_tile = NULL;
+		struct map_tile *cxbl_tile = NULL;
 		for (cxbl = g_player.pos_x; cxbl >= 0; --cxbl)
 		{
-			map_tile *tile = map_get(cxbl, g_player.pos_y + CONF_PLAYER_SIZE);
+			struct map_tile *tile = map_get(cxbl, g_player.pos_y + CONF_PLAYER_SIZE);
 			if (map_tile_collision(tile->type))
 			{
 				cxbl_tile = tile;
@@ -466,10 +466,10 @@ compute_collision_distances(void)
 	// find nearest right edge.
 	{
 		int cxtr;
-		map_tile *cxtr_tile = NULL;
+		struct map_tile *cxtr_tile = NULL;
 		for (cxtr = g_player.pos_x + CONF_PLAYER_SIZE; cxtr < g_map.size_x; ++cxtr)
 		{
-			map_tile *tile = map_get(cxtr, g_player.pos_y);
+			struct map_tile *tile = map_get(cxtr, g_player.pos_y);
 			if (map_tile_collision(tile->type))
 			{
 				cxtr_tile = tile;
@@ -478,10 +478,10 @@ compute_collision_distances(void)
 		}
 		
 		int cxbr;
-		map_tile *cxbr_tile = NULL;
+		struct map_tile *cxbr_tile = NULL;
 		for (cxbr = g_player.pos_x + CONF_PLAYER_SIZE; cxbr < g_map.size_x; ++cxbr)
 		{
-			map_tile *tile = map_get(cxbr, g_player.pos_y + CONF_PLAYER_SIZE);
+			struct map_tile *tile = map_get(cxbr, g_player.pos_y + CONF_PLAYER_SIZE);
 			if (map_tile_collision(tile->type))
 			{
 				cxbr_tile = tile;
@@ -497,10 +497,10 @@ compute_collision_distances(void)
 	// find nearest top edge.
 	{
 		int cytl;
-		map_tile *cytl_tile = NULL;
+		struct map_tile *cytl_tile = NULL;
 		for (cytl = g_player.pos_y; cytl >= 0; --cytl)
 		{
-			map_tile *tile = map_get(g_player.pos_x, cytl);
+			struct map_tile *tile = map_get(g_player.pos_x, cytl);
 			if (map_tile_collision(tile->type))
 			{
 				cytl_tile = tile;
@@ -509,10 +509,10 @@ compute_collision_distances(void)
 		}
 		
 		int cytr;
-		map_tile *cytr_tile = NULL;
+		struct map_tile *cytr_tile = NULL;
 		for (cytr = g_player.pos_y; cytr >= 0; --cytr)
 		{
-			map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cytr);
+			struct map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cytr);
 			if (map_tile_collision(tile->type))
 			{
 				cytr_tile = tile;
@@ -528,10 +528,10 @@ compute_collision_distances(void)
 	// find nearest bottom edge.
 	{
 		int cybl;
-		map_tile *cybl_tile = NULL;
+		struct map_tile *cybl_tile = NULL;
 		for (cybl = g_player.pos_y + CONF_PLAYER_SIZE; cybl < g_map.size_y; ++cybl)
 		{
-			map_tile *tile = map_get(g_player.pos_x, cybl);
+			struct map_tile *tile = map_get(g_player.pos_x, cybl);
 			if (map_tile_collision(tile->type))
 			{
 				cybl_tile = tile;
@@ -540,10 +540,10 @@ compute_collision_distances(void)
 		}
 		
 		int cybr;
-		map_tile *cybr_tile = NULL;
+		struct map_tile *cybr_tile = NULL;
 		for (cybr = g_player.pos_y + CONF_PLAYER_SIZE; cybr < g_map.size_y; ++cybr)
 		{
-			map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cybr);
+			struct map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cybr);
 			if (map_tile_collision(tile->type))
 			{
 				cybr_tile = tile;

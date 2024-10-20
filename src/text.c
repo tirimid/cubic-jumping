@@ -45,7 +45,7 @@ text_draw_ch(char ch, int x, int y)
 		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
 		{
 			int shift = gy * TEXT_FONT_WIDTH + gx;
-			if (!(font[ch] & 1 << shift))
+			if (!(font[(unsigned char)ch] & 1 << shift))
 				continue;
 			
 			SDL_Rect outline =
@@ -66,7 +66,7 @@ text_draw_ch(char ch, int x, int y)
 		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
 		{
 			int shift = gy * TEXT_FONT_WIDTH + gx;
-			if (!(font[ch] & 1 << shift))
+			if (!(font[(unsigned char)ch] & 1 << shift))
 				continue;
 			
 			SDL_Rect main =
@@ -106,7 +106,7 @@ text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
 	for (int dy = py; dy < py + sy; dy += TEXT_EFF_HEIGHT)
 	{
 		// skip all non-renderable characters at start of line.
-		while (s[i] && !font[s[i]])
+		while (s[i] && !font[(unsigned char)s[i]])
 			++i;
 		
 		// draw all words on line that don't require a newline wrap.
@@ -171,7 +171,7 @@ drawable_len_at(char const *text, size_t off)
 	size_t len;
 	for (len = 0; text[off + len]; ++len)
 	{
-		if (!font[text[off + len]])
+		if (!font[(unsigned char)text[off + len]])
 			break;
 	}
 	return len;

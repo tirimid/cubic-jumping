@@ -12,7 +12,7 @@
 #define VAL_BUF_SIZE 64
 #define SCAN_FMT "%63s = %63[^\r\n]"
 
-options g_options;
+struct options g_options;
 
 static int opts_get_raw(FILE *fp, char const *key, char out[]);
 static int opts_get_keycode(FILE *fp, char const *key, SDL_Keycode *out);
@@ -21,7 +21,7 @@ static int opts_get_float(FILE *fp, char const *key, float *out);
 void
 options_return_to_default(char const *path)
 {
-	g_options = (options)
+	g_options = (struct options)
 	{
 		// keybind options.
 		.k_left = CONF_DEFAULT_K_LEFT,
@@ -128,6 +128,7 @@ options_write_to_file(char const *path)
 	}
 	
 	fclose(fp);
+	return 0;
 }
 
 static int

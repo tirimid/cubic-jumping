@@ -53,7 +53,7 @@ ENTRY_FN
 		}
 		atexit(Mix_Quit);
 		
-		if (IMG_Init(INIT_IMG_FLAGS) & INIT_IMG_FLAGS != INIT_IMG_FLAGS)
+		if ((IMG_Init(INIT_IMG_FLAGS) & INIT_IMG_FLAGS) != INIT_IMG_FLAGS)
 		{
 			log_err("main: failed to init SDL2 image!");
 			return 1;

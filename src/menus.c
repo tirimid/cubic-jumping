@@ -45,17 +45,17 @@ static void btn_req_next(void);
 static void btn_req_retry(void);
 
 static bool in_menu = false;
-static menu_request req = MR_NONE;
+static enum menu_request req = MR_NONE;
 static char custom_level_path[MAX_LEVEL_SEL_PATH_SIZE];
 
 void
 main_menu_loop(void)
 {
-	ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
-	ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
-	ui_button b_play_custom = ui_button_create(80, 460, "Play or edit custom level", btn_play_edit_custom_level);
-	ui_button b_editor = ui_button_create(80, 500, "Options", btn_options);
-	ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
+	struct ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
+	struct ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
+	struct ui_button b_play_custom = ui_button_create(80, 460, "Play or edit custom level", btn_play_edit_custom_level);
+	struct ui_button b_editor = ui_button_create(80, 500, "Options", btn_options);
+	struct ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
 	
 	// `in_menu` is irrelevant for the main menu since it is the main launch
 	// screen for game functionality, and it doesn't really make sense to
@@ -103,10 +103,10 @@ main_menu_loop(void)
 void
 custom_level_select_menu_loop(void)
 {
-	ui_text_field tf_path = ui_text_field_create(80, 380, 20, custom_level_path, MAX_LEVEL_SEL_PATH_SIZE - 1);
-	ui_button b_play_level = ui_button_create(80, 420, "Play custom level", btn_play_custom_level);
-	ui_button b_edit_level = ui_button_create(80, 460, "Edit custom level", btn_edit_custom_level);
-	ui_button b_back = ui_button_create(80, 500, "Back", btn_exit_menu);
+	struct ui_text_field tf_path = ui_text_field_create(80, 380, 20, custom_level_path, MAX_LEVEL_SEL_PATH_SIZE - 1);
+	struct ui_button b_play_level = ui_button_create(80, 420, "Play custom level", btn_play_custom_level);
+	struct ui_button b_edit_level = ui_button_create(80, 460, "Edit custom level", btn_edit_custom_level);
+	struct ui_button b_back = ui_button_create(80, 500, "Back", btn_exit_menu);
 	
 	in_menu = true;
 	while (in_menu)
@@ -150,12 +150,12 @@ custom_level_select_menu_loop(void)
 	}
 }
 
-menu_request
+enum menu_request
 level_end_menu_loop(void)
 {
-	ui_button b_next = ui_button_create(80, 380, "Continue", btn_req_next);
-	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_req_retry);
-	ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
+	struct ui_button b_next = ui_button_create(80, 380, "Continue", btn_req_next);
+	struct ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_req_retry);
+	struct ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
 	
 	in_menu = true;
 	req = MR_NONE;
@@ -228,9 +228,9 @@ level_end_menu_loop(void)
 void
 pause_menu_loop(void)
 {
-	ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
-	ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_force_retry);
-	ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
+	struct ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
+	struct ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_force_retry);
+	struct ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
 	
 	in_menu = true;
 	while (in_menu)
@@ -275,14 +275,14 @@ pause_menu_loop(void)
 void
 options_menu_loop(void)
 {
-	ui_button b_k_left = ui_button_create(80, 140, "[Left]", btn_detect_key_left);
-	ui_button b_k_right = ui_button_create(80, 180, "[Right]", btn_detect_key_right);
-	ui_button b_k_jump = ui_button_create(80, 220, "[Jump]", btn_detect_key_jump);
-	ui_button b_k_dash_down = ui_button_create(80, 260, "[Dash down]", btn_detect_key_dash_down);
-	ui_button b_k_powerjump = ui_button_create(80, 300, "[Powerjump]", btn_detect_key_powerjump);
-	ui_button b_k_menu = ui_button_create(80, 340, "[Menu]", btn_detect_key_menu);
-	ui_slider s_sfx_volume = ui_slider_create(400, 390, 200, 20, g_options.sfx_volume, sldr_sfx_volume);
-	ui_button b_back = ui_button_create(80, 420, "Back", btn_exit_options_menu);
+	struct ui_button b_k_left = ui_button_create(80, 140, "[Left]", btn_detect_key_left);
+	struct ui_button b_k_right = ui_button_create(80, 180, "[Right]", btn_detect_key_right);
+	struct ui_button b_k_jump = ui_button_create(80, 220, "[Jump]", btn_detect_key_jump);
+	struct ui_button b_k_dash_down = ui_button_create(80, 260, "[Dash down]", btn_detect_key_dash_down);
+	struct ui_button b_k_powerjump = ui_button_create(80, 300, "[Powerjump]", btn_detect_key_powerjump);
+	struct ui_button b_k_menu = ui_button_create(80, 340, "[Menu]", btn_detect_key_menu);
+	struct ui_slider s_sfx_volume = ui_slider_create(400, 390, 200, 20, g_options.sfx_volume, sldr_sfx_volume);
+	struct ui_button b_back = ui_button_create(80, 420, "Back", btn_exit_options_menu);
 	
 	in_menu = true;
 	while (in_menu)
@@ -360,7 +360,7 @@ key_detect_menu_loop(void)
 			for (SDL_Keycode i = 128; i < 1024; ++i)
 			{
 				if (key_pressed(i))
-					return i - 128 | 1 << 30;
+					return (i - 128) | 1 << 30;
 			}
 			
 			input_post_update();
@@ -537,7 +537,7 @@ btn_edit_custom_level(void)
 				++last;
 			}
 			
-			strncpy(name, &custom_level_path[first], last - first);
+			strncpy(name, &custom_level_path[first], last - first + 1);
 		}
 		
 		if (!name[0])

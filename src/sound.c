@@ -29,14 +29,14 @@
 		.size = sizeof(name##_wav), \
 	}
 
-typedef struct sound
+struct sound
 {
 	unsigned char const *data;
 	size_t size;
 	Mix_Chunk *chunk;
-} sound;
+};
 
-static sound sfx_sounds[SI_END__] =
+static struct sound sfx_sounds[SI_END__] =
 {
 	INCLUDE_SOUND(bounce),
 	INCLUDE_SOUND(dash_down),
@@ -110,7 +110,7 @@ sound_set_sfx_volume(float vol)
 }
 
 void
-sound_play_sfx(sfx_id id)
+sound_play_sfx(enum sfx_id id)
 {
 	Mix_PlayChannel(-1, sfx_sounds[id].chunk, 0);
 }

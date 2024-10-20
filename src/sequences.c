@@ -55,7 +55,7 @@ intro_sequence(void)
 void
 credits_sequence(void)
 {
-	ui_button b_skip = ui_button_create(510, 550, "Skip credits", btn_skip_sequence);
+	struct ui_button b_skip = ui_button_create(510, 550, "Skip credits", btn_skip_sequence);
 	
 	int scroll = CONF_WND_HEIGHT + CONF_CREDITS_DELAY;
 	char const *credits =
@@ -69,6 +69,7 @@ credits_sequence(void)
 		"\n\n\n\n\n"
 		"Playtesting\n"
 		"- Brinpos\n"
+		"- Platypus_Eradicator\n"
 		"- satsualex\n"
 		"- tirimid\n"
 		"- tqwqk\n"

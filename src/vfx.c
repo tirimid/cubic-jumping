@@ -12,7 +12,7 @@
 #include "wnd.h"
 
 static size_t nparticles = 0;
-static particle particles[CONF_MAX_PARTICLES];
+static struct particle particles[CONF_MAX_PARTICLES];
 
 void
 vfx_clear_particles(void)
@@ -21,7 +21,7 @@ vfx_clear_particles(void)
 }
 
 void
-vfx_put_particle(particle_type type, float x, float y)
+vfx_put_particle(enum particle_type type, float x, float y)
 {
 	if (nparticles >= CONF_MAX_PARTICLES)
 		return;
@@ -29,7 +29,7 @@ vfx_put_particle(particle_type type, float x, float y)
 	switch (type)
 	{
 	case PT_PLAYER_TRACE:
-		particles[nparticles++] = (particle)
+		particles[nparticles++] = (struct particle)
 		{
 			.pos_x = x,
 			.pos_y = y,
@@ -40,7 +40,7 @@ vfx_put_particle(particle_type type, float x, float y)
 		};
 		break;
 	case PT_PLAYER_SHARD:
-		particles[nparticles++] = (particle)
+		particles[nparticles++] = (struct particle)
 		{
 			.pos_x = x,
 			.pos_y = y,
@@ -51,7 +51,7 @@ vfx_put_particle(particle_type type, float x, float y)
 		};
 		break;
 	case PT_AIR_PUFF:
-		particles[nparticles++] = (particle)
+		particles[nparticles++] = (struct particle)
 		{
 			.pos_x = x,
 			.pos_y = y,
@@ -75,7 +75,7 @@ vfx_update(void)
 			{
 				memmove(&particles[i],
 				        &particles[i + 1],
-				        (nparticles - i - 1) * sizeof(particle));
+				        (nparticles - i - 1) * sizeof(struct particle));
 			}
 			
 			--nparticles;
@@ -105,9 +105,9 @@ vfx_draw(void)
 	for (size_t i = 0; i < nparticles; ++i)
 	{
 		// determine particle drawing parameters.
-		uint8_t const *ca, *cb;
-		float size_a, size_b;
-		unsigned max_lifetime;
+		uint8_t const *ca = NULL, *cb = NULL;
+		float size_a = 0.0f, size_b = 0.0f;
+		unsigned max_lifetime = 0;
 		switch (particles[i].type)
 		{
 		case PT_PLAYER_TRACE:

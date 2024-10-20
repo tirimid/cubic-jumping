@@ -11,10 +11,10 @@
 #include "text.h"
 #include "wnd.h"
 
-ui_button
+struct ui_button
 ui_button_create(int x, int y, char const *text, void (*callback)(void))
 {
-	return (ui_button)
+	return (struct ui_button)
 	{
 		.x = x,
 		.y = y,
@@ -26,7 +26,7 @@ ui_button_create(int x, int y, char const *text, void (*callback)(void))
 }
 
 void
-ui_button_update(ui_button *btn)
+ui_button_update(struct ui_button *btn)
 {
 	int mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
@@ -54,7 +54,7 @@ ui_button_update(ui_button *btn)
 }
 
 void
-ui_button_draw(ui_button const *btn)
+ui_button_draw(struct ui_button const *btn)
 {
 	// set frame color based on button status.
 	{
@@ -90,10 +90,10 @@ ui_button_draw(ui_button const *btn)
 	}
 }
 
-ui_text_field
+struct ui_text_field
 ui_text_field_create(int x, int y, size_t ndraw, char *out, size_t nmax)
 {
-	return (ui_text_field)
+	return (struct ui_text_field)
 	{
 		.x = x,
 		.y = y,
@@ -107,7 +107,7 @@ ui_text_field_create(int x, int y, size_t ndraw, char *out, size_t nmax)
 }
 
 void
-ui_text_field_update(ui_text_field *tf)
+ui_text_field_update(struct ui_text_field *tf)
 {
 	int mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
@@ -205,7 +205,7 @@ ui_text_field_update(ui_text_field *tf)
 }
 
 void
-ui_text_field_draw(ui_text_field const *tf)
+ui_text_field_draw(struct ui_text_field const *tf)
 {
 	// set frame color based on text field status.
 	{
@@ -262,7 +262,7 @@ ui_text_field_draw(ui_text_field const *tf)
 	}
 }
 
-ui_slider
+struct ui_slider
 ui_slider_create(int x,
                  int y,
                  int w,
@@ -270,7 +270,7 @@ ui_slider_create(int x,
                  float initial,
                  void (*callback)(float))
 {
-	return (ui_slider)
+	return (struct ui_slider)
 	{
 		.x = x,
 		.y = y,
@@ -282,7 +282,7 @@ ui_slider_create(int x,
 }
 
 void
-ui_slider_update(ui_slider *s)
+ui_slider_update(struct ui_slider *s)
 {
 	int mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
@@ -311,7 +311,7 @@ ui_slider_update(ui_slider *s)
 }
 
 void
-ui_slider_draw(ui_slider const *s)
+ui_slider_draw(struct ui_slider const *s)
 {
 	// set frame color based on slider state.
 	{

@@ -36,16 +36,16 @@
 		.ntriggers = name##_NTRIGGERS, \
 	}
 
-typedef struct item
+struct item
 {
-	map *map;
-	trigger *triggers;
+	struct map *map;
+	struct trigger *triggers;
 	size_t ntriggers;
-} item;
+};
 
 static char const *cur_custom;
-static map_list_item cur_item;
-static item item_data[MLI_END__] =
+static enum map_list_item cur_item;
+static struct item item_data[MLI_END__] =
 {
 	{
 		// dummy: custom map.
@@ -70,7 +70,7 @@ static item item_data[MLI_END__] =
 };
 
 void
-map_list_load(map_list_item item)
+map_list_load(enum map_list_item item)
 {
 	// init gameplay elements.
 	{
@@ -81,21 +81,19 @@ map_list_load(map_list_item item)
 			triggers_add_trigger(&item_data[item].triggers[i]);
 		
 		g_player_state = PS_PLAYING;
-		g_player = (player)
+		g_player = (struct player)
 		{
 			.pos_x = g_map.player_spawn_x,
 			.pos_y = g_map.player_spawn_y,
-			.vel_x = 0.0f,
-			.vel_y = 0.0f,
 		};
-		g_player_cap_mask = (player_cap_mask){0};
+		g_player_cap_mask = (struct player_cap_mask){0};
 		
 		game_disable_switches();
 	}
 	
 	// init aesthetic elements.
 	{
-		g_cam = (cam)
+		g_cam = (struct cam)
 		{
 			.pos_x = g_map.player_spawn_x,
 			.pos_y = g_map.player_spawn_y,
@@ -125,21 +123,19 @@ map_list_load_custom(char const *path)
 			return 1;
 		
 		g_player_state = PS_PLAYING;
-		g_player = (player)
+		g_player = (struct player)
 		{
 			.pos_x = g_map.player_spawn_x,
 			.pos_y = g_map.player_spawn_y,
-			.vel_x = 0.0f,
-			.vel_y = 0.0f,
 		};
-		g_player_cap_mask = (player_cap_mask){0};
+		g_player_cap_mask = (struct player_cap_mask){0};
 		
 		game_disable_switches();
 	}
 	
 	// init aesthetic elements.
 	{
-		g_cam = (cam)
+		g_cam = (struct cam)
 		{
 			.pos_x = g_map.player_spawn_x,
 			.pos_y = g_map.player_spawn_y,
@@ -179,12 +175,10 @@ void
 map_list_soft_reload(void)
 {
 	g_player_state = PS_PLAYING;
-	g_player = (player)
+	g_player = (struct player)
 	{
 		.pos_x = g_map.player_spawn_x,
 		.pos_y = g_map.player_spawn_y,
-		.vel_x = 0.0f,
-		.vel_y = 0.0f,
 	};
 	
 	game_disable_switches();

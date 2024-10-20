@@ -8,7 +8,9 @@ CFLAGS := \
 	-pedantic \
 	-O3 \
 	-Iinclude \
-	-I.
+	-I. \
+	-fno-strict-aliasing \
+	-Wall
 
 LDFLAGS := \
 	-lm \

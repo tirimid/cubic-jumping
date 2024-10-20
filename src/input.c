@@ -105,7 +105,7 @@ key_pressed(SDL_Keycode k)
 bool
 key_text_input_received(char ch)
 {
-	return k_text_input_states[ch];
+	return k_text_input_states[(unsigned char)ch];
 }
 
 bool
@@ -161,19 +161,19 @@ mouse_post_update(void)
 }
 
 bool
-mouse_down(mouse_button b)
+mouse_down(enum mouse_button b)
 {
 	return m_down_states[b];
 }
 
 bool
-mouse_pressed(mouse_button b)
+mouse_pressed(enum mouse_button b)
 {
 	return m_press_states[b];
 }
 
 bool
-mouse_released(mouse_button b)
+mouse_released(enum mouse_button b)
 {
 	return m_release_states[b];
 }

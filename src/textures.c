@@ -18,14 +18,14 @@
 		.size = sizeof(name##_png), \
 	}
 
-typedef struct texture
+struct texture
 {
 	unsigned char const *data;
 	size_t size;
 	SDL_Texture *tex;
-} texture;
+};
 
-static texture textures[TI_END__] =
+static struct texture textures[TI_END__] =
 {
 	INCLUDE_TEXTURE(gaming_rei_border),
 };
@@ -69,7 +69,7 @@ textures_quit(void)
 }
 
 void
-texture_draw(texture_id id, int x, int y, int w, int h)
+texture_draw(enum texture_id id, int x, int y, int w, int h)
 {
 	SDL_Rect r =
 	{

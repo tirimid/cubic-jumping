@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-typedef struct options
+struct options
 {
 	// keybind options.
 	SDL_Keycode k_left, k_right, k_jump, k_dash_down, k_powerjump;
@@ -12,9 +12,9 @@ typedef struct options
 	
 	// sound options.
 	float sfx_volume;
-} options;
+};
 
-extern options g_options;
+extern struct options g_options;
 
 void options_return_to_default(char const *path);
 int options_read_from_file(char const *path);

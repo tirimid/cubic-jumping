@@ -5,11 +5,11 @@
 #include "map.h"
 #include "triggers.h"
 #define c0e13_NTRIGGERS 0
-static map_tile c0e13_map_data[] =
+static struct map_tile c0e13_map_data[] =
 {
 {1},{1},{1},{1},{1},{1},{0},{0},{0},{1},{1},{0},{0},{0},{1},{1},{0},{0},{0},{1},{1},{1},{1},{1},{1},
 };
-static map c0e13_map =
+static struct map c0e13_map =
 {
 	.size_x = 5,
 	.size_y = 5,
@@ -18,7 +18,7 @@ static map c0e13_map =
 	.player_spawn_y = 3,
 	.name = "c0e13\0",
 };
-static trigger c0e13_triggers[] =
+static struct trigger c0e13_triggers[] =
 {
 {0.0f,0.0f,0.0f,0.0f,0,0,0}
 };
