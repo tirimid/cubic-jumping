@@ -59,9 +59,9 @@ Triggers_Update(void)
 	for (uint32_t i = 0; i < g_TriggerCnt; ++i)
 	{
 		if (g_Player.PosX + CONF_PLAYER_SIZE >= g_Triggers[i].PosX
-		    && g_Player.PosX < g_Triggers[i].PosX + g_Triggers[i].SizeX
-		    && g_Player.PosY + CONF_PLAYER_SIZE >= g_Triggers[i].PosY
-		    && g_Player.PosY < g_Triggers[i].PosY + g_Triggers[i].SizeY)
+			&& g_Player.PosX < g_Triggers[i].PosX + g_Triggers[i].SizeX
+			&& g_Player.PosY + CONF_PLAYER_SIZE >= g_Triggers[i].PosY
+			&& g_Player.PosY < g_Triggers[i].PosY + g_Triggers[i].SizeY)
 		{
 			Collide(&g_Triggers[i], i);
 		}

@@ -25,10 +25,12 @@
 #ifdef BUILD_TARGET_WINDOWS
 #define ENTRY_FN \
 	int APIENTRY \
-	WinMain(HINSTANCE HInst, \
-	        HINSTANCE HPrevInst, \
-	        LPSTR LpCmdLine, \
-	        int NCmdShow)
+	WinMain( \
+		HINSTANCE HInst, \
+		HINSTANCE HPrevInst, \
+		LPSTR LpCmdLine, \
+		int NCmdShow \
+	)
 #else
 #define ENTRY_FN \
 	int \

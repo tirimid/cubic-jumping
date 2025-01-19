@@ -540,7 +540,7 @@ BtnEditCustomLevel(void)
 			
 			size_t Last = First;
 			while (Last < Len
-			       && strncmp(&CustomLevelPath[Last], ".hfm", 4))
+				&& strncmp(&CustomLevelPath[Last], ".hfm", 4))
 			{
 				++Last;
 			}

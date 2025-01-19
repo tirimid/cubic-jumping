@@ -330,9 +330,9 @@ UpdateEditor(void)
 			{
 				struct Trigger const *Trigger = &g_Triggers[i];
 				if (DragX >= Trigger->PosX
-				    && DragX < Trigger->PosX + Trigger->SizeX
-				    && DragY >= Trigger->PosY
-				    && DragY < Trigger->PosY + Trigger->SizeY)
+					&& DragX < Trigger->PosX + Trigger->SizeX
+					&& DragY >= Trigger->PosY
+					&& DragY < Trigger->PosY + Trigger->SizeY)
 				{
 					Triggers_RmTrigger(i);
 					Unsaved = true;

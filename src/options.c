@@ -55,15 +55,15 @@ Options_ReadFromFile(char const *Path)
 	// read keybind options.
 	{
 		if (Opts_GetKeycode(Fp, "KLeft", &g_Options.KLeft)
-		    || Opts_GetKeycode(Fp, "KRight", &g_Options.KRight)
-		    || Opts_GetKeycode(Fp, "KJump", &g_Options.KJump)
-		    || Opts_GetKeycode(Fp, "KDashDown", &g_Options.KDashDown)
-		    || Opts_GetKeycode(Fp, "KPowerjump", &g_Options.KPowerjump)
-		    || Opts_GetKeycode(Fp, "KMenu", &g_Options.KMenu)
-		    || Opts_GetKeycode(Fp, "KEditorLeft", &g_Options.KEditorLeft)
-		    || Opts_GetKeycode(Fp, "KEditorRight", &g_Options.KEditorRight)
-		    || Opts_GetKeycode(Fp, "KEditorUp", &g_Options.KEditorUp)
-		    || Opts_GetKeycode(Fp, "KEditorDown", &g_Options.KEditorDown))
+			|| Opts_GetKeycode(Fp, "KRight", &g_Options.KRight)
+			|| Opts_GetKeycode(Fp, "KJump", &g_Options.KJump)
+			|| Opts_GetKeycode(Fp, "KDashDown", &g_Options.KDashDown)
+			|| Opts_GetKeycode(Fp, "KPowerjump", &g_Options.KPowerjump)
+			|| Opts_GetKeycode(Fp, "KMenu", &g_Options.KMenu)
+			|| Opts_GetKeycode(Fp, "KEditorLeft", &g_Options.KEditorLeft)
+			|| Opts_GetKeycode(Fp, "KEditorRight", &g_Options.KEditorRight)
+			|| Opts_GetKeycode(Fp, "KEditorUp", &g_Options.KEditorUp)
+			|| Opts_GetKeycode(Fp, "KEditorDown", &g_Options.KEditorDown))
 		{
 			fclose(Fp);
 			return 1;
