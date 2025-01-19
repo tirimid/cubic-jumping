@@ -22,624 +22,632 @@
 
 #define MAX_LEVEL_SEL_PATH_SIZE 512
 
-static void main_draw_bg(void);
-static void pause_draw_bg(void);
-static void btn_exit_menu(void);
-static void btn_exit_to_desktop(void);
-static void btn_play_from_beginning(void);
-static void btn_play_edit_custom_level(void);
-static void btn_play_custom_level(void);
-static void btn_edit_custom_level(void);
-static void btn_force_retry(void);
-static void btn_main_menu(void);
-static void btn_options(void);
-static void btn_detect_key_left(void);
-static void btn_detect_key_right(void);
-static void btn_detect_key_jump(void);
-static void btn_detect_key_dash_down(void);
-static void btn_detect_key_powerjump(void);
-static void btn_detect_key_menu(void);
-static void sldr_sfx_volume(float vol);
-static void btn_exit_options_menu(void);
-static void btn_req_next(void);
-static void btn_req_retry(void);
+static void MainDrawBg(void);
+static void PauseDrawBg(void);
+static void BtnExitMenu(void);
+static void BtnExitToDesktop(void);
+static void BtnPlayFromBeginning(void);
+static void BtnPlayEditCustomLevel(void);
+static void BtnPlayCustomLevel(void);
+static void BtnEditCustomLevel(void);
+static void BtnForceRetry(void);
+static void BtnMainMenu(void);
+static void BtnOptions(void);
+static void BtnDetectKeyLeft(void);
+static void BtnDetectKeyRight(void);
+static void BtnDetectKeyJump(void);
+static void BtnDetectKeyDashDown(void);
+static void BtnDetectKeyPowerjump(void);
+static void BtnDetectKeyMenu(void);
+static void SldrSfxVolume(float vol);
+static void BtnExitOptionsMenu(void);
+static void BtnReqNext(void);
+static void BtnReqRetry(void);
 
-static bool in_menu = false;
-static enum menu_request req = MR_NONE;
-static char custom_level_path[MAX_LEVEL_SEL_PATH_SIZE];
+static bool InMenu = false;
+static enum MenuRequest Req = MR_NONE;
+static char CustomLevelPath[MAX_LEVEL_SEL_PATH_SIZE];
 
 void
-main_menu_loop(void)
+MainMenuLoop(void)
 {
-	struct ui_button b_continue = ui_button_create(80, 380, "Continue", NULL);
-	struct ui_button b_play = ui_button_create(80, 420, "Play from beginning", btn_play_from_beginning);
-	struct ui_button b_play_custom = ui_button_create(80, 460, "Play or edit custom level", btn_play_edit_custom_level);
-	struct ui_button b_editor = ui_button_create(80, 500, "Options", btn_options);
-	struct ui_button b_exit = ui_button_create(80, 540, "Exit to desktop", btn_exit_to_desktop);
+	struct UiButton BContinue = UiButton_Create(80, 380, "Continue", NULL);
+	struct UiButton BPlay = UiButton_Create(80, 420, "Play from beginning", BtnPlayFromBeginning);
+	struct UiButton BPlayCustom = UiButton_Create(80, 460, "Play or edit custom level", BtnPlayEditCustomLevel);
+	struct UiButton BEditor = UiButton_Create(80, 500, "Options", BtnOptions);
+	struct UiButton BExit = UiButton_Create(80, 540, "Exit to desktop", BtnExitToDesktop);
 	
-	// `in_menu` is irrelevant for the main menu since it is the main launch
+	// `InMenu` is irrelevant for the main menu since it is the main launch
 	// screen for game functionality, and it doesn't really make sense to
 	// "quit" the main menu.
 	for (;;)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
- 		input_handle_events();
+ 		Input_HandleEvents();
 		
 		// update main menu.
 		{
-			ui_button_update(&b_continue);
-			ui_button_update(&b_play);
-			ui_button_update(&b_play_custom);
-			ui_button_update(&b_editor);
-			ui_button_update(&b_exit);
-			input_post_update();
+			UiButton_Update(&BContinue);
+			UiButton_Update(&BPlay);
+			UiButton_Update(&BPlayCustom);
+			UiButton_Update(&BEditor);
+			UiButton_Update(&BExit);
+			
+			Input_PostUpdate();
 		}
 		
 		// draw pause menu.
 		{
-			main_draw_bg();
+			MainDrawBg();
 			
 			// draw UI.
 			{
-				text_draw_str("CUBIC JUMPING", 80, 60);
+				Text_DrawStr("CUBIC JUMPING", 80, 60);
 				
-				ui_button_draw(&b_continue);
-				ui_button_draw(&b_play);
-				ui_button_draw(&b_play_custom);
-				ui_button_draw(&b_editor);
-				ui_button_draw(&b_exit);
+				UiButton_Draw(&BContinue);
+				UiButton_Draw(&BPlay);
+				UiButton_Draw(&BPlayCustom);
+				UiButton_Draw(&BEditor);
+				UiButton_Draw(&BExit);
 			}
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
 void
-custom_level_select_menu_loop(void)
+CustomLevelSelectMenuLoop(void)
 {
-	struct ui_text_field tf_path = ui_text_field_create(80, 380, 20, custom_level_path, MAX_LEVEL_SEL_PATH_SIZE - 1);
-	struct ui_button b_play_level = ui_button_create(80, 420, "Play custom level", btn_play_custom_level);
-	struct ui_button b_edit_level = ui_button_create(80, 460, "Edit custom level", btn_edit_custom_level);
-	struct ui_button b_back = ui_button_create(80, 500, "Back", btn_exit_menu);
+	struct UiTextField TfPath = UiTextField_Create(80, 380, 20, CustomLevelPath, MAX_LEVEL_SEL_PATH_SIZE - 1);
+	struct UiButton BPlayLevel = UiButton_Create(80, 420, "Play custom level", BtnPlayCustomLevel);
+	struct UiButton BEditLevel = UiButton_Create(80, 460, "Edit custom level", BtnEditCustomLevel);
+	struct UiButton BBack = UiButton_Create(80, 500, "Back", BtnExitMenu);
 	
-	in_menu = true;
-	while (in_menu)
+	InMenu = true;
+	while (InMenu)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
-		input_handle_events();
+		Input_HandleEvents();
 		
 		// update level select menu.
 		{
-			if (key_pressed(g_options.k_menu))
-				in_menu = false;
+			if (Keybd_Pressed(g_Options.KMenu))
+				InMenu = false;
 			
-			ui_text_field_update(&tf_path);
-			ui_button_update(&b_play_level);
-			ui_button_update(&b_edit_level);
-			ui_button_update(&b_back);
-			input_post_update();
+			UiTextField_Update(&TfPath);
+			UiButton_Update(&BPlayLevel);
+			UiButton_Update(&BEditLevel);
+			UiButton_Update(&BBack);
+			
+			Input_PostUpdate();
 		}
 		
 		// draw level select menu.
 		{
-			main_draw_bg();
+			MainDrawBg();
 			
 			// draw UI elements.
 			{
-				text_draw_str("Select level", 80, 60);
+				Text_DrawStr("Select level", 80, 60);
 				
-				ui_text_field_draw(&tf_path);
-				ui_button_draw(&b_play_level);
-				ui_button_draw(&b_edit_level);
-				ui_button_draw(&b_back);
+				UiTextField_Draw(&TfPath);
+				UiButton_Draw(&BPlayLevel);
+				UiButton_Draw(&BEditLevel);
+				UiButton_Draw(&BBack);
 			}
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
-enum menu_request
-level_end_menu_loop(void)
+enum MenuRequest
+LevelEndMenuLoop(void)
 {
-	struct ui_button b_next = ui_button_create(80, 380, "Continue", btn_req_next);
-	struct ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_req_retry);
-	struct ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
+	struct UiButton BNext = UiButton_Create(80, 380, "Continue", BtnReqNext);
+	struct UiButton BRetry = UiButton_Create(80, 420, "Retry level", BtnReqRetry);
+	struct UiButton BMainMenu = UiButton_Create(80, 460, "Main menu", BtnMainMenu);
 	
-	in_menu = true;
-	req = MR_NONE;
-	while (in_menu)
+	InMenu = true;
+	Req = MR_NONE;
+	while (InMenu)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
- 		input_handle_events();
+ 		Input_HandleEvents();
 		
 		// update level end menu.
 		{
-			ui_button_update(&b_next);
-			ui_button_update(&b_retry);
-			ui_button_update(&b_main_menu);
-			input_post_update();
+			UiButton_Update(&BNext);
+			UiButton_Update(&BRetry);
+			UiButton_Update(&BMainMenu);
+			
+			Input_PostUpdate();
 		}
 		
 		// draw level end menu.
 		{
-			static uint8_t cbg[] = CONF_COLOR_LEVEL_END_BG;
+			static uint8_t Cbg[] = CONF_COLOR_LEVEL_END_BG;
 			
-			SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);
-			SDL_RenderClear(g_rend);
+			SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
+			SDL_RenderClear(g_Rend);
 			
 			// draw UI elements.
 			{
-				uint64_t il_time_s = g_game.il_time_ms / 1000;
-				uint64_t il_time_m = il_time_s / 60;
-				uint64_t total_time_s = g_game.total_time_ms / 1000;
-				uint64_t total_time_m = total_time_s / 60;
+				uint64_t IlTimeS = g_Game.IlTimeMs / 1000;
+				uint64_t IlTimeM = IlTimeS / 60;
+				uint64_t TotalTimeS = g_Game.TotalTimeMs / 1000;
+				uint64_t TotalTimeM = TotalTimeS / 60;
 				
-				static char time_buf[64];
-				sprintf(time_buf,
-				        "Time: %lu:%02lu.%02lu (%lu:%02lu.%02lu)",
-				        il_time_m,
-				        il_time_s % 60,
-				        g_game.il_time_ms % 1000 / 10,
-				        total_time_m,
-				        total_time_s % 60,
-				        g_game.total_time_ms % 1000 / 10);
+				static char TimeBuf[64];
+				sprintf(
+					TimeBuf,
+					"Time: %lu:%02lu.%02lu (%lu:%02lu.%02lu)",
+					IlTimeM,
+					IlTimeS % 60,
+					g_Game.IlTimeMs % 1000 / 10,
+					TotalTimeM,
+					TotalTimeS % 60,
+					g_Game.TotalTimeMs % 1000 / 10
+				);
 				
-				static char deaths_buf[64];
-				sprintf(deaths_buf,
-				        "Deaths: %u (%u)",
-				        g_game.il_deaths,
-				        g_game.total_deaths);
+				static char DeathsBuf[64];
+				sprintf(
+					DeathsBuf,
+					"Deaths: %u (%u)",
+					g_Game.IlDeaths,
+					g_Game.TotalDeaths
+				);
 				
-				text_draw_str("Level complete", 80, 60);
+				Text_DrawStr("Level complete", 80, 60);
 				
-				text_draw_str(g_map.name, 80, 140);
-				text_draw_str(time_buf, 80, 180);
-				text_draw_str(deaths_buf, 80, 220);
+				Text_DrawStr(g_Map.Name, 80, 140);
+				Text_DrawStr(TimeBuf, 80, 180);
+				Text_DrawStr(DeathsBuf, 80, 220);
 				
-				ui_button_draw(&b_next);
-				ui_button_draw(&b_retry);
-				ui_button_draw(&b_main_menu);
+				UiButton_Draw(&BNext);
+				UiButton_Draw(&BRetry);
+				UiButton_Draw(&BMainMenu);
 			}
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 	
-	return req;
+	return Req;
 }
 
 void
-pause_menu_loop(void)
+PauseMenuLoop(void)
 {
-	struct ui_button b_resume = ui_button_create(80, 380, "Resume", btn_exit_menu);
-	struct ui_button b_retry = ui_button_create(80, 420, "Retry level", btn_force_retry);
-	struct ui_button b_main_menu = ui_button_create(80, 460, "Main menu", btn_main_menu);
+	struct UiButton BResume = UiButton_Create(80, 380, "Resume", BtnExitMenu);
+	struct UiButton BRetry = UiButton_Create(80, 420, "Retry level", BtnForceRetry);
+	struct UiButton BMainMenu = UiButton_Create(80, 460, "Main menu", BtnMainMenu);
 	
-	in_menu = true;
-	while (in_menu)
+	InMenu = true;
+	while (InMenu)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
-		input_handle_events();
+		Input_HandleEvents();
 		
 		// update pause menu.
 		{
-			if (key_pressed(g_options.k_menu))
-				in_menu = false;
+			if (Keybd_Pressed(g_Options.KMenu))
+				InMenu = false;
 			
-			ui_button_update(&b_resume);
-			ui_button_update(&b_retry);
-			ui_button_update(&b_main_menu);
-			input_post_update();
+			UiButton_Update(&BResume);
+			UiButton_Update(&BRetry);
+			UiButton_Update(&BMainMenu);
+			
+			Input_PostUpdate();
 		}
 		
 		// draw pause menu.
 		{
-			pause_draw_bg();
+			PauseDrawBg();
 			
 			// draw UI.
 			{
-				text_draw_str("Paused", 80, 60);
+				Text_DrawStr("Paused", 80, 60);
 				
-				ui_button_draw(&b_resume);
-				ui_button_draw(&b_retry);
-				ui_button_draw(&b_main_menu);
+				UiButton_Draw(&BResume);
+				UiButton_Draw(&BRetry);
+				UiButton_Draw(&BMainMenu);
 			}
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
 void
-options_menu_loop(void)
+OptionsMenuLoop(void)
 {
-	struct ui_button b_k_left = ui_button_create(80, 140, "[Left]", btn_detect_key_left);
-	struct ui_button b_k_right = ui_button_create(80, 180, "[Right]", btn_detect_key_right);
-	struct ui_button b_k_jump = ui_button_create(80, 220, "[Jump]", btn_detect_key_jump);
-	struct ui_button b_k_dash_down = ui_button_create(80, 260, "[Dash down]", btn_detect_key_dash_down);
-	struct ui_button b_k_powerjump = ui_button_create(80, 300, "[Powerjump]", btn_detect_key_powerjump);
-	struct ui_button b_k_menu = ui_button_create(80, 340, "[Menu]", btn_detect_key_menu);
-	struct ui_slider s_sfx_volume = ui_slider_create(400, 390, 200, 20, g_options.sfx_volume, sldr_sfx_volume);
-	struct ui_button b_back = ui_button_create(80, 420, "Back", btn_exit_options_menu);
+	struct UiButton BKLeft = UiButton_Create(80, 140, "[Left]", BtnDetectKeyLeft);
+	struct UiButton BKRight = UiButton_Create(80, 180, "[Right]", BtnDetectKeyRight);
+	struct UiButton BKJump = UiButton_Create(80, 220, "[Jump]", BtnDetectKeyJump);
+	struct UiButton BKDashDown = UiButton_Create(80, 260, "[Dash down]", BtnDetectKeyDashDown);
+	struct UiButton BKPowerjump = UiButton_Create(80, 300, "[Powerjump]", BtnDetectKeyPowerjump);
+	struct UiButton BKMenu = UiButton_Create(80, 340, "[Menu]", BtnDetectKeyMenu);
+	struct UiSlider SSfxVolume = UiSlider_Create(400, 390, 200, 20, g_Options.SfxVolume, SldrSfxVolume);
+	struct UiButton BBack = UiButton_Create(80, 420, "Back", BtnExitOptionsMenu);
 	
-	in_menu = true;
-	while (in_menu)
+	InMenu = true;
+	while (InMenu)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
-		input_handle_events();
+		Input_HandleEvents();
 		
 		// update options menu.
 		{
-			ui_button_update(&b_k_left);
-			ui_button_update(&b_k_right);
-			ui_button_update(&b_k_jump);
-			ui_button_update(&b_k_dash_down);
-			ui_button_update(&b_k_powerjump);
-			ui_button_update(&b_k_menu);
-			ui_slider_update(&s_sfx_volume);
-			ui_button_update(&b_back);
+			UiButton_Update(&BKLeft);
+			UiButton_Update(&BKRight);
+			UiButton_Update(&BKJump);
+			UiButton_Update(&BKDashDown);
+			UiButton_Update(&BKPowerjump);
+			UiButton_Update(&BKMenu);
+			UiSlider_Update(&SSfxVolume);
+			UiButton_Update(&BBack);
 			
-			input_post_update();
+			Input_PostUpdate();
 		}
 		
 		// draw options menu.
 		{
-			main_draw_bg();
+			MainDrawBg();
 			
 			// draw UI.
 			{
-				text_draw_str("Options", 80, 60);
+				Text_DrawStr("Options", 80, 60);
 				
-				ui_button_draw(&b_k_left);
-				ui_button_draw(&b_k_right);
-				ui_button_draw(&b_k_jump);
-				ui_button_draw(&b_k_dash_down);
-				ui_button_draw(&b_k_powerjump);
-				ui_button_draw(&b_k_menu);
-				ui_slider_draw(&s_sfx_volume);
-				ui_button_draw(&b_back);
+				UiButton_Draw(&BKLeft);
+				UiButton_Draw(&BKRight);
+				UiButton_Draw(&BKJump);
+				UiButton_Draw(&BKDashDown);
+				UiButton_Draw(&BKPowerjump);
+				UiButton_Draw(&BKMenu);
+				UiSlider_Draw(&SSfxVolume);
+				UiButton_Draw(&BBack);
 				
-				text_draw_str(SDL_GetKeyName(g_options.k_left), 450, 140);
-				text_draw_str(SDL_GetKeyName(g_options.k_right), 450, 180);
-				text_draw_str(SDL_GetKeyName(g_options.k_jump), 450, 220);
-				text_draw_str(SDL_GetKeyName(g_options.k_dash_down), 450, 260);
-				text_draw_str(SDL_GetKeyName(g_options.k_powerjump), 450, 300);
-				text_draw_str(SDL_GetKeyName(g_options.k_menu), 450, 340);
-				text_draw_str("SFX volume", 80, 385);
+				Text_DrawStr(SDL_GetKeyName(g_Options.KLeft), 450, 140);
+				Text_DrawStr(SDL_GetKeyName(g_Options.KRight), 450, 180);
+				Text_DrawStr(SDL_GetKeyName(g_Options.KJump), 450, 220);
+				Text_DrawStr(SDL_GetKeyName(g_Options.KDashDown), 450, 260);
+				Text_DrawStr(SDL_GetKeyName(g_Options.KPowerjump), 450, 300);
+				Text_DrawStr(SDL_GetKeyName(g_Options.KMenu), 450, 340);
+				Text_DrawStr("SFX volume", 80, 385);
 			}
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
 SDL_Keycode
-key_detect_menu_loop(void)
+KeyDetectMenuLoop(void)
 {
 	for (;;)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
-		input_handle_events();
+		Input_HandleEvents();
 		
 		// update key detection menu.
 		{
 			for (SDL_Keycode i = 0; i < 128; ++i)
 			{
-				if (key_pressed(i))
+				if (Keybd_Pressed(i))
 					return i;
 			}
 			
 			for (SDL_Keycode i = 128; i < 1024; ++i)
 			{
-				if (key_pressed(i))
+				if (Keybd_Pressed(i))
 					return (i - 128) | 1 << 30;
 			}
 			
-			input_post_update();
+			Input_PostUpdate();
 		}
 		
 		// draw key detection menu.
 		{
-			static uint8_t cawbg[] = CONF_COLOR_AWAITING_INPUT_BG;
-			SDL_SetRenderDrawColor(g_rend, cawbg[0], cawbg[1], cawbg[2], 255);
-			SDL_RenderClear(g_rend);
+			static uint8_t Cawbg[] = CONF_COLOR_AWAITING_INPUT_BG;
+			SDL_SetRenderDrawColor(g_Rend, Cawbg[0], Cawbg[1], Cawbg[2], 255);
+			SDL_RenderClear(g_Rend);
 			
-			text_draw_str("Awaiting input...", 200, 280);
+			Text_DrawStr("Awaiting input...", 200, 280);
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
 static void
-main_draw_bg(void)
+MainDrawBg(void)
 {
 	// draw basic background squares effect.
 	{
-		pause_draw_bg();
+		PauseDrawBg();
 	}
 	
 	// draw DVD screensaver.
 	{
-		static uint8_t cbgda[] = CONF_COLOR_BG_DVD_A;
-		static uint8_t cbgdb[] = CONF_COLOR_BG_DVD_B;
+		static uint8_t Cbgda[] = CONF_COLOR_BG_DVD_A;
+		static uint8_t Cbgdb[] = CONF_COLOR_BG_DVD_B;
 		
-		static int pos_x = 0, pos_y = 0;
-		static int speed_x = CONF_BG_DVD_SPEED, speed_y = CONF_BG_DVD_SPEED;
-		static float col_lerp = 0.0f, col_speed = CONF_BG_DVD_COL_SPEED;
+		static int PosX = 0, PosY = 0;
+		static int SpeedX = CONF_BG_DVD_SPEED, SpeedY = CONF_BG_DVD_SPEED;
+		static float ColLerp = 0.0f, ColSpeed = CONF_BG_DVD_COL_SPEED;
 		
-		pos_x += speed_x;
-		pos_y += speed_y;
+		PosX += SpeedX;
+		PosY += SpeedY;
 		
-		if (pos_x < 0 || pos_x + CONF_BG_DVD_SIZE >= CONF_WND_WIDTH)
-			speed_x *= -1;
-		if (pos_y < 0 || pos_y + CONF_BG_DVD_SIZE >= CONF_WND_HEIGHT)
-			speed_y *= -1;
+		if (PosX < 0 || PosX + CONF_BG_DVD_SIZE >= CONF_WND_WIDTH)
+			SpeedX *= -1;
+		if (PosY < 0 || PosY + CONF_BG_DVD_SIZE >= CONF_WND_HEIGHT)
+			SpeedY *= -1;
 		
-		col_lerp += col_speed;
-		if (col_lerp < 0.0f || col_lerp > 1.0f)
-			col_speed *= -1.0f;
-		col_lerp = CLAMP(0.0f, col_lerp, 1.0f);
+		ColLerp += ColSpeed;
+		if (ColLerp < 0.0f || ColLerp > 1.0f)
+			ColSpeed *= -1.0f;
+		ColLerp = CLAMP(0.0f, ColLerp, 1.0f);
 		
 		SDL_Rect r =
 		{
-			.x = pos_x,
-			.y = pos_y,
+			.x = PosX,
+			.y = PosY,
 			.w = CONF_BG_DVD_SIZE,
 			.h = CONF_BG_DVD_SIZE,
 		};
 		
-		uint8_t col[3] =
+		uint8_t Col[3] =
 		{
-			lerp(cbgda[0], cbgdb[0], col_lerp),
-			lerp(cbgda[1], cbgdb[1], col_lerp),
-			lerp(cbgda[2], cbgdb[2], col_lerp),
+			Lerp(Cbgda[0], Cbgdb[0], ColLerp),
+			Lerp(Cbgda[1], Cbgdb[1], ColLerp),
+			Lerp(Cbgda[2], Cbgdb[2], ColLerp),
 		};
 		
-		SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 }
 
 static void
-pause_draw_bg(void)
+PauseDrawBg(void)
 {
-	static uint8_t cbg[] = CONF_COLOR_BG, cbgs[] = CONF_COLOR_BG_SQUARE;
-	static float first_square_x = 0.0f;
-	static float first_square_y = 0.0f;
+	static uint8_t Cbg[] = CONF_COLOR_BG, Cbgs[] = CONF_COLOR_BG_SQUARE;
+	static float FirstSquareX = 0.0f;
+	static float FirstSquareY = 0.0f;
 	
 	// update square positions.
 	{
-		first_square_x -= CONF_BG_SQUARE_SPEED_X;
-		if (first_square_x <= -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP)
-			first_square_x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+		FirstSquareX -= CONF_BG_SQUARE_SPEED_X;
+		if (FirstSquareX <= -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP)
+			FirstSquareX += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
 		
-		first_square_y -= CONF_BG_SQUARE_SPEED_Y;
-		if (first_square_y <= -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP)
-			first_square_y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+		FirstSquareY -= CONF_BG_SQUARE_SPEED_Y;
+		if (FirstSquareY <= -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP)
+			FirstSquareY += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
 	}
 	
 	// render background.
-	SDL_SetRenderDrawColor(g_rend, cbgs[0], cbgs[1], cbgs[2], 255);
-	SDL_RenderClear(g_rend);
+	SDL_SetRenderDrawColor(g_Rend, Cbgs[0], Cbgs[1], Cbgs[2], 255);
+	SDL_RenderClear(g_Rend);
 	
-	SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);
-	for (float x = first_square_x; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+	SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
+	for (float x = FirstSquareX; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 	{
-		for (float y = first_square_y; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+		for (float y = FirstSquareY; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 		{
-			SDL_Rect square =
+			SDL_Rect Square =
 			{
 				.x = x,
 				.y = y,
 				.w = CONF_BG_SQUARE_SIZE,
 				.h = CONF_BG_SQUARE_SIZE,
 			};
-			SDL_RenderFillRect(g_rend, &square);
+			SDL_RenderFillRect(g_Rend, &Square);
 		}
 	}
 }
 
 static void
-btn_exit_menu(void)
+BtnExitMenu(void)
 {
-	in_menu = false;
+	InMenu = false;
 }
 
 static void
-btn_exit_to_desktop(void)
+BtnExitToDesktop(void)
 {
 	exit(0);
 }
 
 static void
-btn_play_from_beginning(void)
+BtnPlayFromBeginning(void)
 {
-	map_list_load(MLI_C0E0);
-	g_game.total_time_ms = 0;
-	g_game.total_deaths = 0;
-	g_game.running = true;
-	game_loop();
+	MapList_Load(MLI_C0E0);
+	g_Game.TotalTimeMs = 0;
+	g_Game.TotalDeaths = 0;
+	g_Game.Running = true;
+	Game_Loop();
 }
 
 static void
-btn_play_edit_custom_level(void)
+BtnPlayEditCustomLevel(void)
 {
-	custom_level_select_menu_loop();
+	CustomLevelSelectMenuLoop();
 }
 
 static void
-btn_play_custom_level(void)
+BtnPlayCustomLevel(void)
 {
-	if (map_list_load_custom(custom_level_path))
+	if (MapList_LoadCustom(CustomLevelPath))
 		return;
 	
-	g_game.total_time_ms = 0;
-	g_game.total_deaths = 0;
-	g_game.running = true;
-	game_loop();
+	g_Game.TotalTimeMs = 0;
+	g_Game.TotalDeaths = 0;
+	g_Game.Running = true;
+	Game_Loop();
 	
-	free(g_map.data);
-	g_ntriggers = 0;
+	free(g_Map.Data);
+	g_TriggerCnt = 0;
 }
 
 static void
-btn_edit_custom_level(void)
+BtnEditCustomLevel(void)
 {
-	struct stat stat_buf;
-	if (stat(custom_level_path, &stat_buf))
+	struct stat StatBuf;
+	if (stat(CustomLevelPath, &StatBuf))
 	{
 		// determine map name based on file path.
-		char name[MAX_LEVEL_SEL_PATH_SIZE + 1] = {0};
+		char Name[MAX_LEVEL_SEL_PATH_SIZE + 1] = {0};
 		{
-			size_t len = strlen(custom_level_path);
+			size_t Len = strlen(CustomLevelPath);
 			
-			size_t first = len;
-			while (first > 0 && custom_level_path[first - 1] != '/')
-				--first;
+			size_t First = Len;
+			while (First > 0 && CustomLevelPath[First - 1] != '/')
+				--First;
 			
-			size_t last = first;
-			while (last < len
-			       && strncmp(&custom_level_path[last], ".hfm", 4))
+			size_t Last = First;
+			while (Last < Len
+			       && strncmp(&CustomLevelPath[Last], ".hfm", 4))
 			{
-				++last;
+				++Last;
 			}
 			
-			strncpy(name, &custom_level_path[first], last - first + 1);
+			strncpy(Name, &CustomLevelPath[First], Last - First + 1);
 		}
 		
-		if (!name[0])
+		if (!Name[0])
 		{
-			log_err("menus: could not determine name for new map!");
+			LogErr("menus: could not determine name for new map!");
 			return;
 		}
 		
 		// try to create map file if doesn't exist.
-		if (map_create_file(custom_level_path, name))
+		if (Map_CreateFile(CustomLevelPath, Name))
 			return;
 	}
 	
-	if (editor_init(custom_level_path))
+	if (Editor_Init(CustomLevelPath))
 		return;
 	
-	editor_loop();
+	Editor_Loop();
 	
-	free(g_map.data);
-	g_ntriggers = 0;
+	free(g_Map.Data);
+	g_TriggerCnt = 0;
 }
 
 static void
-btn_force_retry(void)
+BtnForceRetry(void)
 {
-	in_menu = false;
-	map_list_hard_reload();
+	InMenu = false;
+	MapList_HardReload();
 }
 
 static void
-btn_main_menu(void)
+BtnMainMenu(void)
 {
-	in_menu = false;
-	g_game.running = false;
+	InMenu = false;
+	g_Game.Running = false;
 }
 
 static void
-btn_options(void)
+BtnOptions(void)
 {
-	options_menu_loop();
+	OptionsMenuLoop();
 }
 
 static void
-btn_detect_key_left(void)
+BtnDetectKeyLeft(void)
 {
-	g_options.k_left = key_detect_menu_loop();
+	g_Options.KLeft = KeyDetectMenuLoop();
 }
 
 static void
-btn_detect_key_right(void)
+BtnDetectKeyRight(void)
 {
-	g_options.k_right = key_detect_menu_loop();
+	g_Options.KRight = KeyDetectMenuLoop();
 }
 
 static void
-btn_detect_key_jump(void)
+BtnDetectKeyJump(void)
 {
-	g_options.k_jump = key_detect_menu_loop();
+	g_Options.KJump = KeyDetectMenuLoop();
 }
 
 static void
-btn_detect_key_dash_down(void)
+BtnDetectKeyDashDown(void)
 {
-	g_options.k_dash_down = key_detect_menu_loop();
+	g_Options.KDashDown = KeyDetectMenuLoop();
 }
 
 static void
-btn_detect_key_powerjump(void)
+BtnDetectKeyPowerjump(void)
 {
-	g_options.k_powerjump = key_detect_menu_loop();
+	g_Options.KPowerjump = KeyDetectMenuLoop();
 }
 
 static void
-btn_detect_key_menu(void)
+BtnDetectKeyMenu(void)
 {
-	g_options.k_menu = key_detect_menu_loop();
+	g_Options.KMenu = KeyDetectMenuLoop();
 }
 
 static void
-sldr_sfx_volume(float vol)
+SldrSfxVolume(float Vol)
 {
-	g_options.sfx_volume = vol;
-	sound_set_sfx_volume(vol);
+	g_Options.SfxVolume = Vol;
+	Sound_SetSfxVolume(Vol);
 }
 
 static void
-btn_exit_options_menu(void)
+BtnExitOptionsMenu(void)
 {
-	options_write_to_file(CONF_OPTIONS_FILE);
-	in_menu = false;
+	Options_WriteToFile(CONF_OPTIONS_FILE);
+	InMenu = false;
 }
 
 static void
-btn_req_next(void)
+BtnReqNext(void)
 {
-	in_menu = false;
-	req = MR_NEXT;
+	InMenu = false;
+	Req = MR_NEXT;
 }
 
 static void
-btn_req_retry(void)
+BtnReqRetry(void)
 {
-	in_menu = false;
-	req = MR_RETRY;
+	InMenu = false;
+	Req = MR_RETRY;
 }

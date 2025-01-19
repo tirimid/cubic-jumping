@@ -3,10 +3,10 @@
 
 #include <SDL2/SDL.h>
 
-extern SDL_Window *g_wnd;
-extern SDL_Renderer *g_rend;
+extern SDL_Window *g_Wnd;
+extern SDL_Renderer *g_Rend;
 
-int wnd_init(void);
-void wnd_quit(void);
+int Wnd_Init(void);
+void Wnd_Quit(void);
 
 #endif

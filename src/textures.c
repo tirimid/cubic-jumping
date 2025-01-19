@@ -12,44 +12,44 @@
 // compiled texture data.
 #include "imgs/gaming_rei_border_png.h"
 
-#define INCLUDE_TEXTURE(name) \
+#define INCLUDE_TEXTURE(Name) \
 	{ \
-		.data = name##_png, \
-		.size = sizeof(name##_png), \
+		.Data = Name##_png, \
+		.Size = sizeof(Name##_png) \
 	}
 
-struct texture
+struct Texture
 {
-	unsigned char const *data;
-	size_t size;
-	SDL_Texture *tex;
+	unsigned char const *Data;
+	size_t Size;
+	SDL_Texture *Tex;
 };
 
-static struct texture textures[TI_END__] =
+static struct Texture Textures[TI_END__] =
 {
-	INCLUDE_TEXTURE(gaming_rei_border),
+	INCLUDE_TEXTURE(gaming_rei_border)
 };
 
 int
-textures_init(void)
+Textures_Init(void)
 {
-	atexit(textures_quit);
+	atexit(Textures_Quit);
 	
 	// allocate texture references.
 	{
 		for (size_t i = 0; i < TI_END__; ++i)
 		{
-			SDL_RWops *rwops = SDL_RWFromConstMem(textures[i].data, textures[i].size);
-			if (!rwops)
+			SDL_RWops *Rwops = SDL_RWFromConstMem(Textures[i].Data, Textures[i].Size);
+			if (!Rwops)
 			{
-				log_err("textures: failed to create RWops - %s", SDL_GetError());
+				LogErr("textures: failed to create RWops - %s", SDL_GetError());
 				return 1;
 			}
 			
-			textures[i].tex = IMG_LoadTexture_RW(g_rend, rwops, 1);
-			if (!textures[i].tex)
+			Textures[i].Tex = IMG_LoadTexture_RW(g_Rend, Rwops, 1);
+			if (!Textures[i].Tex)
 			{
-				log_err("textures: failed to create SDL_Texture - %s", IMG_GetError());
+				LogErr("textures: failed to create SDL_Texture - %s", IMG_GetError());
 				return 1;
 			}
 		}
@@ -59,24 +59,24 @@ textures_init(void)
 }
 
 void
-textures_quit(void)
+Textures_Quit(void)
 {
 	// free texture references.
 	{
-		for (size_t i = 0; i < TI_END__ && textures[i].tex; ++i)
-			SDL_DestroyTexture(textures[i].tex);
+		for (size_t i = 0; i < TI_END__ && Textures[i].Tex; ++i)
+			SDL_DestroyTexture(Textures[i].Tex);
 	}
 }
 
 void
-texture_draw(enum texture_id id, int x, int y, int w, int h)
+Textures_Draw(enum TextureId Id, int x, int y, int w, int h)
 {
 	SDL_Rect r =
 	{
 		.x = x,
 		.y = y,
 		.w = w,
-		.h = h,
+		.h = h
 	};
-	SDL_RenderCopy(g_rend, textures[id].tex, NULL, &r);
+	SDL_RenderCopy(g_Rend, Textures[Id].Tex, NULL, &r);
 }

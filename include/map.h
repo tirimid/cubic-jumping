@@ -6,7 +6,7 @@
 
 #define MAP_MAX_NAME_LEN 8
 
-enum map_tile_type
+enum MapTileType
 {
 	MTT_AIR = 0,
 	MTT_GROUND,
@@ -21,38 +21,38 @@ enum map_tile_type
 	MTT_GRIP,
 	MTT_WALL,
 	
-	MTT_END__,
+	MTT_END__
 };
 
-struct map_tile
+struct MapTile
 {
-	uint8_t type;
+	uint8_t Type;
 };
 
-struct map
+struct Map
 {
-	struct map_tile *data;
-	uint32_t size_x, size_y;
-	uint32_t player_spawn_x, player_spawn_y;
-	char name[MAP_MAX_NAME_LEN + 1];
+	struct MapTile *Data;
+	uint32_t SizeX, SizeY;
+	uint32_t PlayerSpawnX, PlayerSpawnY;
+	char Name[MAP_MAX_NAME_LEN + 1];
 };
 
-extern struct map g_map;
+extern struct Map g_Map;
 
 // editor / custom map functionality.
-int map_create_file(char const *file, char const *name);
-int map_load_from_file(char const *file);
-void map_grow(uint32_t dx, uint32_t dy);
-void map_refit_bounds(void);
-int map_write_to_file(char const *file);
+int Map_CreateFile(char const *File, char const *Name);
+int Map_LoadFromFile(char const *File);
+void Map_Grow(uint32_t Dx, uint32_t Dy);
+void Map_RefitBounds(void);
+int Map_WriteToFile(char const *File);
 
 // game and base rendering functionality.
-uint8_t const *map_tile_color(enum map_tile_type type);
-bool map_tile_collision(enum map_tile_type type);
-bool map_tile_slippery(enum map_tile_type type);
-bool map_tile_climbable(enum map_tile_type type);
-void map_draw(void);
-void map_draw_outlines(void);
-struct map_tile *map_get(uint32_t x, uint32_t y);
+uint8_t const *Map_TileColor(enum MapTileType Type);
+bool Map_TileCollision(enum MapTileType Type);
+bool Map_TileSlippery(enum MapTileType Type);
+bool Map_TileClimbable(enum MapTileType Type);
+void Map_Draw(void);
+void Map_DrawOutlines(void);
+struct MapTile *Map_Get(uint32_t x, uint32_t y);
 
 #endif

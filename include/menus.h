@@ -4,18 +4,18 @@
 #include <SDL2/SDL.h>
 
 // used for communication between menus and sometimes their callers.
-enum menu_request
+enum MenuRequest
 {
 	MR_NONE = 0,
 	MR_NEXT,
-	MR_RETRY,
+	MR_RETRY
 };
 
-void main_menu_loop(void);
-void custom_level_select_menu_loop(void);
-enum menu_request level_end_menu_loop(void);
-void pause_menu_loop(void);
-void options_menu_loop(void);
-SDL_Keycode key_detect_menu_loop(void);
+void MainMenuLoop(void);
+void CustomLevelSelectMenuLoop(void);
+enum MenuRequest LevelEndMenuLoop(void);
+void PauseMenuLoop(void);
+void OptionsMenuLoop(void);
+SDL_Keycode KeyDetectMenuLoop(void);
 
 #endif

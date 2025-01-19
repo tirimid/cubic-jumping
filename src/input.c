@@ -5,12 +5,12 @@
 #include <string.h>
 
 // just assume that 1024 is a big enough array size.
-static bool k_down_states[1024], k_press_states[1024];
-static bool k_text_input_states[128];
-static bool m_down_states[MB_END__], m_press_states[MB_END__], m_release_states[MB_END__];
+static bool KDownStates[1024], KPressStates[1024];
+static bool KTextInputStates[128];
+static bool MDownStates[MB_END__], MPressStates[MB_END__], MReleaseStates[MB_END__];
 
 void
-input_handle_events(void)
+Input_HandleEvents(void)
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e))
@@ -21,20 +21,20 @@ input_handle_events(void)
 			exit(0);
 		case SDL_KEYDOWN:
 			if (!e.key.repeat)
-				keybd_set_key_state(&e, true);
+				Keybd_SetKeyState(&e, true);
 			break;
 		case SDL_KEYUP:
 			if (!e.key.repeat)
-				keybd_set_key_state(&e, false);
+				Keybd_SetKeyState(&e, false);
 			break;
 		case SDL_MOUSEBUTTONUP:
-			mouse_release_button(&e);
+			Mouse_ReleaseButton(&e);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			mouse_press_button(&e);
+			Mouse_PressButton(&e);
 			break;
 		case SDL_TEXTINPUT:
-			keybd_register_text_input(&e);
+			Keybd_RegisterTextInput(&e);
 			break;
 		default:
 			break;
@@ -43,14 +43,14 @@ input_handle_events(void)
 }
 
 void
-input_post_update(void)
+Input_PostUpdate(void)
 {
-	keybd_post_update();
-	mouse_post_update();
+	Keybd_PostUpdate();
+	Mouse_PostUpdate();
 }
 
 void
-keybd_set_key_state(SDL_Event const *e, bool pressed)
+Keybd_SetKeyState(SDL_Event const *e, bool Pressed)
 {
 	SDL_Keycode k = e->key.keysym.sym;
 	if (k & 1 << 30)
@@ -58,128 +58,128 @@ keybd_set_key_state(SDL_Event const *e, bool pressed)
 		k &= ~(1 << 30);
 		k += 128;
 	}
-	k_down_states[k] = k_press_states[k] = pressed;
+	KDownStates[k] = KPressStates[k] = Pressed;
 }
 
 void
-keybd_register_text_input(SDL_Event const *e)
+Keybd_RegisterTextInput(SDL_Event const *e)
 {
-	unsigned char ch = e->text.text[0];
+	unsigned char Ch = e->text.text[0];
 	
 	// disregard non-ASCII input.
-	if (ch & 0x80)
+	if (Ch & 0x80)
 		return;
 	
-	k_text_input_states[ch] = true;
+	KTextInputStates[Ch] = true;
 }
 
 void
-keybd_post_update(void)
+Keybd_PostUpdate(void)
 {
-	memset(k_press_states, 0, sizeof(k_press_states));
-	memset(k_text_input_states, 0, sizeof(k_text_input_states));
+	memset(KPressStates, 0, sizeof(KPressStates));
+	memset(KTextInputStates, 0, sizeof(KTextInputStates));
 }
 
 bool
-key_down(SDL_Keycode k)
+Keybd_Down(SDL_Keycode k)
 {
 	if (k & 1 << 30)
 	{
 		k &= ~(1 << 30);
 		k += 128;
 	}
-	return k_down_states[k];
+	return KDownStates[k];
 }
 
 bool
-key_pressed(SDL_Keycode k)
+Keybd_Pressed(SDL_Keycode k)
 {
 	if (k & 1 << 30)
 	{
 		k &= ~(1 << 30);
 		k += 128;
 	}
-	return k_press_states[k];
+	return KPressStates[k];
 }
 
 bool
-key_text_input_received(char ch)
+Keybd_TextInputReceived(char Ch)
 {
-	return k_text_input_states[(unsigned char)ch];
+	return KTextInputStates[(unsigned char)Ch];
 }
 
 bool
-key_shift_held(void)
+Keybd_ShiftHeld(void)
 {
-	SDL_Keymod km = SDL_GetModState();
-	return km & KMOD_LSHIFT || km & KMOD_RSHIFT;
+	SDL_Keymod Km = SDL_GetModState();
+	return Km & KMOD_LSHIFT || Km & KMOD_RSHIFT;
 }
 
 void
-mouse_press_button(SDL_Event const *e)
+Mouse_PressButton(SDL_Event const *e)
 {
 	switch (e->button.button)
 	{
 	case SDL_BUTTON_LEFT:
-		m_down_states[MB_LEFT] = m_press_states[MB_LEFT] = true;
+		MDownStates[MB_LEFT] = MPressStates[MB_LEFT] = true;
 		break;
 	case SDL_BUTTON_RIGHT:
-		m_down_states[MB_RIGHT] = m_press_states[MB_RIGHT] = true;
+		MDownStates[MB_RIGHT] = MPressStates[MB_RIGHT] = true;
 		break;
 	case SDL_BUTTON_MIDDLE:
-		m_down_states[MB_MIDDLE] = m_press_states[MB_MIDDLE] = true;
+		MDownStates[MB_MIDDLE] = MPressStates[MB_MIDDLE] = true;
 		break;
 	}
 }
 
 void
-mouse_release_button(SDL_Event const *e)
+Mouse_ReleaseButton(SDL_Event const *e)
 {
 	switch (e->button.button)
 	{
 	case SDL_BUTTON_LEFT:
-		m_down_states[MB_LEFT] = false;
-		m_release_states[MB_LEFT] = true;
+		MDownStates[MB_LEFT] = false;
+		MReleaseStates[MB_LEFT] = true;
 		break;
 	case SDL_BUTTON_RIGHT:
-		m_down_states[MB_RIGHT] = false;
-		m_release_states[MB_RIGHT] = true;
+		MDownStates[MB_RIGHT] = false;
+		MReleaseStates[MB_RIGHT] = true;
 		break;
 	case SDL_BUTTON_MIDDLE:
-		m_down_states[MB_MIDDLE] = false;
-		m_release_states[MB_RIGHT] = true;
+		MDownStates[MB_MIDDLE] = false;
+		MReleaseStates[MB_RIGHT] = true;
 		break;
 	}
 }
 
 void
-mouse_post_update(void)
+Mouse_PostUpdate(void)
 {
-	m_press_states[MB_LEFT] = m_release_states[MB_LEFT] = false;
-	m_press_states[MB_RIGHT] = m_release_states[MB_RIGHT] = false;
-	m_press_states[MB_MIDDLE] = m_release_states[MB_MIDDLE] = false;
+	MPressStates[MB_LEFT] = MReleaseStates[MB_LEFT] = false;
+	MPressStates[MB_RIGHT] = MReleaseStates[MB_RIGHT] = false;
+	MPressStates[MB_MIDDLE] = MReleaseStates[MB_MIDDLE] = false;
 }
 
 bool
-mouse_down(enum mouse_button b)
+Mouse_Down(enum MouseButton b)
 {
-	return m_down_states[b];
+	return MDownStates[b];
 }
 
 bool
-mouse_pressed(enum mouse_button b)
+Mouse_Pressed(enum MouseButton b)
 {
-	return m_press_states[b];
+	return MPressStates[b];
 }
 
 bool
-mouse_released(enum mouse_button b)
+Mouse_Released(enum MouseButton b)
 {
-	return m_release_states[b];
+	return MReleaseStates[b];
 }
 
 void
-mouse_pos(int *out_x, int *out_y)
+Mouse_Pos(int *OutX, int *OutY)
 {
-	SDL_GetMouseState(out_x, out_y);
+	SDL_GetMouseState(OutX, OutY);
 }

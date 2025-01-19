@@ -6,50 +6,53 @@
 #include "conf.h"
 #include "util.h"
 
-SDL_Window *g_wnd = NULL;
-SDL_Renderer *g_rend = NULL;
+SDL_Window *g_Wnd = NULL;
+SDL_Renderer *g_Rend = NULL;
 
 int
-wnd_init(void)
+Wnd_Init(void)
 {
-	atexit(wnd_quit);
+	atexit(Wnd_Quit);
 	
-	g_wnd = SDL_CreateWindow(CONF_WND_TITLE,
-	                         SDL_WINDOWPOS_UNDEFINED,
-	                         SDL_WINDOWPOS_UNDEFINED,
-	                         CONF_WND_WIDTH,
-	                         CONF_WND_HEIGHT,
-	                         CONF_WND_FLAGS);
-	if (!g_wnd)
+	g_Wnd = SDL_CreateWindow(
+		CONF_WND_TITLE,
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		CONF_WND_WIDTH,
+		CONF_WND_HEIGHT,
+		CONF_WND_FLAGS
+	);
+	
+	if (!g_Wnd)
 	{
-		log_err("wnd: failed to create window: %s", SDL_GetError());
+		LogErr("wnd: failed to create window: %s", SDL_GetError());
 		return 1;
 	}
 	
-	g_rend = SDL_CreateRenderer(g_wnd, -1, CONF_REND_FLAGS);
-	if (!g_rend)
+	g_Rend = SDL_CreateRenderer(g_Wnd, -1, CONF_REND_FLAGS);
+	if (!g_Rend)
 	{
-		log_err("wnd: failed to create renderer: %s"), SDL_GetError();
+		LogErr("wnd: failed to create renderer: %s"), SDL_GetError();
 		return 1;
 	}
 	
-	SDL_SetRenderDrawBlendMode(g_rend, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode(g_Rend, SDL_BLENDMODE_BLEND);
 	
 	return 0;
 }
 
 void
-wnd_quit(void)
+Wnd_Quit(void)
 {
-	if (g_rend)
+	if (g_Rend)
 	{
-		SDL_DestroyRenderer(g_rend);
-		g_rend = NULL;
+		SDL_DestroyRenderer(g_Rend);
+		g_Rend = NULL;
 	}
 	
-	if (g_wnd)
+	if (g_Wnd)
 	{
-		SDL_DestroyWindow(g_wnd);
-		g_wnd = NULL;
+		SDL_DestroyWindow(g_Wnd);
+		g_Wnd = NULL;
 	}
 }

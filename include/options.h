@@ -3,21 +3,21 @@
 
 #include <SDL2/SDL.h>
 
-struct options
+struct Options
 {
 	// keybind options.
-	SDL_Keycode k_left, k_right, k_jump, k_dash_down, k_powerjump;
-	SDL_Keycode k_menu;
-	SDL_Keycode k_editor_left, k_editor_right, k_editor_up, k_editor_down;
+	SDL_Keycode KLeft, KRight, KJump, KDashDown, KPowerjump;
+	SDL_Keycode KMenu;
+	SDL_Keycode KEditorLeft, KEditorRight, KEditorUp, KEditorDown;
 	
 	// sound options.
-	float sfx_volume;
+	float SfxVolume;
 };
 
-extern struct options g_options;
+extern struct Options g_Options;
 
-void options_return_to_default(char const *path);
-int options_read_from_file(char const *path);
-int options_write_to_file(char const *path);
+void Options_ReturnToDefault(char const *Path);
+int Options_ReadFromFile(char const *Path);
+int Options_WriteToFile(char const *Path);
 
 #endif

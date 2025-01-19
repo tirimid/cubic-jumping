@@ -11,155 +11,157 @@
 #include "text.h"
 #include "wnd.h"
 
-struct ui_button
-ui_button_create(int x, int y, char const *text, void (*callback)(void))
+struct UiButton
+UiButton_Create(int x, int y, char const *Text, void (*Callback)(void))
 {
-	return (struct ui_button)
+	return (struct UiButton)
 	{
 		.x = x,
 		.y = y,
-		.w = strlen(text) * TEXT_EFF_WIDTH,
+		.w = strlen(Text) * TEXT_EFF_WIDTH,
 		.h = TEXT_EFF_HEIGHT,
-		.text = text,
-		.callback = callback,
+		.Text = Text,
+		.Callback = Callback
 	};
 }
 
 void
-ui_button_update(struct ui_button *btn)
+UiButton_Update(struct UiButton *Btn)
 {
-	int mouse_x, mouse_y;
-	mouse_pos(&mouse_x, &mouse_y);
+	int MouseX, MouseY;
+	Mouse_Pos(&MouseX, &MouseY);
 	
-	if (mouse_x >= btn->x
-	    && mouse_x < btn->x + btn->w + 2 * CONF_BUTTON_PADDING
-	    && mouse_y >= btn->y
-	    && mouse_y < btn->y + btn->h + 2 * CONF_BUTTON_PADDING)
+	if (MouseX >= Btn->x
+		&& MouseX < Btn->x + Btn->w + 2 * CONF_BUTTON_PADDING
+		&& MouseY >= Btn->y
+		&& MouseY < Btn->y + Btn->h + 2 * CONF_BUTTON_PADDING)
 	{
-		btn->hovered = true;
-		if (mouse_pressed(MB_LEFT))
-			btn->pressed = true;
-		else if (mouse_released(MB_LEFT))
+		Btn->Hovered = true;
+		if (Mouse_Pressed(MB_LEFT))
+			Btn->Pressed = true;
+		else if (Mouse_Released(MB_LEFT))
 		{
-			if (btn->pressed && btn->callback)
-				btn->callback();
-			btn->pressed = false;
+			if (Btn->Pressed && Btn->Callback)
+				Btn->Callback();
+			Btn->Pressed = false;
 		}
 	}
 	else
 	{
-		btn->hovered = false;
-		btn->pressed = false;
+		Btn->Hovered = false;
+		Btn->Pressed = false;
 	}
 }
 
 void
-ui_button_draw(struct ui_button const *btn)
+UiButton_Draw(struct UiButton const *Btn)
 {
 	// set frame color based on button status.
 	{
-		static uint8_t cb[] = CONF_COLOR_BUTTON;
-		static uint8_t cbh[] = CONF_COLOR_BUTTON_HOVERED;
-		static uint8_t cbp[] = CONF_COLOR_BUTTON_PRESSED;
+		static uint8_t Cb[] = CONF_COLOR_BUTTON;
+		static uint8_t Cbh[] = CONF_COLOR_BUTTON_HOVERED;
+		static uint8_t Cbp[] = CONF_COLOR_BUTTON_PRESSED;
 		
-		if (btn->pressed)
-			SDL_SetRenderDrawColor(g_rend, cbp[0], cbp[1], cbp[2], 255);
-		else if (btn->hovered)
-			SDL_SetRenderDrawColor(g_rend, cbh[0], cbh[1], cbh[2], 255);
+		if (Btn->Pressed)
+			SDL_SetRenderDrawColor(g_Rend, Cbp[0], Cbp[1], Cbp[2], 255);
+		else if (Btn->Hovered)
+			SDL_SetRenderDrawColor(g_Rend, Cbh[0], Cbh[1], Cbh[2], 255);
 		else
-			SDL_SetRenderDrawColor(g_rend, cb[0], cb[1], cb[2], 255);
+			SDL_SetRenderDrawColor(g_Rend, Cb[0], Cb[1], Cb[2], 255);
 	}
 	
 	// draw frame.
 	{
 		SDL_Rect r =
 		{
-			.x = btn->x,
-			.y = btn->y,
-			.w = btn->w + 2 * CONF_BUTTON_PADDING,
-			.h = btn->h + 2 * CONF_BUTTON_PADDING,
+			.x = Btn->x,
+			.y = Btn->y,
+			.w = Btn->w + 2 * CONF_BUTTON_PADDING,
+			.h = Btn->h + 2 * CONF_BUTTON_PADDING
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw button text.
 	{
-		text_draw_str(btn->text,
-		              btn->x + CONF_BUTTON_PADDING,
-		              btn->y + CONF_BUTTON_PADDING);
+		Text_DrawStr(
+			Btn->Text,
+			Btn->x + CONF_BUTTON_PADDING,
+			Btn->y + CONF_BUTTON_PADDING
+		);
 	}
 }
 
-struct ui_text_field
-ui_text_field_create(int x, int y, size_t ndraw, char *out, size_t nmax)
+struct UiTextField
+UiTextField_Create(int x, int y, size_t Ndraw, char *Out, size_t Nmax)
 {
-	return (struct ui_text_field)
+	return (struct UiTextField)
 	{
 		.x = x,
 		.y = y,
-		.w = TEXT_EFF_WIDTH * ndraw,
+		.w = TEXT_EFF_WIDTH * Ndraw,
 		.h = TEXT_EFF_HEIGHT,
-		.out = out,
-		.nmax = nmax,
-		.ndraw = ndraw,
-		.len = strlen(out),
+		.Out = Out,
+		.Nmax = Nmax,
+		.Ndraw = Ndraw,
+		.Len = strlen(Out)
 	};
 }
 
 void
-ui_text_field_update(struct ui_text_field *tf)
+UiTextField_Update(struct UiTextField *Tf)
 {
-	int mouse_x, mouse_y;
-	mouse_pos(&mouse_x, &mouse_y);
+	int MouseX, MouseY;
+	Mouse_Pos(&MouseX, &MouseY);
 	
 	// handle text field selection.
 	{
-		if (mouse_x >= tf->x
-		    && mouse_x < tf->x + tf->w + 2 * CONF_TEXT_FIELD_PADDING
-		    && mouse_y >= tf->y
-		    && mouse_y < tf->y + tf->h + 2 * CONF_TEXT_FIELD_PADDING)
+		if (MouseX >= Tf->x
+			&& MouseX < Tf->x + Tf->w + 2 * CONF_TEXT_FIELD_PADDING
+			&& MouseY >= Tf->y
+			&& MouseY < Tf->y + Tf->h + 2 * CONF_TEXT_FIELD_PADDING)
 		{
-			tf->hovered = true;
-			if (mouse_pressed(MB_LEFT))
-				tf->selected = true;
+			Tf->Hovered = true;
+			if (Mouse_Pressed(MB_LEFT))
+				Tf->Selected = true;
 		}
 		else
 		{
-			tf->hovered = false;
-			if (mouse_pressed(MB_LEFT))
-				tf->selected = false;
+			Tf->Hovered = false;
+			if (Mouse_Pressed(MB_LEFT))
+				Tf->Selected = false;
 		}
 	}
 	
-	if (!tf->selected)
+	if (!Tf->Selected)
 		return;
 	
 	// handle text field keyboard navigation.
 	{
-		if (key_pressed(SDLK_LEFT))
+		if (Keybd_Pressed(SDLK_LEFT))
 		{
-			tf->csr -= tf->csr > 0;
-			tf->first_draw -= tf->csr < tf->first_draw;
+			Tf->Csr -= Tf->Csr > 0;
+			Tf->FirstDraw -= Tf->Csr < Tf->FirstDraw;
 		}
 		
-		if (key_pressed(SDLK_RIGHT))
+		if (Keybd_Pressed(SDLK_RIGHT))
 		{
-			tf->csr += tf->csr < tf->len;
-			tf->first_draw += tf->csr - tf->first_draw >= tf->ndraw;
+			Tf->Csr += Tf->Csr < Tf->Len;
+			Tf->FirstDraw += Tf->Csr - Tf->FirstDraw >= Tf->Ndraw;
 		}
 		
-		if (key_pressed(SDLK_UP))
+		if (Keybd_Pressed(SDLK_UP))
 		{
-			tf->csr = 0;
-			tf->first_draw = 0;
+			Tf->Csr = 0;
+			Tf->FirstDraw = 0;
 		}
 		
-		if (key_pressed(SDLK_DOWN))
+		if (Keybd_Pressed(SDLK_DOWN))
 		{
-			tf->csr = tf->len;
-			tf->first_draw = 0;
-			while (tf->csr - tf->first_draw > tf->ndraw)
-				++tf->first_draw;
+			Tf->Csr = Tf->Len;
+			Tf->FirstDraw = 0;
+			while (Tf->Csr - Tf->FirstDraw > Tf->Ndraw)
+				++Tf->FirstDraw;
 		}
 	}
 	
@@ -168,163 +170,169 @@ ui_text_field_update(struct ui_text_field *tf)
 		// support ASCII input.
 		for (unsigned char i = 0; i < 128; ++i)
 		{
-			if (tf->len >= tf->nmax)
+			if (Tf->Len >= Tf->Nmax)
 				break;
 			
 			if (!isprint(i))
 				continue;
 			
-			if (key_text_input_received(i))
+			if (Keybd_TextInputReceived(i))
 			{
-				memmove(&tf->out[tf->csr + 1],
-				        &tf->out[tf->csr],
-				        tf->len - tf->csr);
+				memmove(
+					&Tf->Out[Tf->Csr + 1],
+					&Tf->Out[Tf->Csr],
+					Tf->Len - Tf->Csr
+				);
 				
-				++tf->csr;
-				tf->first_draw += tf->csr - tf->first_draw >= tf->ndraw;
-				tf->out[tf->csr - 1] = i;
+				++Tf->Csr;
+				Tf->FirstDraw += Tf->Csr - Tf->FirstDraw >= Tf->Ndraw;
+				Tf->Out[Tf->Csr - 1] = i;
 				
-				++tf->len;
-				tf->out[tf->len] = 0;
+				++Tf->Len;
+				Tf->Out[Tf->Len] = 0;
 			}
 		}
 		
-		if (key_pressed(SDLK_BACKSPACE) && tf->csr > 0)
+		if (Keybd_Pressed(SDLK_BACKSPACE) && Tf->Csr > 0)
 		{
-			memmove(&tf->out[tf->csr - 1],
-			        &tf->out[tf->csr],
-			        tf->len - tf->csr);
+			memmove(
+				&Tf->Out[Tf->Csr - 1],
+				&Tf->Out[Tf->Csr],
+				Tf->Len - Tf->Csr
+			);
 			
-			--tf->csr;
-			tf->first_draw -= tf->csr < tf->first_draw;
+			--Tf->Csr;
+			Tf->FirstDraw -= Tf->Csr < Tf->FirstDraw;
 			
-			--tf->len;
-			tf->out[tf->len] = 0;
+			--Tf->Len;
+			Tf->Out[Tf->Len] = 0;
 		}
 	}
 }
 
 void
-ui_text_field_draw(struct ui_text_field const *tf)
+UiTextField_Draw(struct UiTextField const *Tf)
 {
 	// set frame color based on text field status.
 	{
-		static uint8_t ctf[] = CONF_COLOR_TEXT_FIELD;
-		static uint8_t ctfs[] = CONF_COLOR_TEXT_FIELD_SELECTED;
-		static uint8_t ctfh[] = CONF_COLOR_TEXT_FIELD_HOVERED;
+		static uint8_t Ctf[] = CONF_COLOR_TEXT_FIELD;
+		static uint8_t Ctfs[] = CONF_COLOR_TEXT_FIELD_SELECTED;
+		static uint8_t Ctfh[] = CONF_COLOR_TEXT_FIELD_HOVERED;
 		
-		if (tf->selected)
-			SDL_SetRenderDrawColor(g_rend, ctfs[0], ctfs[1], ctfs[2], 255);
-		else if (tf->hovered)
-			SDL_SetRenderDrawColor(g_rend, ctfh[0], ctfh[1], ctfh[2], 255);
+		if (Tf->Selected)
+			SDL_SetRenderDrawColor(g_Rend, Ctfs[0], Ctfs[1], Ctfs[2], 255);
+		else if (Tf->Hovered)
+			SDL_SetRenderDrawColor(g_Rend, Ctfh[0], Ctfh[1], Ctfh[2], 255);
 		else
-			SDL_SetRenderDrawColor(g_rend, ctf[0], ctf[1], ctf[2], 255);
+			SDL_SetRenderDrawColor(g_Rend, Ctf[0], Ctf[1], Ctf[2], 255);
 	}
 	
 	// draw frame.
 	{
 		SDL_Rect r =
 		{
-			.x = tf->x,
-			.y = tf->y,
-			.w = tf->w + 2 * CONF_TEXT_FIELD_PADDING,
-			.h = tf->h + 2 * CONF_TEXT_FIELD_PADDING,
+			.x = Tf->x,
+			.y = Tf->y,
+			.w = Tf->w + 2 * CONF_TEXT_FIELD_PADDING,
+			.h = Tf->h + 2 * CONF_TEXT_FIELD_PADDING
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw text field text.
 	{
-		int x = tf->x + CONF_TEXT_FIELD_PADDING;
-		for (size_t i = tf->first_draw; i < tf->len; ++i)
+		int x = Tf->x + CONF_TEXT_FIELD_PADDING;
+		for (size_t i = Tf->FirstDraw; i < Tf->Len; ++i)
 		{
-			if (x > tf->x + CONF_TEXT_FIELD_PADDING + tf->w)
+			if (x > Tf->x + CONF_TEXT_FIELD_PADDING + Tf->w)
 				break;
-			text_draw_ch(tf->out[i], x, tf->y + CONF_TEXT_FIELD_PADDING);
+			Text_DrawCh(Tf->Out[i], x, Tf->y + CONF_TEXT_FIELD_PADDING);
 			x += TEXT_EFF_WIDTH;
 		}
 	}
 	
 	// draw cursor.
 	{
-		static uint8_t ctfc[] = CONF_COLOR_TEXT_FIELD_CURSOR;
+		static uint8_t Ctfc[] = CONF_COLOR_TEXT_FIELD_CURSOR;
 		
 		SDL_Rect r =
 		{
-			.x = tf->x + CONF_TEXT_FIELD_PADDING + (tf->csr - tf->first_draw) * TEXT_EFF_WIDTH - 2,
-			.y = tf->y + CONF_TEXT_FIELD_PADDING,
+			.x = Tf->x + CONF_TEXT_FIELD_PADDING + (Tf->Csr - Tf->FirstDraw) * TEXT_EFF_WIDTH - 2,
+			.y = Tf->y + CONF_TEXT_FIELD_PADDING,
 			.w = CONF_TEXT_FIELD_CURSOR_WIDTH,
-			.h = TEXT_EFF_HEIGHT,
+			.h = TEXT_EFF_HEIGHT
 		};
 		
-		SDL_SetRenderDrawColor(g_rend, ctfc[0], ctfc[1], ctfc[2], 255);
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_SetRenderDrawColor(g_Rend, Ctfc[0], Ctfc[1], Ctfc[2], 255);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 }
 
-struct ui_slider
-ui_slider_create(int x,
-                 int y,
-                 int w,
-                 int h,
-                 float initial,
-                 void (*callback)(float))
+struct UiSlider
+UiSlider_Create(
+	int x,
+	int y,
+	int w,
+	int h,
+	float Initial,
+	void (*Callback)(float)
+)
 {
-	return (struct ui_slider)
+	return (struct UiSlider)
 	{
 		.x = x,
 		.y = y,
 		.w = w,
 		.h = h,
-		.val = initial,
-		.callback = callback,
+		.Val = Initial,
+		.Callback = Callback
 	};
 }
 
 void
-ui_slider_update(struct ui_slider *s)
+UiSlider_Update(struct UiSlider *s)
 {
-	int mouse_x, mouse_y;
-	mouse_pos(&mouse_x, &mouse_y);
+	int MouseX, MouseY;
+	Mouse_Pos(&MouseX, &MouseY);
 	
-	if (mouse_x >= s->x
-	    && mouse_x < s->x + s->w
-	    && mouse_y >= s->y
-	    && mouse_y < s->y + s->h)
+	if (MouseX >= s->x
+		&& MouseX < s->x + s->w
+		&& MouseY >= s->y
+		&& MouseY < s->y + s->h)
 	{
-		s->hovered = true;
-		if (mouse_down(MB_LEFT))
+		s->Hovered = true;
+		if (Mouse_Down(MB_LEFT))
 		{
-			s->val = (float)(mouse_x - s->x) / s->w;
-			if (s->callback)
-				s->callback(s->val);
-			s->pressed = true;
+			s->Val = (float)(MouseX - s->x) / s->w;
+			if (s->Callback)
+				s->Callback(s->Val);
+			s->Pressed = true;
 		}
-		else if (mouse_released(MB_LEFT))
-			s->pressed = false;
+		else if (Mouse_Released(MB_LEFT))
+			s->Pressed = false;
 	}
 	else
 	{
-		s->hovered = false;
-		s->pressed = false;
+		s->Hovered = false;
+		s->Pressed = false;
 	}
 }
 
 void
-ui_slider_draw(struct ui_slider const *s)
+UiSlider_Draw(struct UiSlider const *s)
 {
 	// set frame color based on slider state.
 	{
-		static uint8_t cs[] = CONF_COLOR_SLIDER;
-		static uint8_t csh[] = CONF_COLOR_SLIDER_HOVERED;
-		static uint8_t csp[] = CONF_COLOR_SLIDER_PRESSED;
+		static uint8_t Cs[] = CONF_COLOR_SLIDER;
+		static uint8_t Csh[] = CONF_COLOR_SLIDER_HOVERED;
+		static uint8_t Csp[] = CONF_COLOR_SLIDER_PRESSED;
 		
-		if (s->pressed)
-			SDL_SetRenderDrawColor(g_rend, csp[0], csp[1], csp[2], 255);
-		else if (s->hovered)
-			SDL_SetRenderDrawColor(g_rend, csh[0], csh[1], csh[2], 255);
+		if (s->Pressed)
+			SDL_SetRenderDrawColor(g_Rend, Csp[0], Csp[1], Csp[2], 255);
+		else if (s->Hovered)
+			SDL_SetRenderDrawColor(g_Rend, Csh[0], Csh[1], Csh[2], 255);
 		else
-			SDL_SetRenderDrawColor(g_rend, cs[0], cs[1], cs[2], 255);
+			SDL_SetRenderDrawColor(g_Rend, Cs[0], Cs[1], Cs[2], 255);
 	}
 	
 	// draw frame.
@@ -334,24 +342,24 @@ ui_slider_draw(struct ui_slider const *s)
 			.x = s->x,
 			.y = s->y,
 			.w = s->w,
-			.h = s->h,
+			.h = s->h
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw slider cursor.
 	{
-		static uint8_t csc[] = CONF_COLOR_SLIDER_CURSOR;
+		static uint8_t Csc[] = CONF_COLOR_SLIDER_CURSOR;
 		
 		SDL_Rect r =
 		{
-			.x = s->x + s->val * s->w - CONF_SLIDER_CURSOR_WIDTH / 2.0f,
+			.x = s->x + s->Val * s->w - CONF_SLIDER_CURSOR_WIDTH / 2.0f,
 			.y = s->y,
 			.w = CONF_SLIDER_CURSOR_WIDTH,
-			.h = s->h,
+			.h = s->h
 		};
 		
-		SDL_SetRenderDrawColor(g_rend, csc[0], csc[1], csc[2], 255);
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_SetRenderDrawColor(g_Rend, Csc[0], Csc[1], Csc[2], 255);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 }

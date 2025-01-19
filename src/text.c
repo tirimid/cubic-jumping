@@ -8,12 +8,12 @@
 #include "util.h"
 #include "wnd.h"
 
-static size_t drawable_len_at(char const *text, size_t off);
+static size_t DrawableLenAt(char const *Text, size_t Off);
 
 // thanks to azmr on github for creating this header font.
 // find the source at `https://github.com/azmr/blit-fonts/blob/master/blit32.h`.
 // modified to include the non-printable characters as zeroes.
-static uint32_t font[] =
+static uint32_t Font[] =
 {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -30,115 +30,115 @@ static uint32_t font[] =
 	0x00000082, 0x1c97b000, 0x0e949c21, 0x1c10b800, 0x1c94b908, 0x3c1fc5c0, 0x42211c4c, 0x4e87252e,
 	0x12949c21, 0x0c210040, 0x8c421004, 0x12519521, 0x0c210842, 0x235aac00, 0x12949c00, 0x0c949800,
 	0x4213a526, 0x7087252e, 0x02149800, 0x0e837000, 0x0c213c42, 0x0e94a400, 0x0464a400, 0x155ac400,
-	0x36426c00, 0x4e872529, 0x1e223c00, 0x1843188c, 0x08421084, 0x0c463086, 0x0006d800, 0x00000000,
+	0x36426c00, 0x4e872529, 0x1e223c00, 0x1843188c, 0x08421084, 0x0c463086, 0x0006d800, 0x00000000
 };
 
 void
-text_draw_ch(char ch, int x, int y)
+Text_DrawCh(char Ch, int x, int y)
 {
-	static uint8_t ct[] = CONF_COLOR_TEXT, cto[] = CONF_COLOR_TEXT_OUTLINE;
+	static uint8_t Ct[] = CONF_COLOR_TEXT, Cto[] = CONF_COLOR_TEXT_OUTLINE;
 	
 	// draw outline boxes.
-	SDL_SetRenderDrawColor(g_rend, cto[0], cto[1], cto[2], 255);
-	for (int gy = 0; gy < TEXT_FONT_HEIGHT; ++gy)
+	SDL_SetRenderDrawColor(g_Rend, Cto[0], Cto[1], Cto[2], 255);
+	for (int Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
 	{
-		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
+		for (int Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
 		{
-			int shift = gy * TEXT_FONT_WIDTH + gx;
-			if (!(font[(unsigned char)ch] & 1 << shift))
+			int Shift = Gy * TEXT_FONT_WIDTH + Gx;
+			if (!(Font[(unsigned char)Ch] & 1 << Shift))
 				continue;
 			
-			SDL_Rect outline =
+			SDL_Rect Outline =
 			{
-				.x = x + CONF_TEXT_SCALE * gx - CONF_TEXT_OUTLINE_SCALE,
-				.y = y + CONF_TEXT_SCALE * gy - CONF_TEXT_OUTLINE_SCALE,
+				.x = x + CONF_TEXT_SCALE * Gx - CONF_TEXT_OUTLINE_SCALE,
+				.y = y + CONF_TEXT_SCALE * Gy - CONF_TEXT_OUTLINE_SCALE,
 				.w = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE,
-				.h = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE,
+				.h = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE
 			};
-			SDL_RenderFillRect(g_rend, &outline);
+			SDL_RenderFillRect(g_Rend, &Outline);
 		}
 	}
 	
 	// draw inside boxes.
-	SDL_SetRenderDrawColor(g_rend, ct[0], ct[1], ct[2], 255);
-	for (int gy = 0; gy < TEXT_FONT_HEIGHT; ++gy)
+	SDL_SetRenderDrawColor(g_Rend, Ct[0], Ct[1], Ct[2], 255);
+	for (int Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
 	{
-		for (int gx = 0; gx < TEXT_FONT_WIDTH; ++gx)
+		for (int Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
 		{
-			int shift = gy * TEXT_FONT_WIDTH + gx;
-			if (!(font[(unsigned char)ch] & 1 << shift))
+			int Shift = Gy * TEXT_FONT_WIDTH + Gx;
+			if (!(Font[(unsigned char)Ch] & 1 << Shift))
 				continue;
 			
-			SDL_Rect main =
+			SDL_Rect Main =
 			{
-				.x = x + CONF_TEXT_SCALE * gx,
-				.y = y + CONF_TEXT_SCALE * gy,
+				.x = x + CONF_TEXT_SCALE * Gx,
+				.y = y + CONF_TEXT_SCALE * Gy,
 				.w = CONF_TEXT_SCALE,
-				.h = CONF_TEXT_SCALE,
+				.h = CONF_TEXT_SCALE
 			};
-			SDL_RenderFillRect(g_rend, &main);
+			SDL_RenderFillRect(g_Rend, &Main);
 		}
 	}
 }
 
 void
-text_draw_str(char const *s, int x, int y)
+Text_DrawStr(char const *s, int x, int y)
 {
-	int dx = 0, dy = 0;
+	int Dx = 0, Dy = 0;
 	for (char const *c = s; *c; ++c)
 	{
 		if (*c == '\n')
 		{
-			dx = 0;
-			dy += TEXT_EFF_HEIGHT;
+			Dx = 0;
+			Dy += TEXT_EFF_HEIGHT;
 			continue;
 		}
 		
-		text_draw_ch(*c, x + dx, y + dy);
-		dx += TEXT_EFF_WIDTH;
+		Text_DrawCh(*c, x + Dx, y + Dy);
+		Dx += TEXT_EFF_WIDTH;
 	}
 }
 
 void
-text_draw_str_bounded(char const *s, int px, int py, int sx, int sy)
+Text_DrawStrBounded(char const *s, int Px, int Py, int Sx, int Sy)
 {
 	size_t i = 0;
-	for (int dy = py; dy < py + sy; dy += TEXT_EFF_HEIGHT)
+	for (int Dy = Py; Dy < Py + Sy; Dy += TEXT_EFF_HEIGHT)
 	{
 		// skip all non-renderable characters at start of line.
-		while (s[i] && !font[(unsigned char)s[i]])
+		while (s[i] && !Font[(unsigned char)s[i]])
 			++i;
 		
 		// draw all words on line that don't require a newline wrap.
-		for (int dx = px; dx < px + sx;)
+		for (int Dx = Px; Dx < Px + Sx;)
 		{
 			if (!s[i])
 				return;
 			
-			size_t draw_len = drawable_len_at(s, i);
-			draw_len = MAX(draw_len, 1);
-			if (dx + draw_len * TEXT_EFF_WIDTH >= px + sx)
+			size_t DrawLen = DrawableLenAt(s, i);
+			DrawLen = MAX(DrawLen, 1);
+			if (Dx + DrawLen * TEXT_EFF_WIDTH >= Px + Sx)
 				break;
 			
-			for (size_t j = i; j < i + draw_len; ++j)
+			for (size_t j = i; j < i + DrawLen; ++j)
 			{
-				text_draw_ch(s[j], dx, dy);
-				dx += TEXT_EFF_WIDTH;
+				Text_DrawCh(s[j], Dx, Dy);
+				Dx += TEXT_EFF_WIDTH;
 			}
 			
-			i += draw_len;
+			i += DrawLen;
 		}
 	}
 }
 
 void
-text_box_draw(char const *text)
+Text_BoxDraw(char const *Text)
 {
 	// draw actual box of text box.
 	{
-		static uint8_t ctb[] = CONF_COLOR_TEXT_BOX;
+		static uint8_t Ctb[] = CONF_COLOR_TEXT_BOX;
 		
-		SDL_Rect box =
+		SDL_Rect Box =
 		{
 			.x = 0,
 			.y = CONF_WND_HEIGHT - CONF_TEXT_BOX_HEIGHT,
@@ -146,33 +146,37 @@ text_box_draw(char const *text)
 			.h = CONF_TEXT_BOX_HEIGHT,
 		};
 		
-		SDL_SetRenderDrawColor(g_rend,
-		                       ctb[0],
-		                       ctb[1],
-		                       ctb[2],
-		                       CONF_COLOR_TEXT_BOX_OPACITY);
+		SDL_SetRenderDrawColor(
+			g_Rend,
+			Ctb[0],
+			Ctb[1],
+			Ctb[2],
+			CONF_COLOR_TEXT_BOX_OPACITY
+		);
 		
-		SDL_RenderFillRect(g_rend, &box);
+		SDL_RenderFillRect(g_Rend, &Box);
 	}
 	
 	// draw text.
 	{
-		text_draw_str_bounded(text,
-		                      CONF_TEXT_BOX_PADDING,
-		                      CONF_WND_HEIGHT - CONF_TEXT_BOX_HEIGHT + CONF_TEXT_BOX_PADDING,
-		                      CONF_WND_WIDTH - 2 * CONF_TEXT_BOX_PADDING,
-		                      CONF_TEXT_BOX_HEIGHT - 2 * CONF_TEXT_BOX_PADDING);
+		Text_DrawStrBounded(
+			Text,
+			CONF_TEXT_BOX_PADDING,
+			CONF_WND_HEIGHT - CONF_TEXT_BOX_HEIGHT + CONF_TEXT_BOX_PADDING,
+			CONF_WND_WIDTH - 2 * CONF_TEXT_BOX_PADDING,
+			CONF_TEXT_BOX_HEIGHT - 2 * CONF_TEXT_BOX_PADDING
+		);
 	}
 }
 
 static size_t
-drawable_len_at(char const *text, size_t off)
+DrawableLenAt(char const *Text, size_t Off)
 {
-	size_t len;
-	for (len = 0; text[off + len]; ++len)
+	size_t Len;
+	for (Len = 0; Text[Off + Len]; ++Len)
 	{
-		if (!font[(unsigned char)text[off + len]])
+		if (!Font[(unsigned char)Text[Off + Len]])
 			break;
 	}
-	return len;
+	return Len;
 }

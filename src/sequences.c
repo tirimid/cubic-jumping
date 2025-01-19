@@ -14,51 +14,51 @@
 #include "util.h"
 #include "wnd.h"
 
-static void draw_bg(void);
-static void btn_skip_sequence(void);
+static void DrawBg(void);
+static void BtnSkipSequence(void);
 
-static bool in_seq = false;
+static bool InSeq = false;
 
 void
-intro_sequence(void)
+IntroSequence(void)
 {
-	sound_play_sfx(SI_INTRO);
+	Sound_PlaySfx(SI_INTRO);
 	
-	unsigned rem_ticks = CONF_INTRO_TICKS;
-	while (rem_ticks > 0)
+	unsigned RemTicks = CONF_INTRO_TICKS;
+	while (RemTicks > 0)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
-		input_handle_events();
+		Input_HandleEvents();
 		
 		// update intro sequence.
 		{
-			--rem_ticks;
+			--RemTicks;
 			
-			input_post_update();
+			Input_PostUpdate();
 		}
 		
 		// draw intro sequence.
 		{
-			draw_bg();
-			texture_draw(TI_GAMING_REI_BORDER, 250, 150, 300, 300);
-			SDL_RenderPresent(g_rend);
+			DrawBg();
+			Textures_Draw(TI_GAMING_REI_BORDER, 250, 150, 300, 300);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		if (tick_time_left > 0)
-			SDL_Delay(tick_time_left);
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		if (TickTimeLeft > 0)
+			SDL_Delay(TickTimeLeft);
 	}
 }
 
 void
-credits_sequence(void)
+CreditsSequence(void)
 {
-	struct ui_button b_skip = ui_button_create(510, 550, "Skip credits", btn_skip_sequence);
+	struct UiButton BSkip = UiButton_Create(510, 550, "Skip credits", BtnSkipSequence);
 	
-	int scroll = CONF_WND_HEIGHT + CONF_CREDITS_DELAY;
-	char const *credits =
+	int Scroll = CONF_WND_HEIGHT + CONF_CREDITS_DELAY;
+	char const *Credits =
 		"CUBIC JUMPING\n"
 		"\n\n\n\n\n"
 		"Programming\n"
@@ -84,72 +84,72 @@ credits_sequence(void)
 		"\n\n\n\n\n"
 		"And thank YOU for playing!\n"
 		"\n\n\n";
-	unsigned credits_lines = count_lines(credits);
+	unsigned CreditsLines = CountLines(Credits);
 	
-	in_seq = true;
-	while (in_seq)
+	InSeq = true;
+	while (InSeq)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
- 		input_handle_events();
+ 		Input_HandleEvents();
 		
 		// update credits sequence.
 		{
-			scroll -= CONF_CREDITS_SCROLL;
-			if (scroll < -TEXT_EFF_HEIGHT * credits_lines - CONF_CREDITS_DELAY)
-				in_seq = false;
+			Scroll -= CONF_CREDITS_SCROLL;
+			if (Scroll < -TEXT_EFF_HEIGHT * CreditsLines - CONF_CREDITS_DELAY)
+				InSeq = false;
 			
-			ui_button_update(&b_skip);
-			input_post_update();
+			UiButton_Update(&BSkip);
+			Input_PostUpdate();
 		}
 		
 		// draw credits sequence.
 		{
-			draw_bg();
-			text_draw_str(credits, 80, scroll);
-			ui_button_draw(&b_skip);
-			SDL_RenderPresent(g_rend);
+			DrawBg();
+			Text_DrawStr(Credits, 80, Scroll);
+			UiButton_Draw(&BSkip);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		if (tick_time_left > 0)
-			SDL_Delay(tick_time_left);
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		if (TickTimeLeft > 0)
+			SDL_Delay(TickTimeLeft);
 	}
 }
 
 static void
-draw_bg(void)
+DrawBg(void)
 {
-	static uint8_t csbg[] = CONF_COLOR_SEQUENCE_BG;
-	static uint8_t cshl[] = CONF_COLOR_SEQUENCE_HL;
-	static int scroll = 0;
+	static uint8_t Csbg[] = CONF_COLOR_SEQUENCE_BG;
+	static uint8_t Cshl[] = CONF_COLOR_SEQUENCE_HL;
+	static int Scroll = 0;
 	
 	// update background.
 	{
-		scroll += CONF_SEQUENCE_BG_SCROLL;
-		if (scroll > CONF_SEQUENCE_BG_GAP)
-			scroll -= CONF_SEQUENCE_BG_GAP;
+		Scroll += CONF_SEQUENCE_BG_SCROLL;
+		if (Scroll > CONF_SEQUENCE_BG_GAP)
+			Scroll -= CONF_SEQUENCE_BG_GAP;
 	}
 	
 	// draw background.
 	{
-		SDL_SetRenderDrawColor(g_rend, csbg[0], csbg[1], csbg[2], 255);
-		SDL_RenderClear(g_rend);
+		SDL_SetRenderDrawColor(g_Rend, Csbg[0], Csbg[1], Csbg[2], 255);
+		SDL_RenderClear(g_Rend);
 		
-		int draw_lim = MAX(CONF_WND_WIDTH, CONF_WND_HEIGHT) - scroll;
-		SDL_SetRenderDrawColor(g_rend, cshl[0], cshl[1], cshl[2], 255);
-		for (int i = -draw_lim; i < draw_lim; i += CONF_SEQUENCE_BG_GAP)
+		int DrawLim = MAX(CONF_WND_WIDTH, CONF_WND_HEIGHT) - Scroll;
+		SDL_SetRenderDrawColor(g_Rend, Cshl[0], Cshl[1], Cshl[2], 255);
+		for (int i = -DrawLim; i < DrawLim; i += CONF_SEQUENCE_BG_GAP)
 		{
-			int x0 = i, x1 = i + draw_lim;
-			int y0 = 0, y1 = draw_lim;
-			SDL_RenderDrawLine(g_rend, x0, y0, x1, y1);
+			int X0 = i, X1 = i + DrawLim;
+			int Y0 = 0, Y1 = DrawLim;
+			SDL_RenderDrawLine(g_Rend, X0, Y0, X1, Y1);
 		}
 	}
 }
 
 static void
-btn_skip_sequence(void)
+BtnSkipSequence(void)
 {
-	in_seq = false;
+	InSeq = false;
 }

@@ -4,18 +4,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-struct game
+struct Game
 {
-	uint64_t il_time_ms, total_time_ms;
-	unsigned off_switches;
-	unsigned il_deaths, total_deaths;
-	bool running;
+	uint64_t IlTimeMs, TotalTimeMs;
+	unsigned OffSwitches;
+	unsigned IlDeaths, TotalDeaths;
+	bool Running;
 };
 
-extern struct game g_game;
+extern struct Game g_Game;
 
-void game_loop(void);
-void game_disable_switches(void);
-void game_enable_switch(void);
+void Game_Loop(void);
+void Game_DisableSwitches(void);
+void Game_EnableSwitch(void);
 
 #endif

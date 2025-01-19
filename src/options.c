@@ -12,175 +12,179 @@
 #define VAL_BUF_SIZE 64
 #define SCAN_FMT "%63s = %63[^\r\n]"
 
-struct options g_options;
+struct Options g_Options;
 
-static int opts_get_raw(FILE *fp, char const *key, char out[]);
-static int opts_get_keycode(FILE *fp, char const *key, SDL_Keycode *out);
-static int opts_get_float(FILE *fp, char const *key, float *out);
+static int Opts_GetRaw(FILE *Fp, char const *Key, char Out[]);
+static int Opts_GetKeycode(FILE *Fp, char const *Key, SDL_Keycode *Out);
+static int Opts_GetFloat(FILE *Fp, char const *Key, float *Out);
 
 void
-options_return_to_default(char const *path)
+Options_ReturnToDefault(char const *Path)
 {
-	g_options = (struct options)
+	g_Options = (struct Options)
 	{
 		// keybind options.
-		.k_left = CONF_DEFAULT_K_LEFT,
-		.k_right = CONF_DEFAULT_K_RIGHT,
-		.k_jump = CONF_DEFAULT_K_JUMP,
-		.k_dash_down = CONF_DEFAULT_K_DASH_DOWN,
-		.k_powerjump = CONF_DEFAULT_K_POWERJUMP,
-		.k_menu = CONF_DEFAULT_K_MENU,
-		.k_editor_left = CONF_DEFAULT_K_EDITOR_LEFT,
-		.k_editor_right = CONF_DEFAULT_K_EDITOR_RIGHT,
-		.k_editor_up = CONF_DEFAULT_K_EDITOR_UP,
-		.k_editor_down = CONF_DEFAULT_K_EDITOR_DOWN,
+		.KLeft = CONF_DEFAULT_K_LEFT,
+		.KRight = CONF_DEFAULT_K_RIGHT,
+		.KJump = CONF_DEFAULT_K_JUMP,
+		.KDashDown = CONF_DEFAULT_K_DASH_DOWN,
+		.KPowerjump = CONF_DEFAULT_K_POWERJUMP,
+		.KMenu = CONF_DEFAULT_K_MENU,
+		.KEditorLeft = CONF_DEFAULT_K_EDITOR_LEFT,
+		.KEditorRight = CONF_DEFAULT_K_EDITOR_RIGHT,
+		.KEditorUp = CONF_DEFAULT_K_EDITOR_UP,
+		.KEditorDown = CONF_DEFAULT_K_EDITOR_DOWN,
 		
 		// sound options.
-		.sfx_volume = CONF_DEFAULT_SFX_VOLUME,
+		.SfxVolume = CONF_DEFAULT_SFX_VOLUME
 	};
 	
-	options_write_to_file(path);
+	Options_WriteToFile(Path);
 }
 
 int
-options_read_from_file(char const *path)
+Options_ReadFromFile(char const *Path)
 {
-	FILE *fp = fopen(path, "rb");
-	if (!fp)
+	FILE *Fp = fopen(Path, "rb");
+	if (!Fp)
 	{
-		log_err("options: could not read configuration - %s!", path);
+		LogErr("options: could not read configuration - %s!", Path);
 		return 1;
 	}
 	
 	// read keybind options.
 	{
-		if (opts_get_keycode(fp, "k_left", &g_options.k_left)
-		    || opts_get_keycode(fp, "k_right", &g_options.k_right)
-		    || opts_get_keycode(fp, "k_jump", &g_options.k_jump)
-		    || opts_get_keycode(fp, "k_dash_down", &g_options.k_dash_down)
-		    || opts_get_keycode(fp, "k_powerjump", &g_options.k_powerjump)
-		    || opts_get_keycode(fp, "k_menu", &g_options.k_menu)
-		    || opts_get_keycode(fp, "k_editor_left", &g_options.k_editor_left)
-		    || opts_get_keycode(fp, "k_editor_right", &g_options.k_editor_right)
-		    || opts_get_keycode(fp, "k_editor_up", &g_options.k_editor_up)
-		    || opts_get_keycode(fp, "k_editor_down", &g_options.k_editor_down))
+		if (Opts_GetKeycode(Fp, "KLeft", &g_Options.KLeft)
+		    || Opts_GetKeycode(Fp, "KRight", &g_Options.KRight)
+		    || Opts_GetKeycode(Fp, "KJump", &g_Options.KJump)
+		    || Opts_GetKeycode(Fp, "KDashDown", &g_Options.KDashDown)
+		    || Opts_GetKeycode(Fp, "KPowerjump", &g_Options.KPowerjump)
+		    || Opts_GetKeycode(Fp, "KMenu", &g_Options.KMenu)
+		    || Opts_GetKeycode(Fp, "KEditorLeft", &g_Options.KEditorLeft)
+		    || Opts_GetKeycode(Fp, "KEditorRight", &g_Options.KEditorRight)
+		    || Opts_GetKeycode(Fp, "KEditorUp", &g_Options.KEditorUp)
+		    || Opts_GetKeycode(Fp, "KEditorDown", &g_Options.KEditorDown))
 		{
-			fclose(fp);
+			fclose(Fp);
 			return 1;
 		}
 	}
 	
 	// read sound options.
 	{
-		if (opts_get_float(fp, "sfx_volume", &g_options.sfx_volume))
+		if (Opts_GetFloat(Fp, "SfxVolume", &g_Options.SfxVolume))
 		{
-			fclose(fp);
+			fclose(Fp);
 			return 1;
 		}
 	}
 	
-	fclose(fp);
+	fclose(Fp);
 	return 0;
 }
 
 int
-options_write_to_file(char const *path)
+Options_WriteToFile(char const *Path)
 {
-	FILE *fp = fopen(path, "wb");
-	if (!fp)
+	FILE *Fp = fopen(Path, "wb");
+	if (!Fp)
 	{
-		log_err("options: could not open configuration for reading - %s!", path);
+		LogErr("options: could not open configuration for reading - %s!", Path);
 		return 1;
 	}
 	
 	// write keybind options.
 	{
-		fprintf(fp,
-		        "# keybind options.\n"
-		        "k_left = %s\n"
-		        "k_right = %s\n"
-		        "k_jump = %s\n"
-		        "k_dash_down = %s\n"
-		        "k_powerjump = %s\n"
-		        "k_menu = %s\n"
-		        "k_editor_left = %s\n"
-		        "k_editor_right = %s\n"
-		        "k_editor_up = %s\n"
-		        "k_editor_down = %s\n",
-		        SDL_GetKeyName(g_options.k_left),
-		        SDL_GetKeyName(g_options.k_right),
-		        SDL_GetKeyName(g_options.k_jump),
-		        SDL_GetKeyName(g_options.k_dash_down),
-		        SDL_GetKeyName(g_options.k_powerjump),
-		        SDL_GetKeyName(g_options.k_menu),
-		        SDL_GetKeyName(g_options.k_editor_left),
-		        SDL_GetKeyName(g_options.k_editor_right),
-		        SDL_GetKeyName(g_options.k_editor_up),
-		        SDL_GetKeyName(g_options.k_editor_down));
+		fprintf(
+			Fp,
+			"# keybind options.\n"
+			"KLeft = %s\n"
+			"KRight = %s\n"
+			"KJump = %s\n"
+			"KDashDown = %s\n"
+			"KPowerjump = %s\n"
+			"KMenu = %s\n"
+			"KEditorLeft = %s\n"
+			"KEditorRight = %s\n"
+			"KEditorUp = %s\n"
+			"KEditorDown = %s\n",
+			SDL_GetKeyName(g_Options.KLeft),
+			SDL_GetKeyName(g_Options.KRight),
+			SDL_GetKeyName(g_Options.KJump),
+			SDL_GetKeyName(g_Options.KDashDown),
+			SDL_GetKeyName(g_Options.KPowerjump),
+			SDL_GetKeyName(g_Options.KMenu),
+			SDL_GetKeyName(g_Options.KEditorLeft),
+			SDL_GetKeyName(g_Options.KEditorRight),
+			SDL_GetKeyName(g_Options.KEditorUp),
+			SDL_GetKeyName(g_Options.KEditorDown)
+		);
 	}
 	
 	// write audio options.
 	{
-		fprintf(fp,
-		        "\n# sound options.\n"
-		        "sfx_volume = %f\n",
-		        g_options.sfx_volume);
+		fprintf(
+			Fp,
+			"\n# sound options.\n"
+			"SfxVolume = %f\n",
+			g_Options.SfxVolume
+		);
 	}
 	
-	fclose(fp);
+	fclose(Fp);
 	return 0;
 }
 
 static int
-opts_get_raw(FILE *fp, char const *key, char out[])
+Opts_GetRaw(FILE *Fp, char const *Key, char Out[])
 {
-	fseek(fp, 0, SEEK_SET);
+	fseek(Fp, 0, SEEK_SET);
 	
-	for (size_t line = 0; !feof(fp) && !ferror(fp); ++line)
+	for (size_t Line = 0; !feof(Fp) && !ferror(Fp); ++Line)
 	{
-		int ch;
-		while ((ch = fgetc(fp)) != EOF && isspace(ch))
+		int Ch;
+		while ((Ch = fgetc(Fp)) != EOF && isspace(Ch))
 			;
 		
-		if (ch == '#')
+		if (Ch == '#')
 		{
-			while ((ch = fgetc(fp)) != EOF && ch != '\n')
+			while ((Ch = fgetc(Fp)) != EOF && Ch != '\n')
 				;
 		}
 		
-		if (ch == '\n' || feof(fp))
+		if (Ch == '\n' || feof(Fp))
 			continue;
 		
-		fseek(fp, -1, SEEK_CUR);
-		char buf[KEY_BUF_SIZE] = {0};
-		if (fscanf(fp, SCAN_FMT, buf, out) != 2)
+		fseek(Fp, -1, SEEK_CUR);
+		char Buf[KEY_BUF_SIZE] = {0};
+		if (fscanf(Fp, SCAN_FMT, Buf, Out) != 2)
 		{
-			log_err("options: error on line %zu of configuration!", line);
+			LogErr("options: error on line %zu of configuration!", Line);
 			return 1;
 		}
 		
-		if (!strcmp(out, "NONE"))
-			out[0] = 0;
+		if (!strcmp(Out, "NONE"))
+			Out[0] = 0;
 		
-		if (!strcmp(buf, key))
+		if (!strcmp(Buf, Key))
 			return 0;
 	}
 	
-	log_err("options: didn't find key %s in configuration!", key);
+	LogErr("options: didn't find key %s in configuration!", Key);
 	return 1;
 }
 
 static int
-opts_get_keycode(FILE *fp, char const *key, SDL_Keycode *out)
+Opts_GetKeycode(FILE *Fp, char const *Key, SDL_Keycode *Out)
 {
-	char buf[VAL_BUF_SIZE] = {0};
-	if (opts_get_raw(fp, key, buf))
+	char Buf[VAL_BUF_SIZE] = {0};
+	if (Opts_GetRaw(Fp, Key, Buf))
 		return 1;
 	
-	*out = SDL_GetKeyFromName(buf);
-	if (*out == SDLK_UNKNOWN)
+	*Out = SDL_GetKeyFromName(Buf);
+	if (*Out == SDLK_UNKNOWN)
 	{
-		log_err("options: unknown keycode for key %s - '%s'!", key, buf);
+		LogErr("options: unknown keycode for key %s - '%s'!", Key, Buf);
 		return 1;
 	}
 	
@@ -188,17 +192,17 @@ opts_get_keycode(FILE *fp, char const *key, SDL_Keycode *out)
 }
 
 static int
-opts_get_float(FILE *fp, char const *key, float *out)
+Opts_GetFloat(FILE *Fp, char const *Key, float *Out)
 {
-	char buf[VAL_BUF_SIZE] = {0};
-	if (opts_get_raw(fp, key, buf))
+	char Buf[VAL_BUF_SIZE] = {0};
+	if (Opts_GetRaw(Fp, Key, Buf))
 		return 1;
 	
 	errno = 0;
-	*out = strtof(buf, NULL);
+	*Out = strtof(Buf, NULL);
 	if (errno)
 	{
-		log_err("options: invalid floating point value for key %s - '%s'!", key, buf);
+		LogErr("options: invalid floating point value for key %s - '%s'!", Key, Buf);
 		return 1;
 	}
 	

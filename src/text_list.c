@@ -12,164 +12,166 @@
 #define QUEUED_MAX 64
 #define TEXT_TICKS 550
 
-static void gen_box_text(enum text_list_item item);
+static void GenBoxText(enum TextListItem Item);
 
-static char box_text[512];
+static char BoxText[512];
 
-static enum text_list_item queue[QUEUED_MAX];
-static unsigned queue_front_ticks = 0;
-static size_t nqueued = 0;
+static enum TextListItem Queue[QUEUED_MAX];
+static unsigned QueueFrontTicks = 0;
+static size_t QueueLen = 0;
 
 void
-text_list_term(void)
+TextList_Term(void)
 {
-	queue_front_ticks = 0;
-	nqueued = 0;
+	QueueFrontTicks = 0;
+	QueueLen = 0;
 }
 
 void
-text_list_enqueue(enum text_list_item item)
+TextList_Enqueue(enum TextListItem Item)
 {
-	if (nqueued < QUEUED_MAX)
+	if (QueueLen < QUEUED_MAX)
 	{
-		if (nqueued == 0)
+		if (QueueLen == 0)
 		{
-			gen_box_text(item);
-			queue_front_ticks = TEXT_TICKS;
+			GenBoxText(Item);
+			QueueFrontTicks = TEXT_TICKS;
 		}
 		
-		queue[nqueued++] = item;
+		Queue[QueueLen++] = Item;
 	}
 }
 
 void
-text_list_update(void)
+TextList_Update(void)
 {
-	if (nqueued == 0)
+	if (QueueLen == 0)
 		return;
 	
-	if (queue_front_ticks == 0)
+	if (QueueFrontTicks == 0)
 	{
 		// remove first element and finish if nothing left.
 		{
-			memmove(&queue[0],
-			        &queue[1],
-			        sizeof(enum text_list_item) * (QUEUED_MAX - 1));
+			memmove(
+				&Queue[0],
+				&Queue[1],
+				sizeof(enum TextListItem) * (QUEUED_MAX - 1)
+			);
 			
-			--nqueued;
-			if (nqueued == 0)
+			--QueueLen;
+			if (QueueLen == 0)
 				return;
 		}
 		
 		// set new textbox parameters.
 		{
-			gen_box_text(queue[0]);
-			queue_front_ticks = TEXT_TICKS;
+			GenBoxText(Queue[0]);
+			QueueFrontTicks = TEXT_TICKS;
 		}
 		
 		return;
 	}
 	
-	--queue_front_ticks;
+	--QueueFrontTicks;
 }
 
 void
-text_list_draw(void)
+TextList_Draw(void)
 {
-	if (nqueued > 0)
-		text_box_draw(box_text);
+	if (QueueFrontTicks > 0)
+		Text_BoxDraw(BoxText);
 }
 
 static void
-gen_box_text(enum text_list_item item)
+GenBoxText(enum TextListItem Item)
 {
-	switch (item)
+	switch (Item)
 	{
 	case TLI_CTE0_TEST:
-		sprintf(box_text, "Hello world");
+		sprintf(BoxText, "Hello world");
 		break;
 		
 		// c0e0.
 	case TLI_C0E0_HOW_TO_MOVE:
-		sprintf(box_text, "Move left and right using [%s] and [%s]", SDL_GetKeyName(g_options.k_left), SDL_GetKeyName(g_options.k_right));
+		sprintf(BoxText, "Move left and right using [%s] and [%s]", SDL_GetKeyName(g_Options.KLeft), SDL_GetKeyName(g_Options.KRight));
 		break;
 	case TLI_C0E0_HOW_TO_JUMP:
-		sprintf(box_text, "Jump using [%s]", SDL_GetKeyName(g_options.k_jump));
+		sprintf(BoxText, "Jump using [%s]", SDL_GetKeyName(g_Options.KJump));
 		break;
 	case TLI_C0E0_HOW_TO_WALLJUMP:
-		sprintf(box_text, "Walljump by jumping while in contact with a wall");
+		sprintf(BoxText, "Walljump by jumping while in contact with a wall");
 		break;
 	case TLI_C0E0_HOW_TO_CLIMB:
-		sprintf(box_text, "Climb vertical corridors by chaining walljumps into eachother");
+		sprintf(BoxText, "Climb vertical corridors by chaining walljumps into eachother");
 		break;
 	case TLI_C0E0_HOW_TO_SLIDE:
-		sprintf(box_text, "Slide down walls by moving into them while falling");
+		sprintf(BoxText, "Slide down walls by moving into them while falling");
 		break;
 	case TLI_C0E0_HOW_TO_WIN:
-		sprintf(box_text, "Finish the level by entering the yellow portal");
+		sprintf(BoxText, "Finish the level by entering the yellow portal");
 		break;
 		
 		// c0e1.
 	case TLI_C0E1_KILL_INTRO:
-		sprintf(box_text, "Don't fall into the kill tiles!");
+		sprintf(BoxText, "Don't fall into the kill tiles!");
 		break;
 	case TLI_C0E1_MOMENTUM_INTRO:
-		sprintf(box_text, "Use the momentum from a prior jump to jump over the kill tiles");
+		sprintf(BoxText, "Use the momentum from a prior jump to jump over the kill tiles");
 		break;
 	case TLI_C0E1_HOW_TO_POWERJUMP:
-		sprintf(box_text, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(g_options.k_powerjump));
+		sprintf(BoxText, "Powerjump in the direction you're moving using [%s]", SDL_GetKeyName(g_Options.KPowerjump));
 		break;
 		
 		// c0e2.
 	case TLI_C0E2_BOUNCE_INTRO:
-		sprintf(box_text, "Bounce tiles' restitution is proportional to the velocity at which you hit them");
+		sprintf(BoxText, "Bounce tiles' restitution is proportional to the velocity at which you hit them");
 		break;
 		
 		// c0e3.
 	case TLI_C0E3_LEAP_OF_FAITH:
-		sprintf(box_text, "Leap of faith!");
+		sprintf(BoxText, "Leap of faith!");
 		break;
 		
 		// c0e4.
 	case TLI_C0E4_HOW_TO_AIR_CONTROL:
-		sprintf(box_text, "Move in the opposite direction of your velocity to slow down mid-air");
+		sprintf(BoxText, "Move in the opposite direction of your velocity to slow down mid-air");
 		break;
 	case TLI_C0E4_LAUNCH_INTRO:
-		sprintf(box_text, "Launch tiles give you a sudden boost of velocity");
+		sprintf(BoxText, "Launch tiles give you a sudden boost of velocity");
 		break;
 		
 		// c0e5.
 	case TLI_C0E5_HORIZONTAL_LAUNCH_INTRO:
-		sprintf(box_text, "Hitting a launch tile from the side will give you a boost of horizontal velocity");
+		sprintf(BoxText, "Hitting a launch tile from the side will give you a boost of horizontal velocity");
 		break;
 		
 		// c0e6.
 	case TLI_C0E6_END_OFF_INTRO:
-		sprintf(box_text, "Wait, the end portal is disabled?");
+		sprintf(BoxText, "Wait, the end portal is disabled?");
 		break;
 	case TLI_C0E6_SWITCH_INTRO:
-		sprintf(box_text, "Try hitting those switch tiles...");
+		sprintf(BoxText, "Try hitting those switch tiles...");
 		break;
 		
 		// c0e8.
 	case TLI_C0E8_HOW_TO_DASH_DOWN:
-		sprintf(box_text, "Dash downwards using [%s]", SDL_GetKeyName(g_options.k_dash_down));
+		sprintf(BoxText, "Dash downwards using [%s]", SDL_GetKeyName(g_Options.KDashDown));
 		break;
 	case TLI_C0E8_EXPLOIT_RESTITUTION:
-		sprintf(box_text, "Try exploiting the restitution of the bounce tiles to get somewhere you shouldn't be able to");
+		sprintf(BoxText, "Try exploiting the restitution of the bounce tiles to get somewhere you shouldn't be able to");
 		break;
 	case TLI_C0E8_DODGE_OBSTACLES:
-		sprintf(box_text, "Dodge obstacles by rapidly changing your vertical velocity");
+		sprintf(BoxText, "Dodge obstacles by rapidly changing your vertical velocity");
 		break;
 		
 		// c0e9.
 	case TLI_C0E9_SLIPPERY_INTRO:
-		sprintf(box_text, "You can't get a proper grip on slippery tiles");
+		sprintf(BoxText, "You can't get a proper grip on slippery tiles");
 		break;
 		
 		// c0e11.
 	case TLI_C0E11_GRIP_INTRO:
-		sprintf(box_text, "Grip tiles are rougher than normal, allowing you to climb up them");
+		sprintf(BoxText, "Grip tiles are rougher than normal, allowing you to climb up them");
 		break;
 		
 		// ignore.

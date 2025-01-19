@@ -1,7 +1,7 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-int editor_init(char const *file);
-void editor_loop(void);
+int Editor_Init(char const *File);
+void Editor_Loop(void);
 
 #endif

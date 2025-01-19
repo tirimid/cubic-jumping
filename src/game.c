@@ -19,234 +19,239 @@
 #include "vfx.h"
 #include "wnd.h"
 
-struct game g_game;
+struct Game g_Game;
 
-static void draw_bg(void);
-static void fill_out_of_bounds(void);
-static void draw_indicators(void);
+static void DrawBg(void);
+static void FillOutOfBounds(void);
+static void DrawIndicators(void);
 
 void
-game_loop(void)
+Game_Loop(void)
 {
-	while (g_game.running)
+	while (g_Game.Running)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
-		input_handle_events();
+		Input_HandleEvents();
 		
-		if (key_pressed(g_options.k_menu))
+		if (Keybd_Pressed(g_Options.KMenu))
 		{
-			input_post_update();
-			pause_menu_loop();
+			Input_PostUpdate();
+			PauseMenuLoop();
 			continue;
 		}
 		
 		// update game.
 		{
-			player_update();
-			triggers_update();
-			vfx_update();
-			cam_update();
-			text_list_update();
-			input_post_update();
+			Player_Update();
+			Triggers_Update();
+			Vfx_Update();
+			Cam_Update();
+			TextList_Update();
+			
+			Input_PostUpdate();
 		}
 		
 		// draw game.
 		{
-			draw_bg();
-			fill_out_of_bounds();
-			map_draw();
-			vfx_draw();
-			player_draw();
+			DrawBg();
+			FillOutOfBounds();
+			Map_Draw();
+			Vfx_Draw();
+			Player_Draw();
 #if CONF_SHOW_TRIGGERS
-			triggers_draw();
+			Triggers_Draw();
 #endif
-			text_list_draw();
-			draw_indicators();
-			SDL_RenderPresent(g_rend);
+			TextList_Draw();
+			DrawIndicators();
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		g_game.il_time_ms += CONF_TICK_MS;
-		g_game.total_time_ms += CONF_TICK_MS;
+		g_Game.IlTimeMs += CONF_TICK_MS;
+		g_Game.TotalTimeMs += CONF_TICK_MS;
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
 void
-game_disable_switches(void)
+Game_DisableSwitches(void)
 {
-	g_game.off_switches = 0;
-	for (size_t i = 0, size = g_map.size_x * g_map.size_y; i < size; ++i)
+	g_Game.OffSwitches = 0;
+	for (size_t i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
 	{
-		if (g_map.data[i].type == MTT_SWITCH_ON)
+		if (g_Map.Data[i].Type == MTT_SWITCH_ON)
 		{
-			g_map.data[i].type = MTT_SWITCH_OFF;
-			++g_game.off_switches;
+			g_Map.Data[i].Type = MTT_SWITCH_OFF;
+			++g_Game.OffSwitches;
 		}
-		else if (g_map.data[i].type == MTT_SWITCH_OFF)
-			++g_game.off_switches;
+		else if (g_Map.Data[i].Type == MTT_SWITCH_OFF)
+			++g_Game.OffSwitches;
 	}
 	
-	if (g_game.off_switches > 0)
+	if (g_Game.OffSwitches > 0)
 	{
-		for (size_t i = 0, size = g_map.size_x * g_map.size_y; i < size; ++i)
+		for (size_t i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
 		{
-			if (g_map.data[i].type == MTT_END_ON)
-				g_map.data[i].type = MTT_END_OFF;
+			if (g_Map.Data[i].Type == MTT_END_ON)
+				g_Map.Data[i].Type = MTT_END_OFF;
 		}
 	}
 }
 
 void
-game_enable_switch(void)
+Game_EnableSwitch(void)
 {
-	--g_game.off_switches;
-	if (g_game.off_switches == 0)
+	--g_Game.OffSwitches;
+	if (g_Game.OffSwitches == 0)
 	{
-		for (size_t i = 0, size = g_map.size_x * g_map.size_y; i < size; ++i)
+		for (size_t i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
 		{
-			if (g_map.data[i].type == MTT_END_OFF)
-				g_map.data[i].type = MTT_END_ON;
+			if (g_Map.Data[i].Type == MTT_END_OFF)
+				g_Map.Data[i].Type = MTT_END_ON;
 		}
 	}
 }
 
 static void
-draw_bg(void)
+DrawBg(void)
 {
-	static uint8_t cbg[] = CONF_COLOR_BG, cbgs[] = CONF_COLOR_BG_SQUARE;
-	static float first_square_x = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
-	static float first_square_y = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
+	static uint8_t Cbg[] = CONF_COLOR_BG, Cbgs[] = CONF_COLOR_BG_SQUARE;
+	static float FirstSquareX = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
+	static float FirstSquareY = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
 	
 	// update square positions.
 	{
-		first_square_x += CONF_BG_SQUARE_SPEED_X;
-		if (first_square_x >= 0.0f)
-			first_square_x -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+		FirstSquareX += CONF_BG_SQUARE_SPEED_X;
+		if (FirstSquareX >= 0.0f)
+			FirstSquareX -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
 		
-		first_square_y += CONF_BG_SQUARE_SPEED_Y;
-		if (first_square_y >= 0.0f)
-			first_square_y -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
+		FirstSquareY += CONF_BG_SQUARE_SPEED_Y;
+		if (FirstSquareY >= 0.0f)
+			FirstSquareY -= CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP;
 	}
 	
 	// render background.
-	SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);
-	SDL_RenderClear(g_rend);
+	SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
+	SDL_RenderClear(g_Rend);
 	
-	SDL_SetRenderDrawColor(g_rend, cbgs[0], cbgs[1], cbgs[2], 255);
-	for (float x = first_square_x; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+	SDL_SetRenderDrawColor(g_Rend, Cbgs[0], Cbgs[1], Cbgs[2], 255);
+	for (float x = FirstSquareX; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 	{
-		for (float y = first_square_y; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+		for (float y = FirstSquareY; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 		{
-			SDL_Rect square =
+			SDL_Rect Square =
 			{
 				.x = x,
 				.y = y,
 				.w = CONF_BG_SQUARE_SIZE,
 				.h = CONF_BG_SQUARE_SIZE,
 			};
-			SDL_RenderFillRect(g_rend, &square);
+			SDL_RenderFillRect(g_Rend, &Square);
 		}
 	}
 }
 
 static void
-fill_out_of_bounds(void)
+FillOutOfBounds(void)
 {
-	int scr_lbx, scr_lby;
-	game_to_screen_coord(&scr_lbx, &scr_lby, 0.0f, 0.0f);
+	int ScrLbx, ScrLby;
+	GameToScreenCoord(&ScrLbx, &ScrLby, 0.0f, 0.0f);
 	
-	int scr_ubx, scr_uby;
-	game_to_screen_coord(&scr_ubx, &scr_uby, g_map.size_x, g_map.size_y);
+	int ScrUbx, ScrUby;
+	GameToScreenCoord(&ScrUbx, &ScrUby, g_Map.SizeX, g_Map.SizeY);
 	
 	// set OOB cover draw color.
 	{
-		static uint8_t cg[] = CONF_COLOR_GROUND;
-		SDL_SetRenderDrawColor(g_rend, cg[0], cg[1], cg[2], 255);
+		static uint8_t Cg[] = CONF_COLOR_GROUND;
+		SDL_SetRenderDrawColor(g_Rend, Cg[0], Cg[1], Cg[2], 255);
 	}
 	
 	// draw left OOB cover.
-	if (scr_lbx > 0)
+	if (ScrLbx > 0)
 	{
 		SDL_Rect r =
 		{
 			.x = 0,
 			.y = 0,
-			.w = scr_lbx,
+			.w = ScrLbx,
 			.h = CONF_WND_HEIGHT,
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw right OOB cover.
-	if (scr_ubx < CONF_WND_WIDTH)
+	if (ScrUbx < CONF_WND_WIDTH)
 	{
 		SDL_Rect r =
 		{
-			.x = scr_ubx,
+			.x = ScrUbx,
 			.y = 0,
-			.w = CONF_WND_WIDTH - scr_ubx,
+			.w = CONF_WND_WIDTH - ScrUbx,
 			.h = CONF_WND_HEIGHT,
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw top OOB cover.
-	if (scr_lby > 0)
+	if (ScrLby > 0)
 	{
 		SDL_Rect r =
 		{
 			.x = 0,
 			.y = 0,
 			.w = CONF_WND_WIDTH,
-			.h = scr_lby,
+			.h = ScrLby,
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw bottom OOB cover.
-	if (scr_uby < CONF_WND_HEIGHT)
+	if (ScrUby < CONF_WND_HEIGHT)
 	{
 		SDL_Rect r =
 		{
 			.x = 0,
-			.y = scr_uby,
+			.y = ScrUby,
 			.w = CONF_WND_WIDTH,
-			.h = CONF_WND_HEIGHT - scr_uby,
+			.h = CONF_WND_HEIGHT - ScrUby,
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 }
 
 static void
-draw_indicators(void)
+DrawIndicators(void)
 {
 	// draw IL timer.
 	{
-		uint64_t il_time_s = g_game.il_time_ms / 1000;
-		uint64_t il_time_m = il_time_s / 60;
+		uint64_t IlTimeS = g_Game.IlTimeMs / 1000;
+		uint64_t IlTimeM = IlTimeS / 60;
 		
-		static char buf[32];
-		sprintf(buf,
-		        "%lu:%02lu.%02lu",
-		        il_time_m,
-		        il_time_s % 60,
-		        g_game.il_time_ms % 1000 / 10);
+		static char Buf[32];
+		sprintf(
+			Buf,
+			"%lu:%02lu.%02lu",
+			IlTimeM,
+			IlTimeS % 60,
+			g_Game.IlTimeMs % 1000 / 10
+		);
 		
-		text_draw_str(buf, 10, 10);
+		Text_DrawStr(Buf, 10, 10);
 	}
 	
 	// draw IL death counter.
 	{
-		static char buf[32];
-		sprintf(buf,
-		        "%u death%s",
-		        g_game.il_deaths,
-		        g_game.il_deaths == 1 ? "" : "s");
+		static char Buf[32];
+		sprintf(
+			Buf,
+			"%u death%s",
+			g_Game.IlDeaths,
+			g_Game.IlDeaths == 1 ? "" : "s"
+		);
 		
-		text_draw_str(buf, 10, 50);
+		Text_DrawStr(Buf, 10, 50);
 	}
 }

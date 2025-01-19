@@ -11,131 +11,131 @@
 #include "util.h"
 #include "wnd.h"
 
-struct map g_map;
+struct Map g_Map;
 
-static int rd_uint_8(uint8_t *out, FILE *fp);
-static int rd_uint_32(uint32_t *out, FILE *fp);
-static void wr_uint_8(FILE *fp, uint8_t u8);
-static void wr_uint_32(FILE *fp, uint32_t u32);
+static int RdUint8(uint8_t *Out, FILE *Fp);
+static int RdUint32(uint32_t *Out, FILE *Fp);
+static void WrUint8(FILE *Fp, uint8_t U8);
+static void WrUint32(FILE *Fp, uint32_t U32);
 
 int
-map_create_file(char const *file, char const *name)
+Map_CreateFile(char const *File, char const *Name)
 {
-	unsigned name_len = strlen(name);
-	if (name_len > MAP_MAX_NAME_LEN)
+	unsigned NameLen = strlen(Name);
+	if (NameLen > MAP_MAX_NAME_LEN)
 	{
-		log_err("map: map name is too long (%u > %u)!", name_len, MAP_MAX_NAME_LEN);
+		LogErr("map: map name is too long (%u > %u)!", NameLen, MAP_MAX_NAME_LEN);
 		return 1;
 	}
 	
-	FILE *fp = fopen(file, "wb");
-	if (!fp)
+	FILE *Fp = fopen(File, "wb");
+	if (!Fp)
 	{
-		log_err("map: failed to create file: %s!", file);
+		LogErr("map: failed to create file: %s!", File);
 		return 1;
 	}
 	
 	// write out header for dummy map.
 	{
-		fprintf(fp, "//CJ");
+		fprintf(Fp, "//CJ");
 		
-		char name_buf[MAP_MAX_NAME_LEN + 1] = {0};
-		strncpy(name_buf, name, MAP_MAX_NAME_LEN);
+		char NameBuf[MAP_MAX_NAME_LEN + 1] = {0};
+		strncpy(NameBuf, Name, MAP_MAX_NAME_LEN);
 		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
-			wr_uint_8(fp, name_buf[i]);
+			WrUint8(Fp, NameBuf[i]);
 		
-		wr_uint_32(fp, 1);
-		wr_uint_32(fp, 1);
-		wr_uint_32(fp, 0);
-		wr_uint_32(fp, 0);
+		WrUint32(Fp, 1);
+		WrUint32(Fp, 1);
+		WrUint32(Fp, 0);
+		WrUint32(Fp, 0);
 	}
 	
 	// write out data for dummy map.
 	{
-		wr_uint_8(fp, MTT_GROUND);
+		WrUint8(Fp, MTT_GROUND);
 	}
 	
 	// write out trigger data for dummy map.
 	{
-		wr_uint_32(fp, 0);
+		WrUint32(Fp, 0);
 	}
 	
 	// write out inclusion target header.
 	{
-		fprintf(fp,
-		        "\n#ifndef %s_HFM\n"
-		        "#define %s_HFM\n"
-		        "#include <stddef.h>\n"
-		        "#include \"map.h\"\n"
-		        "#include \"triggers.h\"\n"
-		        "#define %s_NTRIGGERS 0\n"
-		        "static struct map_tile %s_map_data[] =\n"
-		        "{\n"
-		        "{1},\n"
-		        "};\n"
-		        "static struct map %s_map =\n"
-		        "{\n"
-		        "\t.size_x = 1,\n"
-		        "\t.size_y = 1,\n"
-		        "\t.data = %s_data,\n"
-		        "\t.player_spawn_x = 0,\n"
-		        "\t.player_spawn_y = 0,\n"
-		        "\t.name = \"%s\\0\",\n"
-		        "};\n"
-		        "static struct trigger %s_triggers[] =\n"
-		        "{\n"
-		        "{0.0f,0.0f,0.0f,0.0f,0,0,0}\n"
-		        "};\n"
-		        "#endif\n",
-		        name,
-		        name,
-		        name,
-		        name,
-		        name,
-		        name,
-		        name,
-		        name);
+		fprintf(
+			Fp,
+			"\n#ifndef %s_HFM\n"
+			"#define %s_HFM\n"
+			"#include <stddef.h>\n"
+			"#include \"map.h\"\n"
+			"#include \"triggers.h\"\n"
+			"#define %s_NTRIGGERS 0\n"
+			"static struct MapTile %s_map_data[] =\n"
+			"{\n"
+			"{1},\n"
+			"};\n"
+			"static struct Map %s_map =\n"
+			"{\n"
+			"\t.SizeX = 1,\n"
+			"\t.SizeY = 1,\n"
+			"\t.Data = %s_data,\n"
+			"\t.Name = \"%s\\0\",\n"
+			"};\n"
+			"static struct Trigger %s_triggers[] =\n"
+			"{\n"
+			"{0.0f,0.0f,0.0f,0.0f,0,0,0}\n"
+			"};\n"
+			"#endif\n",
+			Name,
+			Name,
+			Name,
+			Name,
+			Name,
+			Name,
+			Name,
+			Name
+		);
 	}
 	
-	fclose(fp);
+	fclose(Fp);
 	
 	return 0;
 }
 
 int
-map_load_from_file(char const *file)
+Map_LoadFromFile(char const *File)
 {
-	FILE *fp = fopen(file, "rb");
-	if (!fp)
+	FILE *Fp = fopen(File, "rb");
+	if (!Fp)
 	{
-		log_err("map: failed to open file: %s!", file);
+		LogErr("map: failed to open file: %s!", File);
 		return 1;
 	}
 	
 	// read map header data.
 	{
-		if (fgetc(fp) != '/'
-		    || fgetc(fp) != '/'
-		    || fgetc(fp) != 'C'
-		    || fgetc(fp) != 'J')
+		if (fgetc(Fp) != '/'
+			|| fgetc(Fp) != '/'
+			|| fgetc(Fp) != 'C'
+			|| fgetc(Fp) != 'J')
 		{
-			log_err("map: file contains invalid header: %s!", file);
+			LogErr("map: file contains invalid header: %s!", File);
 			return 1;
 		}
 		
-		memset(g_map.name, 0, sizeof(g_map.name));
+		memset(g_Map.Name, 0, sizeof(g_Map.Name));
 		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
 		{
-			uint8_t ch;
-			if (rd_uint_8(&ch, fp))
+			uint8_t Ch;
+			if (RdUint8(&Ch, Fp))
 				return 1;
-			g_map.name[i] = ch;
+			g_Map.Name[i] = Ch;
 		}
 		
-		if (rd_uint_32(&g_map.size_x, fp)
-		    || rd_uint_32(&g_map.size_y, fp)
-		    || rd_uint_32(&g_map.player_spawn_x, fp)
-		    || rd_uint_32(&g_map.player_spawn_y, fp))
+		if (RdUint32(&g_Map.SizeX, Fp)
+			|| RdUint32(&g_Map.SizeY, Fp)
+			|| RdUint32(&g_Map.PlayerSpawnX, Fp)
+			|| RdUint32(&g_Map.PlayerSpawnY, Fp))
 		{
 			return 1;
 		}
@@ -143,246 +143,260 @@ map_load_from_file(char const *file)
 	
 	// read main map data.
 	{
-		g_map.data = malloc(sizeof(struct map_tile) * g_map.size_x * g_map.size_y);
-		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
+		g_Map.Data = malloc(sizeof(struct MapTile) * g_Map.SizeX * g_Map.SizeY);
+		for (size_t i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
 		{
-			uint8_t type;
-			if (rd_uint_8(&type, fp))
+			uint8_t Type;
+			if (RdUint8(&Type, Fp))
 				return 1;
 			
-			g_map.data[i] = (struct map_tile)
+			g_Map.Data[i] = (struct MapTile)
 			{
-				.type = type,
+				.Type = Type
 			};
 		}
 	}
 	
 	// read trigger data.
 	{
-		uint32_t ntriggers;
-		if (rd_uint_32(&ntriggers, fp))
+		uint32_t TriggerCnt;
+		if (RdUint32(&TriggerCnt, Fp))
 			return 1;
 		
-		g_ntriggers = 0;
-		for (uint32_t i = 0; i < ntriggers; ++i)
+		g_TriggerCnt = 0;
+		for (uint32_t i = 0; i < TriggerCnt; ++i)
 		{
-			struct trigger new_trigger;
-			if (rd_uint_32((uint32_t *)&new_trigger.pos_x, fp)
-			    || rd_uint_32((uint32_t *)&new_trigger.pos_y, fp)
-			    || rd_uint_32((uint32_t *)&new_trigger.size_x, fp)
-			    || rd_uint_32((uint32_t *)&new_trigger.size_y, fp)
-			    || rd_uint_32((uint32_t *)&new_trigger.arg, fp)
-			    || rd_uint_8((uint8_t *)&new_trigger.single_use, fp)
-			    || rd_uint_8(&new_trigger.type, fp))
+			struct Trigger NewTrigger;
+			if (RdUint32((uint32_t *)&NewTrigger.PosX, Fp)
+				|| RdUint32((uint32_t *)&NewTrigger.PosY, Fp)
+				|| RdUint32((uint32_t *)&NewTrigger.SizeX, Fp)
+				|| RdUint32((uint32_t *)&NewTrigger.SizeY, Fp)
+				|| RdUint32((uint32_t *)&NewTrigger.Arg, Fp)
+				|| RdUint8((uint8_t *)&NewTrigger.SingleUse, Fp)
+				|| RdUint8(&NewTrigger.Type, Fp))
 			{
-				log_err("map: failed to read one or more triggers from file: %s!", file);
+				LogErr("map: failed to read one or more triggers from file: %s!", File);
 				return 1;
 			}
 			
-			triggers_add_trigger(&new_trigger);
+			Triggers_AddTrigger(&NewTrigger);
 		}
 	}
 	
-	fclose(fp);
+	fclose(Fp);
 	
 	return 0;
 }
 
 void
-map_grow(uint32_t dx, uint32_t dy)
+Map_Grow(uint32_t Dx, uint32_t Dy)
 {
-	uint32_t old_size_x = g_map.size_x, old_size_y = g_map.size_y;
-	g_map.size_x += dx;
-	g_map.size_y += dy;
+	uint32_t OldSizeX = g_Map.SizeX, OldSizeY = g_Map.SizeY;
+	g_Map.SizeX += Dx;
+	g_Map.SizeY += Dy;
 	
-	g_map.data = realloc(g_map.data, sizeof(struct map_tile) * g_map.size_x * g_map.size_y);
+	g_Map.Data = realloc(g_Map.Data, sizeof(struct MapTile) * g_Map.SizeX * g_Map.SizeY);
 	
 	// create new air cells (horizontal).
 	{
-		size_t mv_len = old_size_x * (old_size_y - 1);
-		size_t mv_ind = old_size_x;
-		while (mv_len > 0)
+		size_t MvLen = OldSizeX * (OldSizeY - 1);
+		size_t MvIdx = OldSizeX;
+		while (MvLen > 0)
 		{
-			memmove(&g_map.data[mv_ind + dx],
-			        &g_map.data[mv_ind],
-			        sizeof(struct map_tile) * mv_len);
-			memset(&g_map.data[mv_ind], 0, sizeof(struct map_tile) * dx);
-			mv_len -= old_size_x;
-			mv_ind += g_map.size_x;
+			memmove(
+				&g_Map.Data[MvIdx + Dx],
+				&g_Map.Data[MvIdx],
+				sizeof(struct MapTile) * MvLen
+			);
+			memset(&g_Map.Data[MvIdx], 0, sizeof(struct MapTile) * Dx);
+			MvLen -= OldSizeX;
+			MvIdx += g_Map.SizeX;
 		}
 		
 		// need to zero new tiles on last row to prevent phantom tiles from
 		// randomly appearing upon map grow.
-		memset(&g_map.data[mv_ind], 0, sizeof(struct map_tile) * dx);
+		memset(&g_Map.Data[MvIdx], 0, sizeof(struct MapTile) * Dx);
 	}
 	
 	// create new air cells (vertical).
 	{
-		memset(&g_map.data[g_map.size_x * old_size_y],
-		       0,
-		       sizeof(struct map_tile) * g_map.size_x * dy);
+		memset(
+			&g_Map.Data[g_Map.SizeX * OldSizeY],
+			0,
+			sizeof(struct MapTile) * g_Map.SizeX * Dy
+		);
 	}
 }
 
 void
-map_refit_bounds(void)
+Map_RefitBounds(void)
 {
 	// determine minimum bounds of map.
-	uint32_t far_x = 0, far_y = 0;
-	for (uint32_t x = 0; x < g_map.size_x; ++x)
+	uint32_t FarX = 0, FarY = 0;
+	for (uint32_t x = 0; x < g_Map.SizeX; ++x)
 	{
-		for (uint32_t y = 0; y < g_map.size_y; ++y)
+		for (uint32_t y = 0; y < g_Map.SizeY; ++y)
 		{
-			struct map_tile *tile = map_get(x, y);
-			if (tile->type == MTT_AIR)
+			struct MapTile *Tile = Map_Get(x, y);
+			if (Tile->Type == MTT_AIR)
 				continue;
 			
-			far_y = MAX(far_y, y);
-			far_x = MAX(far_x, x);
+			FarY = MAX(FarY, y);
+			FarX = MAX(FarX, x);
 		}
 	}
 	
 	// if needed, shrink horizontally and move cell memory.
-	if (g_map.size_x > far_x + 1)
+	if (g_Map.SizeX > FarX + 1)
 	{
-		size_t dx = g_map.size_x - far_x - 1;
-		size_t mv_ind = g_map.size_x;
-		size_t mv_len = g_map.size_x * (g_map.size_y - 1);
+		size_t Dx = g_Map.SizeX - FarX - 1;
+		size_t MvIdx = g_Map.SizeX;
+		size_t MvLen = g_Map.SizeX * (g_Map.SizeY - 1);
 		
-		while (mv_len > 0)
+		while (MvLen > 0)
 		{
-			memmove(&g_map.data[mv_ind - dx],
-			        &g_map.data[mv_ind],
-			        sizeof(struct map_tile) * mv_len);
+			memmove(
+				&g_Map.Data[MvIdx - Dx],
+				&g_Map.Data[MvIdx],
+				sizeof(struct MapTile) * MvLen
+			);
 			
-			mv_len -= g_map.size_x;
-			mv_ind += far_x + 1;
+			MvLen -= g_Map.SizeX;
+			MvIdx += FarX + 1;
 		}
 	}
 	
 	// resize map to minimum possible size.
 	{
-		g_map.size_x = far_x + 1;
-		g_map.size_y = far_y + 1;
+		g_Map.SizeX = FarX + 1;
+		g_Map.SizeY = FarY + 1;
 	}
 }
 
 int
-map_write_to_file(char const *file)
+Map_WriteToFile(char const *File)
 {
-	FILE *fp = fopen(file, "wb");
-	if (!fp)
+	FILE *Fp = fopen(File, "wb");
+	if (!Fp)
 	{
-		log_err("map: failed to open file: %s!", file);
+		LogErr("map: failed to open file: %s!", File);
 		return 1;
 	}
 	
 	// write out map data header.
 	{
-		fprintf(fp, "//CJ");
+		fprintf(Fp, "//CJ");
 		
 		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
-			wr_uint_8(fp, g_map.name[i]);
+			WrUint8(Fp, g_Map.Name[i]);
 		
-		wr_uint_32(fp, g_map.size_x);
-		wr_uint_32(fp, g_map.size_y);
-		wr_uint_32(fp, g_map.player_spawn_x);
-		wr_uint_32(fp, g_map.player_spawn_y);
+		WrUint32(Fp, g_Map.SizeX);
+		WrUint32(Fp, g_Map.SizeY);
+		WrUint32(Fp, g_Map.PlayerSpawnX);
+		WrUint32(Fp, g_Map.PlayerSpawnY);
 		
-		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
-			wr_uint_8(fp, g_map.data[i].type);
+		for (size_t i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
+			WrUint8(Fp, g_Map.Data[i].Type);
 	}
 	
 	// write out trigger data.
 	{
-		wr_uint_32(fp, g_ntriggers);
+		WrUint32(Fp, g_TriggerCnt);
 		
-		for (size_t i = 0; i < g_ntriggers; ++i)
+		for (size_t i = 0; i < g_TriggerCnt; ++i)
 		{
-			struct trigger const *trigger = &g_triggers[i];
+			struct Trigger const *Trigger = &g_Triggers[i];
 			
-			wr_uint_32(fp, *(uint32_t *)&trigger->pos_x);
-			wr_uint_32(fp, *(uint32_t *)&trigger->pos_y);
-			wr_uint_32(fp, *(uint32_t *)&trigger->size_x);
-			wr_uint_32(fp, *(uint32_t *)&trigger->size_y);
-			wr_uint_32(fp, trigger->arg);
-			wr_uint_8(fp, trigger->single_use);
-			wr_uint_8(fp, trigger->type);
+			WrUint32(Fp, *(uint32_t *)&Trigger->PosX);
+			WrUint32(Fp, *(uint32_t *)&Trigger->PosY);
+			WrUint32(Fp, *(uint32_t *)&Trigger->SizeX);
+			WrUint32(Fp, *(uint32_t *)&Trigger->SizeY);
+			WrUint32(Fp, Trigger->Arg);
+			WrUint8(Fp, Trigger->SingleUse);
+			WrUint8(Fp, Trigger->Type);
 		}
 	}
 	
-	fprintf(fp, "\n");
+	fprintf(Fp, "\n");
 	
 	// write out inclusion target header text.
 	{
-		fprintf(fp,
-		        "#ifndef %s_HFM\n"
-		        "#define %s_HFM\n"
-		        "#include <stddef.h>\n"
-		        "#include \"map.h\"\n"
-		        "#include \"triggers.h\"\n"
-		        "#define %s_NTRIGGERS %lu\n"
-		        "static struct map_tile %s_map_data[] =\n"
-		        "{\n",
-		        g_map.name,
-		        g_map.name,
-		        g_map.name,
-		        g_ntriggers,
-		        g_map.name);
+		fprintf(
+			Fp,
+			"#ifndef %s_HFM\n"
+			"#define %s_HFM\n"
+			"#include <stddef.h>\n"
+			"#include \"map.h\"\n"
+			"#include \"triggers.h\"\n"
+			"#define %s_NTRIGGERS %lu\n"
+			"static struct MapTile %s_map_data[] =\n"
+			"{\n",
+			g_Map.Name,
+			g_Map.Name,
+			g_Map.Name,
+			g_TriggerCnt,
+			g_Map.Name
+		);
 		
-		for (size_t i = 0; i < g_map.size_x * g_map.size_y; ++i)
-			fprintf(fp, "{%u},", g_map.data[i].type);
+		for (size_t i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
+			fprintf(Fp, "{%u},", g_Map.Data[i].Type);
 		
-		fprintf(fp,
-		        "\n};\n"
-		        "static struct map %s_map =\n"
-		        "{\n"
-		        "\t.size_x = %u,\n"
-		        "\t.size_y = %u,\n"
-		        "\t.data = %s_map_data,\n"
-		        "\t.player_spawn_x = %u,\n"
-		        "\t.player_spawn_y = %u,\n"
-		        "\t.name = \"%s\\0\",\n"
-		        "};\n"
-		        "static struct trigger %s_triggers[] =\n"
-		        "{\n",
-		        g_map.name,
-		        g_map.size_x,
-		        g_map.size_y,
-		        g_map.name,
-		        g_map.player_spawn_x,
-		        g_map.player_spawn_y,
-		        g_map.name,
-		        g_map.name);
+		fprintf(
+			Fp,
+			"\n};\n"
+			"static struct Map %s_map =\n"
+			"{\n"
+			"\t.SizeX = %u,\n"
+			"\t.SizeY = %u,\n"
+			"\t.Data = %s_map_data,\n"
+			"\t.PlayerSpawnX = %u,\n"
+			"\t.PlayerSpawnY = %u,\n"
+			"\t.Name = \"%s\\0\",\n"
+			"};\n"
+			"static struct Trigger %s_triggers[] =\n"
+			"{\n",
+			g_Map.Name,
+			g_Map.SizeX,
+			g_Map.SizeY,
+			g_Map.Name,
+			g_Map.PlayerSpawnX,
+			g_Map.PlayerSpawnY,
+			g_Map.Name,
+			g_Map.Name
+		);
 		
-		for (size_t i = 0; i < g_ntriggers; ++i)
+		for (size_t i = 0; i < g_TriggerCnt; ++i)
 		{
-			fprintf(fp,
-			        "{%ff,%ff,%ff,%ff,%u,%u,%u},",
-			        g_triggers[i].pos_x,
-			        g_triggers[i].pos_y,
-			        g_triggers[i].size_x,
-			        g_triggers[i].size_y,
-			        g_triggers[i].arg,
-			        g_triggers[i].single_use,
-			        g_triggers[i].type);
+			fprintf(
+				Fp,
+				"{%ff,%ff,%ff,%ff,%u,%u,%u},",
+				g_Triggers[i].PosX,
+				g_Triggers[i].PosY,
+				g_Triggers[i].SizeX,
+				g_Triggers[i].SizeY,
+				g_Triggers[i].Arg,
+				g_Triggers[i].SingleUse,
+				g_Triggers[i].Type
+			);
 		}
 		
-		fprintf(fp,
-		        "{0.0f,0.0f,0.0f,0.0f,0,0,0}\n" // dummy trigger.
-		        "};\n"
-		        "#endif\n");
+		fprintf(
+			Fp,
+			"{0.0f,0.0f,0.0f,0.0f,0,0,0}\n" // dummy trigger.
+			"};\n"
+			"#endif\n"
+		);
 	}
 	
-	fclose(fp);
+	fclose(Fp);
 	
 	return 0;
 }
 
 uint8_t const *
-map_tile_color(enum map_tile_type type)
+Map_TileColor(enum MapTileType Type)
 {
-	static uint8_t colors[MTT_END__][3] =
+	static uint8_t Colors[MTT_END__][3] =
 	{
 		CONF_COLOR_BG,
 		CONF_COLOR_GROUND,
@@ -395,16 +409,16 @@ map_tile_color(enum map_tile_type type)
 		CONF_COLOR_END_OFF,
 		CONF_COLOR_SLIPPERY,
 		CONF_COLOR_GRIP,
-		CONF_COLOR_WALL,
+		CONF_COLOR_WALL
 	};
 	
-	return colors[type];
+	return Colors[Type];
 }
 
 bool
-map_tile_collision(enum map_tile_type type)
+Map_TileCollision(enum MapTileType Type)
 {
-	static bool collision[MTT_END__] =
+	static bool Collision[MTT_END__] =
 	{
 		false, // air.
 		true, // ground.
@@ -417,16 +431,16 @@ map_tile_collision(enum map_tile_type type)
 		true, // end off.
 		true, // slippery.
 		true, // grip.
-		false, // wall.
+		false // wall.
 	};
 	
-	return collision[type];
+	return Collision[Type];
 }
 
 bool
-map_tile_slippery(enum map_tile_type type)
+Map_TileSlippery(enum MapTileType Type)
 {
-	static bool slippery[MTT_END__] =
+	static bool Slippery[MTT_END__] =
 	{
 		false, // air.
 		false, // ground.
@@ -438,16 +452,16 @@ map_tile_slippery(enum map_tile_type type)
 		false, // switch on.
 		false, // end off.
 		true, // slippery.
-		false, // grip.
+		false // grip.
 	};
 	
-	return slippery[type];
+	return Slippery[Type];
 }
 
 bool
-map_tile_climbable(enum map_tile_type type)
+Map_TileClimbable(enum MapTileType Type)
 {
-	static bool climbable[MTT_END__] =
+	static bool Climbable[MTT_END__] =
 	{
 		false, // air.
 		false, // ground.
@@ -460,67 +474,67 @@ map_tile_climbable(enum map_tile_type type)
 		false, // end off.
 		false, // slippery.
 		true, // grip.
-		false, // wall.
+		false // wall.
 	};
 	
-	return climbable[type];
+	return Climbable[Type];
 }
 
 void
-map_draw(void)
+Map_Draw(void)
 {
-	for (uint32_t x = 0; x < g_map.size_x; ++x)
+	for (uint32_t x = 0; x < g_Map.SizeX; ++x)
 	{
-		for (uint32_t y = 0; y < g_map.size_y; ++y)
+		for (uint32_t y = 0; y < g_Map.SizeY; ++y)
 		{
-			struct map_tile *tile = map_get(x, y);
-			if (tile->type == MTT_AIR)
+			struct MapTile *Tile = Map_Get(x, y);
+			if (Tile->Type == MTT_AIR)
 				continue;
 			
-			uint8_t const *col = map_tile_color(tile->type);
-			SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
-			relative_draw_rect(x, y, 1.0f, 1.0f);
+			uint8_t const *Col = Map_TileColor(Tile->Type);
+			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
+			RelativeDrawRect(x, y, 1.0f, 1.0f);
 		}
 	}
 }
 
 void
-map_draw_outlines(void)
+Map_DrawOutlines(void)
 {
-	static uint8_t co[] = CONF_COLOR_OUTLINE;
+	static uint8_t Co[] = CONF_COLOR_OUTLINE;
 	
-	SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
-	for (uint32_t x = 0; x < g_map.size_x; ++x)
+	SDL_SetRenderDrawColor(g_Rend, Co[0], Co[1], Co[2], 255);
+	for (uint32_t x = 0; x < g_Map.SizeX; ++x)
 	{
-		for (uint32_t y = 0; y < g_map.size_y; ++y)
-			relative_draw_hollow_rect(x, y, 1.0f, 1.0f);
+		for (uint32_t y = 0; y < g_Map.SizeY; ++y)
+			RelativeDrawHollowRect(x, y, 1.0f, 1.0f);
 	}
 }
 
-struct map_tile *
-map_get(uint32_t x, uint32_t y)
+struct MapTile *
+Map_Get(uint32_t x, uint32_t y)
 {
-	return &g_map.data[g_map.size_x * y + x];
+	return &g_Map.Data[g_Map.SizeX * y + x];
 }
 
 static int
-rd_uint_8(uint8_t *out, FILE *fp)
+RdUint8(uint8_t *Out, FILE *Fp)
 {
-	int high = fgetc(fp);
-	if (high == EOF)
+	int High = fgetc(Fp);
+	if (High == EOF)
 	{
-		log_err("map: failed to read U8 higher-half!");
+		LogErr("map: failed to read U8 higher-half!");
 		return 1;
 	}
 	
-	int low = fgetc(fp);
-	if (low == EOF)
+	int Low = fgetc(Fp);
+	if (Low == EOF)
 	{
-		log_err("map: failed to read U8 lower-half!");
+		LogErr("map: failed to read U8 lower-half!");
 		return 1;
 	}
 	
-	static uint8_t val_lookup[] =
+	static uint8_t ValLookup[] =
 	{
 		['0'] = 0,
 		['1'] = 1,
@@ -540,52 +554,52 @@ rd_uint_8(uint8_t *out, FILE *fp)
 		['f'] = 15,
 	};
 	
-	*out = (uint8_t)val_lookup[low];
-	*out |= (uint8_t)val_lookup[high] << 4;
+	*Out = (uint8_t)ValLookup[Low];
+	*Out |= (uint8_t)ValLookup[High] << 4;
 	return 0;
 }
 
 static int
-rd_uint_32(uint32_t *out, FILE *fp)
+RdUint32(uint32_t *Out, FILE *Fp)
 {
-	uint8_t b0, b1, b2, b3;
-	if (rd_uint_8(&b3, fp)
-	    || rd_uint_8(&b2, fp)
-	    || rd_uint_8(&b1, fp)
-	    || rd_uint_8(&b0, fp))
+	uint8_t B0, B1, B2, B3;
+	if (RdUint8(&B3, Fp)
+		|| RdUint8(&B2, Fp)
+		|| RdUint8(&B1, Fp)
+		|| RdUint8(&B0, Fp))
 	{
 		return 1;
 	}
 	
-	*out = (uint32_t)b0;
-	*out |= (uint32_t)b1 << 8;
-	*out |= (uint32_t)b2 << 16;
-	*out |= (uint32_t)b3 << 24;
+	*Out = (uint32_t)B0;
+	*Out |= (uint32_t)B1 << 8;
+	*Out |= (uint32_t)B2 << 16;
+	*Out |= (uint32_t)B3 << 24;
 	return 0;
 }
 
 static void
-wr_uint_8(FILE *fp, uint8_t u8)
+WrUint8(FILE *Fp, uint8_t U8)
 {
-	static uint8_t hex_lookup[] =
+	static uint8_t HexLookup[] =
 	{
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
 	};
 	
-	fprintf(fp, "%c%c", hex_lookup[u8 >> 4], hex_lookup[u8 & 0xf]);
+	fprintf(Fp, "%c%c", HexLookup[U8 >> 4], HexLookup[U8 & 0xf]);
 }
 
 static void
-wr_uint_32(FILE *fp, uint32_t u32)
+WrUint32(FILE *Fp, uint32_t U32)
 {
-	uint8_t b0 = u32 & 0xff;
-	uint8_t b1 = (u32 & 0xff00) >> 8;
-	uint8_t b2 = (u32 & 0xff0000) >> 16;
-	uint8_t b3 = (u32 & 0xff000000) >> 24;
+	uint8_t B0 = U32 & 0xff;
+	uint8_t B1 = (U32 & 0xff00) >> 8;
+	uint8_t B2 = (U32 & 0xff0000) >> 16;
+	uint8_t B3 = (U32 & 0xff000000) >> 24;
 	
-	wr_uint_8(fp, b3);
-	wr_uint_8(fp, b2);
-	wr_uint_8(fp, b1);
-	wr_uint_8(fp, b0);
+	WrUint8(Fp, B3);
+	WrUint8(Fp, B2);
+	WrUint8(Fp, B1);
+	WrUint8(Fp, B0);
 }

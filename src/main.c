@@ -25,10 +25,10 @@
 #ifdef BUILD_TARGET_WINDOWS
 #define ENTRY_FN \
 	int APIENTRY \
-	WinMain(HINSTANCE h_inst, \
-	        HINSTANCE h_prev_inst, \
-	        LPSTR lp_cmd_line, \
-	        int n_cmd_show)
+	WinMain(HINSTANCE HInst, \
+	        HINSTANCE HPrevInst, \
+	        LPSTR LpCmdLine, \
+	        int NCmdShow)
 #else
 #define ENTRY_FN \
 	int \
@@ -48,14 +48,14 @@ ENTRY_FN
 		
 		if (Mix_Init(0))
 		{
-			log_err("main: failed to init SDL2 mixer!");
+			LogErr("main: failed to init SDL2 mixer!");
 			return 1;
 		}
 		atexit(Mix_Quit);
 		
 		if ((IMG_Init(INIT_IMG_FLAGS) & INIT_IMG_FLAGS) != INIT_IMG_FLAGS)
 		{
-			log_err("main: failed to init SDL2 image!");
+			LogErr("main: failed to init SDL2 image!");
 			return 1;
 		}
 		atexit(IMG_Quit);
@@ -67,22 +67,22 @@ ENTRY_FN
 	
 	// initialize game systems.
 	{
-		if (options_read_from_file(CONF_OPTIONS_FILE))
-			options_return_to_default(CONF_OPTIONS_FILE);
+		if (Options_ReadFromFile(CONF_OPTIONS_FILE))
+			Options_ReturnToDefault(CONF_OPTIONS_FILE);
 		
-		if (wnd_init())
+		if (Wnd_Init())
 			return 1;
 		
-		if (sound_init())
+		if (Sound_Init())
 			return 1;
-		sound_set_sfx_volume(g_options.sfx_volume);
+		Sound_SetSfxVolume(g_Options.SfxVolume);
 		
-		if (textures_init())
+		if (Textures_Init())
 			return 1;
 	}
 	
-	intro_sequence();
-	main_menu_loop();
+	IntroSequence();
+	MainMenuLoop();
 	
 	return 0;
 }

@@ -4,42 +4,42 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-struct ui_button
+struct UiButton
 {
-	void (*callback)(void);
-	char const *text;
+	void (*Callback)(void);
+	char const *Text;
 	int x, y;
 	int w, h;
-	bool hovered, pressed;
+	bool Hovered, Pressed;
 };
 
-struct ui_text_field
+struct UiTextField
 {
-	char *out;
-	size_t csr, len, nmax;
-	size_t first_draw, ndraw;
+	char *Out;
+	size_t Csr, Len, Nmax;
+	size_t FirstDraw, Ndraw;
 	int x, y;
 	int w, h;
-	bool hovered, selected;
+	bool Hovered, Selected;
 };
 
-struct ui_slider
+struct UiSlider
 {
-	void (*callback)(float);
+	void (*Callback)(float);
 	int x, y;
 	int w, h;
-	float val;
-	bool hovered, pressed;
+	float Val;
+	bool Hovered, Pressed;
 };
 
-struct ui_button ui_button_create(int x, int y, char const *text, void (*callback)(void));
-void ui_button_update(struct ui_button *btn);
-void ui_button_draw(struct ui_button const *btn);
-struct ui_text_field ui_text_field_create(int x, int y, size_t ndraw, char *out, size_t nmax);
-void ui_text_field_update(struct ui_text_field *tb);
-void ui_text_field_draw(struct ui_text_field const *tb);
-struct ui_slider ui_slider_create(int x, int y, int w, int h, float initial, void (*callback)(float));
-void ui_slider_update(struct ui_slider *s);
-void ui_slider_draw(struct ui_slider const *s);
+struct UiButton UiButton_Create(int x, int y, char const *Text, void (*Callback)(void));
+void UiButton_Update(struct UiButton *Btn);
+void UiButton_Draw(struct UiButton const *Btn);
+struct UiTextField UiTextField_Create(int x, int y, size_t Ndraw, char *Out, size_t Nmax);
+void UiTextField_Update(struct UiTextField *Tf);
+void UiTextField_Draw(struct UiTextField const *Tf);
+struct UiSlider UiSlider_Create(int x, int y, int w, int h, float Initial, void (*Callback)(float));
+void UiSlider_Update(struct UiSlider *s);
+void UiSlider_Draw(struct UiSlider const *s);
 
 #endif

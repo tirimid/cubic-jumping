@@ -16,124 +16,128 @@
 
 #define COL_THRESHOLD 0.05f
 
-struct player g_player;
-enum player_state g_player_state;
-struct player_cap_mask g_player_cap_mask;
+struct Player g_Player;
+enum PlayerState g_PlayerState;
+struct PlayerCapMask g_PlayerCapMask;
 
-static void update_playing(void);
-static void update_dead(void);
-static void collide(struct map_tile *tile);
-static void collide_left(void);
-static void collide_right(void);
-static void collide_bottom(void);
-static void collide_top(void);
-static void compute_collision_distances(void);
-static void test_and_apply_collisions(void);
+static void UpdatePlaying(void);
+static void UpdateDead(void);
+static void Collide(struct MapTile *Tile);
+static void CollideLeft(void);
+static void CollideRight(void);
+static void CollideBottom(void);
+static void CollideTop(void);
+static void ComputeCollisionDistances(void);
+static void TestAndApplyCollisions(void);
 
 void
-player_update(void)
+Player_Update(void)
 {
-	static void (*update_fn[])(void) =
+	static void (*UpdateFn[])(void) =
 	{
-		update_playing,
-		update_dead,
+		UpdatePlaying,
+		UpdateDead
 	};
 	
-	update_fn[g_player_state]();
+	UpdateFn[g_PlayerState]();
 }
 
 void
-player_draw(void)
+Player_Draw(void)
 {
-	if (g_player_state == PS_DEAD)
+	if (g_PlayerState == PS_DEAD)
 		return;
 	
-	static uint8_t cp[] = CONF_COLOR_PLAYER;
-	SDL_SetRenderDrawColor(g_rend, cp[0], cp[1], cp[2], 255);
-	relative_draw_rect(g_player.pos_x,
-	                   g_player.pos_y,
-	                   CONF_PLAYER_SIZE,
-	                   CONF_PLAYER_SIZE);
+	static uint8_t Cp[] = CONF_COLOR_PLAYER;
+	SDL_SetRenderDrawColor(g_Rend, Cp[0], Cp[1], Cp[2], 255);
+	RelativeDrawRect(
+		g_Player.PosX,
+		g_Player.PosY,
+		CONF_PLAYER_SIZE,
+		CONF_PLAYER_SIZE
+	);
 }
 
 bool
-player_grounded(void)
+Player_Grounded(void)
 {
-	return g_player.dist_bottom < COL_THRESHOLD && !g_player.short_circuit;
+	return g_Player.DistBottom < COL_THRESHOLD && !g_Player.ShortCircuit;
 }
 
 bool
-player_walled_left(void)
+Player_WalledLeft(void)
 {
-	return g_player.dist_left < COL_THRESHOLD && !g_player.short_circuit;
+	return g_Player.DistLeft < COL_THRESHOLD && !g_Player.ShortCircuit;
 }
 
 bool
-player_walled_right(void)
+Player_WalledRight(void)
 {
-	return g_player.dist_right < COL_THRESHOLD && !g_player.short_circuit;
+	return g_Player.DistRight < COL_THRESHOLD && !g_Player.ShortCircuit;
 }
 
 void
-player_die(void)
+Player_Die(void)
 {
 	// prevent "double-death", incrementing game deaths by 2 instead of 1.
-	if (g_player_state == PS_DEAD)
+	if (g_PlayerState == PS_DEAD)
 		return;
 	
-	++g_game.il_deaths;
-	++g_game.total_deaths;
+	++g_Game.IlDeaths;
+	++g_Game.TotalDeaths;
 	
-	g_player.dead_ticks = CONF_PLAYER_DEATH_TICKS;
-	g_player_state = PS_DEAD;
+	g_Player.DeadTicks = CONF_PLAYER_DEATH_TICKS;
+	g_PlayerState = PS_DEAD;
 	
 	for (int i = 0; i < CONF_PLAYER_SHARD_CNT; ++i)
 	{
-		vfx_put_particle(PT_PLAYER_SHARD,
-		                 g_player.pos_x + CONF_PLAYER_SIZE / 2.0f,
-		                 g_player.pos_y + CONF_PLAYER_SIZE / 2.0f);
+		Vfx_PutParticle(
+			PT_PLAYER_SHARD,
+			g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+			g_Player.PosY + CONF_PLAYER_SIZE / 2.0f
+		);
 	}
 	
-	sound_play_sfx(SI_DEATH);
+	Sound_PlaySfx(SI_DEATH);
 }
 
 void
-player_set_cap_mask(enum player_cap_id id, bool state)
+Player_SetCapMask(enum PlayerCapId Id, bool State)
 {
-	switch (id)
+	switch (Id)
 	{
 	case PCI_JUMP:
-		g_player_cap_mask.no_jump = state;
+		g_PlayerCapMask.NoJump = State;
 		break;
 	case PCI_WALLJUMP:
-		g_player_cap_mask.no_walljump = state;
+		g_PlayerCapMask.NoWalljump = State;
 		break;
 	case PCI_WALLSLIDE:
-		g_player_cap_mask.no_wallslide = state;
+		g_PlayerCapMask.NoWallslide = State;
 		break;
 	case PCI_POWERJUMP:
-		g_player_cap_mask.no_powerjump = state;
+		g_PlayerCapMask.NoPowerjump = State;
 		break;
 	case PCI_DASH_DOWN:
-		g_player_cap_mask.no_dash_down = state;
+		g_PlayerCapMask.NoDashDown = State;
 		break;
 	}
 }
 
 static void
-update_playing(void)
+UpdatePlaying(void)
 {
 	// rectify player bounds in map.
 	{
-		if (g_player.pos_x < 0.0f)
-			g_player.pos_x = 0.0f;
-		if (g_player.pos_y < 0.0f)
-			g_player.pos_y = 0.0f;
+		if (g_Player.PosX < 0.0f)
+			g_Player.PosX = 0.0f;
+		if (g_Player.PosY < 0.0f)
+			g_Player.PosY = 0.0f;
 		
-		if (g_player.pos_x > g_map.size_x - CONF_PLAYER_SIZE)
-			g_player.pos_x = g_map.size_x - CONF_PLAYER_SIZE;
-		if (g_player.pos_y > g_map.size_y - CONF_PLAYER_SIZE)
-			g_player.pos_y = g_map.size_y - CONF_PLAYER_SIZE;
+		if (g_Player.PosX > g_Map.SizeX - CONF_PLAYER_SIZE)
+			g_Player.PosX = g_Map.SizeX - CONF_PLAYER_SIZE;
+		if (g_Player.PosY > g_Map.SizeY - CONF_PLAYER_SIZE)
+			g_Player.PosY = g_Map.SizeY - CONF_PLAYER_SIZE;
 	}
 	
 	// need to initially check collisions prior to player movement being
@@ -146,168 +150,172 @@ update_playing(void)
 		// otherwise the player landing on a level end tile could cause the
 		// level end menu to open multiple times in a row as a result of
 		// collision being tested twice during a player cycle.
-		g_player.short_circuit = false;
+		g_Player.ShortCircuit = false;
 		
-		test_and_apply_collisions();
+		TestAndApplyCollisions();
 	}
 	
 	// apply user movement input velocity.
 	{
-		if (player_grounded() || (!player_grounded() && g_player.air_control))
+		if (Player_Grounded() || (!Player_Grounded() && g_Player.AirControl))
 		{
-			float mv_horiz = key_down(g_options.k_right) - key_down(g_options.k_left);
-			mv_horiz *= player_grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
-			g_player.vel_x += mv_horiz;
+			float MvHoriz = Keybd_Down(g_Options.KRight) - Keybd_Down(g_Options.KLeft);
+			MvHoriz *= Player_Grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
+			g_Player.VelX += MvHoriz;
 		}
 		
-		if (!g_player_cap_mask.no_dash_down
-		    && !player_grounded()
-		    && key_pressed(g_options.k_dash_down))
+		if (!g_PlayerCapMask.NoDashDown
+			&& !Player_Grounded()
+			&& Keybd_Pressed(g_Options.KDashDown))
 		{
-			g_player.vel_y = CONF_PLAYER_DASH_DOWN_SPEED;
+			g_Player.VelY = CONF_PLAYER_DASH_DOWN_SPEED;
 			for (int i = 0; i < CONF_AIR_PUFF_CNT; ++i)
 			{
-				vfx_put_particle(PT_AIR_PUFF,
-				                 g_player.pos_x + CONF_PLAYER_SIZE / 2.0f,
-				                 g_player.pos_y + CONF_PLAYER_SIZE / 2.0f);
+				Vfx_PutParticle(
+					PT_AIR_PUFF,
+					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f
+				);
 			}
-			sound_play_sfx(SI_DASH_DOWN);
+			Sound_PlaySfx(SI_DASH_DOWN);
 		}
 		
-		if (!g_player_cap_mask.no_jump
-		    && player_grounded()
-		    && key_down(g_options.k_jump))
+		if (!g_PlayerCapMask.NoJump
+			&& Player_Grounded()
+			&& Keybd_Down(g_Options.KJump))
 		{
-			g_player.vel_y = -CONF_PLAYER_JUMP_FORCE;
-			sound_play_sfx(SI_JUMP);
+			g_Player.VelY = -CONF_PLAYER_JUMP_FORCE;
+			Sound_PlaySfx(SI_JUMP);
 		}
-		else if (!g_player_cap_mask.no_powerjump
-		         && player_grounded()
-		         && key_down(g_options.k_powerjump))
+		else if (!g_PlayerCapMask.NoPowerjump
+			&& Player_Grounded()
+			&& Keybd_Down(g_Options.KPowerjump))
 		{
-			if (g_player.vel_x > 0.0f)
-				g_player.vel_x = CONF_PLAYER_POWERJUMP_FORCE_X;
-			else if (g_player.vel_x < 0.0f)
-				g_player.vel_x = -CONF_PLAYER_POWERJUMP_FORCE_X;
-			g_player.vel_y = -CONF_PLAYER_POWERJUMP_FORCE_Y;
-			sound_play_sfx(SI_POWERJUMP);
+			if (g_Player.VelX > 0.0f)
+				g_Player.VelX = CONF_PLAYER_POWERJUMP_FORCE_X;
+			else if (g_Player.VelX < 0.0f)
+				g_Player.VelX = -CONF_PLAYER_POWERJUMP_FORCE_X;
+			g_Player.VelY = -CONF_PLAYER_POWERJUMP_FORCE_Y;
+			Sound_PlaySfx(SI_POWERJUMP);
 		}
 		
-		if (!g_player_cap_mask.no_wallslide
-		    && player_walled_left()
-		    && key_down(g_options.k_left)
-		    && !map_tile_slippery(g_player.near_left->type))
+		if (!g_PlayerCapMask.NoWallslide
+			&& Player_WalledLeft()
+			&& Keybd_Down(g_Options.KLeft)
+			&& !Map_TileSlippery(g_Player.NearLeft->Type))
 		{
-			if (map_tile_climbable(g_player.near_left->type))
-				g_player.vel_y = -CONF_CLIMB_SPEED;
+			if (Map_TileClimbable(g_Player.NearLeft->Type))
+				g_Player.VelY = -CONF_CLIMB_SPEED;
 			else
-				g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
+				g_Player.VelY /= CONF_WALL_SLIDE_FRICTION;
 		}
 		
-		if (!g_player_cap_mask.no_wallslide
-		    && player_walled_right()
-		    && key_down(g_options.k_right)
-		    && !map_tile_slippery(g_player.near_right->type))
+		if (!g_PlayerCapMask.NoWallslide
+			&& Player_WalledRight()
+			&& Keybd_Down(g_Options.KRight)
+			&& !Map_TileSlippery(g_Player.NearRight->Type))
 		{
-			if (map_tile_climbable(g_player.near_right->type))
-				g_player.vel_y = -CONF_CLIMB_SPEED;
+			if (Map_TileClimbable(g_Player.NearRight->Type))
+				g_Player.VelY = -CONF_CLIMB_SPEED;
 			else
-				g_player.vel_y /= CONF_WALL_SLIDE_FRICTION;
+				g_Player.VelY /= CONF_WALL_SLIDE_FRICTION;
 		}
 		
-		if (!g_player_cap_mask.no_walljump
-		    && player_walled_left()
-		    && key_down(g_options.k_jump)
-		    && !map_tile_slippery(g_player.near_left->type))
+		if (!g_PlayerCapMask.NoWalljump
+			&& Player_WalledLeft()
+			&& Keybd_Down(g_Options.KJump)
+			&& !Map_TileSlippery(g_Player.NearLeft->Type))
 		{
-			g_player.vel_x = CONF_PLAYER_WALLJUMP_FORCE_X;
-			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
-			sound_play_sfx(SI_WALLJUMP);
+			g_Player.VelX = CONF_PLAYER_WALLJUMP_FORCE_X;
+			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			Sound_PlaySfx(SI_WALLJUMP);
 		}
 		
-		if (!g_player_cap_mask.no_walljump
-		    && player_walled_right()
-		    && key_down(g_options.k_jump)
-		    && !map_tile_slippery(g_player.near_right->type))
+		if (!g_PlayerCapMask.NoWalljump
+			&& Player_WalledRight()
+			&& Keybd_Down(g_Options.KJump)
+			&& !Map_TileSlippery(g_Player.NearRight->Type))
 		{
-			g_player.vel_x = -CONF_PLAYER_WALLJUMP_FORCE_X;
-			g_player.vel_y = -CONF_PLAYER_WALLJUMP_FORCE_Y;
-			sound_play_sfx(SI_WALLJUMP);
+			g_Player.VelX = -CONF_PLAYER_WALLJUMP_FORCE_X;
+			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			Sound_PlaySfx(SI_WALLJUMP);
 		}
 	}
 	
 	// apply environmental forces.
 	{
-		g_player.vel_y += CONF_GRAVITY;
-		g_player.vel_x /= player_grounded() ? CONF_FRICTION : CONF_DRAG;
-		g_player.vel_y /= CONF_DRAG;
+		g_Player.VelY += CONF_GRAVITY;
+		g_Player.VelX /= Player_Grounded() ? CONF_FRICTION : CONF_DRAG;
+		g_Player.VelY /= CONF_DRAG;
 	}
 	
 	// need to also apply collsions after all velocity changes.
 	{
-		test_and_apply_collisions();
+		TestAndApplyCollisions();
 	}
 	
 	// actually move player.
 	{
-		g_player.pos_x += g_player.vel_x;
-		g_player.pos_y += g_player.vel_y;
+		g_Player.PosX += g_Player.VelX;
+		g_Player.PosY += g_Player.VelY;
 	}
 	
 	// advance trace spawn counter, and spawn if needed.
 	{
-		if (g_player.trace_spawn_ticks == 0)
+		if (g_Player.TraceSpawnTicks == 0)
 		{
-			vfx_put_particle(PT_PLAYER_TRACE,
-			                 g_player.pos_x + CONF_PLAYER_SIZE / 2.0f,
-			                 g_player.pos_y + CONF_PLAYER_SIZE / 2.0f);
-			g_player.trace_spawn_ticks = CONF_PLAYER_TRACE_SPAWN_TICKS;
+			Vfx_PutParticle(
+				PT_PLAYER_TRACE,
+				g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+				g_Player.PosY + CONF_PLAYER_SIZE / 2.0f
+			);
+			g_Player.TraceSpawnTicks = CONF_PLAYER_TRACE_SPAWN_TICKS;
 		}
 		else
-			--g_player.trace_spawn_ticks;
+			--g_Player.TraceSpawnTicks;
 	}
 }
 
 static void
-update_dead(void)
+UpdateDead(void)
 {
-	if (g_player.dead_ticks == 0)
+	if (g_Player.DeadTicks == 0)
 	{
 		// map list reload simulates a respawn procedure.
-		map_list_soft_reload();
+		MapList_SoftReload();
 		return;
 	}
 	
-	--g_player.dead_ticks;
+	--g_Player.DeadTicks;
 }
 
 static void
-collide(struct map_tile *tile)
+Collide(struct MapTile *Tile)
 {
-	if (!tile)
+	if (!Tile)
 		return;
 	
-	g_player.air_control = true;
+	g_Player.AirControl = true;
 	
 	// implement behavior that doesn't depend on collision direction.
-	switch (tile->type)
+	switch (Tile->Type)
 	{
 	case MTT_KILL:
-		g_player.short_circuit = true;
-		player_die();
+		g_Player.ShortCircuit = true;
+		Player_Die();
 		break;
 	case MTT_LAUNCH:
-		sound_play_sfx(SI_LAUNCH);
+		Sound_PlaySfx(SI_LAUNCH);
 		break;
 	case MTT_END_ON:
-		g_player.short_circuit = true;
-		sound_play_sfx(SI_END);
-		map_list_load_next();
+		g_Player.ShortCircuit = true;
+		Sound_PlaySfx(SI_END);
+		MapList_LoadNext();
 		break;
 	case MTT_SWITCH_OFF:
-		tile->type = MTT_SWITCH_ON;
-		sound_play_sfx(SI_SWITCH);
-		game_enable_switch();
+		Tile->Type = MTT_SWITCH_ON;
+		Sound_PlaySfx(SI_SWITCH);
+		Game_EnableSwitch();
 		break;
 	default:
 		break;
@@ -315,292 +323,292 @@ collide(struct map_tile *tile)
 }
 
 static void
-collide_left(void)
+CollideLeft(void)
 {
-	if (!g_player.near_left)
+	if (!g_Player.NearLeft)
 		return;
 	
-	g_player.pos_x -= g_player.dist_left - 0.001f;
+	g_Player.PosX -= g_Player.DistLeft - 0.001f;
 	
-	switch (g_player.near_left->type)
+	switch (g_Player.NearLeft->Type)
 	{
 	case MTT_BOUNCE:
-		if (g_player.vel_x < -CONF_MIN_RESTITUTION_SPEED)
+		if (g_Player.VelX < -CONF_MIN_RESTITUTION_SPEED)
 		{
-			g_player.vel_x *= -CONF_RESTITUTION;
-			sound_play_sfx(SI_BOUNCE);
+			g_Player.VelX *= -CONF_RESTITUTION;
+			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
-			g_player.vel_x = 0.0f;
+			g_Player.VelX = 0.0f;
 		break;
 	case MTT_LAUNCH:
-		g_player.air_control = false;
-		g_player.short_circuit = true;
-		g_player.vel_x = CONF_WALL_LAUNCH_FORCE_X;
-		g_player.vel_y = -CONF_WALL_LAUNCH_FORCE_Y;
+		g_Player.AirControl = false;
+		g_Player.ShortCircuit = true;
+		g_Player.VelX = CONF_WALL_LAUNCH_FORCE_X;
+		g_Player.VelY = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
 	default:
-		g_player.vel_x = 0.0f;
+		g_Player.VelX = 0.0f;
 		break;
 	}
 }
 
 static void
-collide_right(void)
+CollideRight(void)
 {
-	if (!g_player.near_right)
+	if (!g_Player.NearRight)
 		return;
 	
-	g_player.pos_x += g_player.dist_right - 0.001f;
+	g_Player.PosX += g_Player.DistRight - 0.001f;
 	
-	switch (g_player.near_right->type)
+	switch (g_Player.NearRight->Type)
 	{
 	case MTT_BOUNCE:
-		if (g_player.vel_x > CONF_MIN_RESTITUTION_SPEED)
+		if (g_Player.VelX > CONF_MIN_RESTITUTION_SPEED)
 		{
-			g_player.vel_x *= -CONF_RESTITUTION;
-			sound_play_sfx(SI_BOUNCE);
+			g_Player.VelX *= -CONF_RESTITUTION;
+			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
-			g_player.vel_x = 0.0f;
+			g_Player.VelX = 0.0f;
 		break;
 	case MTT_LAUNCH:
-		g_player.air_control = false;
-		g_player.short_circuit = true;
-		g_player.vel_x = -CONF_WALL_LAUNCH_FORCE_X;
-		g_player.vel_y = -CONF_WALL_LAUNCH_FORCE_Y;
+		g_Player.AirControl = false;
+		g_Player.ShortCircuit = true;
+		g_Player.VelX = -CONF_WALL_LAUNCH_FORCE_X;
+		g_Player.VelY = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
 	default:
-		g_player.vel_x = 0.0f;
+		g_Player.VelX = 0.0f;
 		break;
 	}
 }
 
 static void
-collide_bottom(void)
+CollideBottom(void)
 {
-	if (!g_player.near_bottom)
+	if (!g_Player.NearBottom)
 		return;
 	
-	g_player.pos_y += g_player.dist_bottom - 0.001f;
+	g_Player.PosY += g_Player.DistBottom - 0.001f;
 	
-	switch (g_player.near_bottom->type)
+	switch (g_Player.NearBottom->Type)
 	{
 	case MTT_BOUNCE:
-		if (g_player.vel_y > CONF_MIN_RESTITUTION_SPEED)
+		if (g_Player.VelY > CONF_MIN_RESTITUTION_SPEED)
 		{
-			g_player.vel_y *= -CONF_RESTITUTION;
-			sound_play_sfx(SI_BOUNCE);
+			g_Player.VelY *= -CONF_RESTITUTION;
+			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
-			g_player.vel_y = 0.0f;
+			g_Player.VelY = 0.0f;
 		break;
 	case MTT_LAUNCH:
-		g_player.vel_y = -CONF_LAUNCH_FORCE;
+		g_Player.VelY = -CONF_LAUNCH_FORCE;
 		break;
 	default:
-		g_player.vel_y = 0.0f;
+		g_Player.VelY = 0.0f;
 		break;
 	}
 }
 
 static void
-collide_top(void)
+CollideTop(void)
 {
-	if (!g_player.near_top)
+	if (!g_Player.NearTop)
 		return;
 	
-	g_player.pos_y -= g_player.dist_top - 0.001f;
+	g_Player.PosY -= g_Player.DistTop - 0.001f;
 	
-	switch (g_player.near_top->type)
+	switch (g_Player.NearTop->Type)
 	{
 	case MTT_BOUNCE:
-		if (g_player.vel_y < -CONF_MIN_RESTITUTION_SPEED)
+		if (g_Player.VelY < -CONF_MIN_RESTITUTION_SPEED)
 		{
-			g_player.vel_y *= -CONF_RESTITUTION;
-			sound_play_sfx(SI_BOUNCE);
+			g_Player.VelY *= -CONF_RESTITUTION;
+			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
-			g_player.vel_y = 0.0f;
+			g_Player.VelY = 0.0f;
 		break;
 	default:
-		g_player.vel_y = 0.0f;
+		g_Player.VelY = 0.0f;
 		break;
 	}
 }
 
 static void
-compute_collision_distances(void)
+ComputeCollisionDistances(void)
 {
 	// find nearest left edge.
 	{
-		int cxtl;
-		struct map_tile *cxtl_tile = NULL;
-		for (cxtl = g_player.pos_x; cxtl >= 0; --cxtl)
+		int Cxtl;
+		struct MapTile *CxtlTile = NULL;
+		for (Cxtl = g_Player.PosX; Cxtl >= 0; --Cxtl)
 		{
-			struct map_tile *tile = map_get(cxtl, g_player.pos_y);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(Cxtl, g_Player.PosY);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cxtl_tile = tile;
+				CxtlTile = Tile;
 				break;
 			}
 		}
 		
-		int cxbl;
-		struct map_tile *cxbl_tile = NULL;
-		for (cxbl = g_player.pos_x; cxbl >= 0; --cxbl)
+		int Cxbl;
+		struct MapTile *CxblTile = NULL;
+		for (Cxbl = g_Player.PosX; Cxbl >= 0; --Cxbl)
 		{
-			struct map_tile *tile = map_get(cxbl, g_player.pos_y + CONF_PLAYER_SIZE);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(Cxbl, g_Player.PosY + CONF_PLAYER_SIZE);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cxbl_tile = tile;
+				CxblTile = Tile;
 				break;
 			}
 		}
 		
-		int cxl = MAX(cxtl, cxbl);
-		g_player.dist_left = g_player.pos_x - cxl - 1.0f;
-		g_player.near_left = cxtl > cxbl ? cxtl_tile : cxbl_tile;
+		int Cxl = MAX(Cxtl, Cxbl);
+		g_Player.DistLeft = g_Player.PosX - Cxl - 1.0f;
+		g_Player.NearLeft = Cxtl > Cxbl ? CxtlTile : CxblTile;
 	}
 	
 	// find nearest right edge.
 	{
-		int cxtr;
-		struct map_tile *cxtr_tile = NULL;
-		for (cxtr = g_player.pos_x + CONF_PLAYER_SIZE; cxtr < g_map.size_x; ++cxtr)
+		int Cxtr;
+		struct MapTile *CxtrTile = NULL;
+		for (Cxtr = g_Player.PosX + CONF_PLAYER_SIZE; Cxtr < g_Map.SizeX; ++Cxtr)
 		{
-			struct map_tile *tile = map_get(cxtr, g_player.pos_y);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(Cxtr, g_Player.PosY);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cxtr_tile = tile;
+				CxtrTile = Tile;
 				break;
 			}
 		}
 		
-		int cxbr;
-		struct map_tile *cxbr_tile = NULL;
-		for (cxbr = g_player.pos_x + CONF_PLAYER_SIZE; cxbr < g_map.size_x; ++cxbr)
+		int Cxbr;
+		struct MapTile *CxbrTile = NULL;
+		for (Cxbr = g_Player.PosX + CONF_PLAYER_SIZE; Cxbr < g_Map.SizeX; ++Cxbr)
 		{
-			struct map_tile *tile = map_get(cxbr, g_player.pos_y + CONF_PLAYER_SIZE);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(Cxbr, g_Player.PosY + CONF_PLAYER_SIZE);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cxbr_tile = tile;
+				CxbrTile = Tile;
 				break;
 			}
 		}
 		
-		int cxr = MIN(cxtr, cxbr);
-		g_player.dist_right = cxr - g_player.pos_x - CONF_PLAYER_SIZE;
-		g_player.near_right = cxtr < cxbr ? cxtr_tile : cxbr_tile;
+		int Cxr = MIN(Cxtr, Cxbr);
+		g_Player.DistRight = Cxr - g_Player.PosX - CONF_PLAYER_SIZE;
+		g_Player.NearRight = Cxtr < Cxbr ? CxtrTile : CxbrTile;
 	}
 	
 	// find nearest top edge.
 	{
-		int cytl;
-		struct map_tile *cytl_tile = NULL;
-		for (cytl = g_player.pos_y; cytl >= 0; --cytl)
+		int Cytl;
+		struct MapTile *CytlTile = NULL;
+		for (Cytl = g_Player.PosY; Cytl >= 0; --Cytl)
 		{
-			struct map_tile *tile = map_get(g_player.pos_x, cytl);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(g_Player.PosX, Cytl);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cytl_tile = tile;
+				CytlTile = Tile;
 				break;
 			}
 		}
 		
-		int cytr;
-		struct map_tile *cytr_tile = NULL;
-		for (cytr = g_player.pos_y; cytr >= 0; --cytr)
+		int Cytr;
+		struct MapTile *CytrTile = NULL;
+		for (Cytr = g_Player.PosY; Cytr >= 0; --Cytr)
 		{
-			struct map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cytr);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, Cytr);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cytr_tile = tile;
+				CytrTile = Tile;
 				break;
 			}
 		}
 		
-		int cyt = MAX(cytl, cytr);
-		g_player.dist_top = g_player.pos_y - cyt - 1.0f;
-		g_player.near_top = cytl > cytr ? cytl_tile : cytr_tile;
+		int Cyt = MAX(Cytl, Cytr);
+		g_Player.DistTop = g_Player.PosY - Cyt - 1.0f;
+		g_Player.NearTop = Cytl > Cytr ? CytlTile : CytrTile;
 	}
 	
 	// find nearest bottom edge.
 	{
-		int cybl;
-		struct map_tile *cybl_tile = NULL;
-		for (cybl = g_player.pos_y + CONF_PLAYER_SIZE; cybl < g_map.size_y; ++cybl)
+		int Cybl;
+		struct MapTile *CyblTile = NULL;
+		for (Cybl = g_Player.PosY + CONF_PLAYER_SIZE; Cybl < g_Map.SizeY; ++Cybl)
 		{
-			struct map_tile *tile = map_get(g_player.pos_x, cybl);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(g_Player.PosX, Cybl);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cybl_tile = tile;
+				CyblTile = Tile;
 				break;
 			}
 		}
 		
-		int cybr;
-		struct map_tile *cybr_tile = NULL;
-		for (cybr = g_player.pos_y + CONF_PLAYER_SIZE; cybr < g_map.size_y; ++cybr)
+		int Cybr;
+		struct MapTile *CybrTile = NULL;
+		for (Cybr = g_Player.PosY + CONF_PLAYER_SIZE; Cybr < g_Map.SizeY; ++Cybr)
 		{
-			struct map_tile *tile = map_get(g_player.pos_x + CONF_PLAYER_SIZE, cybr);
-			if (map_tile_collision(tile->type))
+			struct MapTile *Tile = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, Cybr);
+			if (Map_TileCollision(Tile->Type))
 			{
-				cybr_tile = tile;
+				CybrTile = Tile;
 				break;
 			}
 		}
 		
-		int cyb = MIN(cybl, cybr);
-		g_player.dist_bottom = cyb - g_player.pos_y - CONF_PLAYER_SIZE;
-		g_player.near_bottom = cybl < cybr ? cybl_tile : cybr_tile;
+		int Cyb = MIN(Cybl, Cybr);
+		g_Player.DistBottom = Cyb - g_Player.PosY - CONF_PLAYER_SIZE;
+		g_Player.NearBottom = Cybl < Cybr ? CyblTile : CybrTile;
 	}
 }
 
 static void
-test_and_apply_collisions(void)
+TestAndApplyCollisions(void)
 {
-	if (g_player.short_circuit)
+	if (g_Player.ShortCircuit)
 		return;
 	
-	compute_collision_distances();
-	if (-g_player.vel_y >= g_player.dist_top
-	    && g_player.dist_top < g_player.dist_bottom)
+	ComputeCollisionDistances();
+	if (-g_Player.VelY >= g_Player.DistTop
+		&& g_Player.DistTop < g_Player.DistBottom)
 	{
-		collide(g_player.near_top);
-		collide_top();
+		Collide(g_Player.NearTop);
+		CollideTop();
 	}
 	
-	if (g_player.short_circuit)
+	if (g_Player.ShortCircuit)
 		return;
 	
-	compute_collision_distances();
-	if (-g_player.vel_x >= g_player.dist_left
-	    && g_player.dist_left < g_player.dist_right)
+	ComputeCollisionDistances();
+	if (-g_Player.VelX >= g_Player.DistLeft
+		&& g_Player.DistLeft < g_Player.DistRight)
 	{
-		collide(g_player.near_left);
-		collide_left();
+		Collide(g_Player.NearLeft);
+		CollideLeft();
 	}
 	
-	if (g_player.short_circuit)
+	if (g_Player.ShortCircuit)
 		return;
 	
-	compute_collision_distances();
-	if (g_player.vel_x >= g_player.dist_right
-	    && g_player.dist_right < g_player.dist_left)
+	ComputeCollisionDistances();
+	if (g_Player.VelX >= g_Player.DistRight
+		&& g_Player.DistRight < g_Player.DistLeft)
 	{
-		collide(g_player.near_right);
-		collide_right();
+		Collide(g_Player.NearRight);
+		CollideRight();
 	}
 	
-	if (g_player.short_circuit)
+	if (g_Player.ShortCircuit)
 		return;
 	
-	compute_collision_distances();
-	if (g_player.vel_y >= g_player.dist_bottom
-	    && g_player.dist_bottom < g_player.dist_top)
+	ComputeCollisionDistances();
+	if (g_Player.VelY >= g_Player.DistBottom
+		&& g_Player.DistBottom < g_Player.DistTop)
 	{
-		collide(g_player.near_bottom);
-		collide_bottom();
+		Collide(g_Player.NearBottom);
+		CollideBottom();
 	}
 }

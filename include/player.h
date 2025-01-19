@@ -7,54 +7,54 @@
 
 #include "map.h"
 
-enum player_state
+enum PlayerState
 {
 	PS_PLAYING = 0,
-	PS_DEAD,
+	PS_DEAD
 };
 
-enum player_cap_id
+enum PlayerCapId
 {
 	PCI_JUMP = 0,
 	PCI_WALLJUMP,
 	PCI_WALLSLIDE,
 	PCI_POWERJUMP,
-	PCI_DASH_DOWN,
+	PCI_DASH_DOWN
 };
 
-struct player_cap_mask
+struct PlayerCapMask
 {
-	bool no_jump, no_walljump, no_wallslide;
-	bool no_powerjump, no_dash_down;
+	bool NoJump, NoWalljump, NoWallslide;
+	bool NoPowerjump, NoDashDown;
 };
 
-struct player
+struct Player
 {
 	// movement data.
-	float pos_x, pos_y;
-	float vel_x, vel_y;
-	bool air_control;
+	float PosX, PosY;
+	float VelX, VelY;
+	bool AirControl;
 	
 	// collision handling data.
-	float dist_left, dist_right, dist_top, dist_bottom;
-	struct map_tile *near_left, *near_right, *near_top, *near_bottom;
-	bool short_circuit;
+	float DistLeft, DistRight, DistTop, DistBottom;
+	struct MapTile *NearLeft, *NearRight, *NearTop, *NearBottom;
+	bool ShortCircuit;
 	
 	// visual data.
-	unsigned trace_spawn_ticks;
-	unsigned dead_ticks;
+	unsigned TraceSpawnTicks;
+	unsigned DeadTicks;
 };
 
-extern struct player g_player;
-extern enum player_state g_player_state;
-extern struct player_cap_mask g_player_cap_mask;
+extern struct Player g_Player;
+extern enum PlayerState g_PlayerState;
+extern struct PlayerCapMask g_PlayerCapMask;
 
-void player_update(void);
-void player_draw(void);
-bool player_grounded(void);
-bool player_walled_left(void);
-bool player_walled_right(void);
-void player_die(void);
-void player_set_cap_mask(enum player_cap_id id, bool state);
+void Player_Update(void);
+void Player_Draw(void);
+bool Player_Grounded(void);
+bool Player_WalledLeft(void);
+bool Player_WalledRight(void);
+void Player_Die(void);
+void Player_SetCapMask(enum PlayerCapId Id, bool State);
 
 #endif

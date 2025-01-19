@@ -12,118 +12,122 @@
 #include "util.h"
 #include "wnd.h"
 
-struct trigger g_triggers[TRIGGERS_MAX];
-size_t g_ntriggers = 0;
+struct Trigger g_Triggers[TRIGGERS_MAX];
+size_t g_TriggerCnt = 0;
 
-static void collide(struct trigger const *trigger, size_t ind);
+static void Collide(struct Trigger const *Trigger, size_t Idx);
 
 uint8_t const *
-trigger_color(enum trigger_type type)
+Trigger_TypeColor(enum TriggerType Type)
 {
-	static uint8_t colors[TT_END__][3] =
+	static uint8_t Colors[TT_END__][3] =
 	{
 		CONF_COLOR_TRIGGER_MSG,
 		CONF_COLOR_TRIGGER_KILL,
 		CONF_COLOR_TRIGGER_MSG_TERM,
 		CONF_COLOR_TRIGGER_CAP_ENABLE,
-		CONF_COLOR_TRIGGER_CAP_DISABLE,
+		CONF_COLOR_TRIGGER_CAP_DISABLE
 	};
 	
-	return colors[type];
+	return Colors[Type];
 }
 
 void
-triggers_add_trigger(struct trigger const *trigger)
+Triggers_AddTrigger(struct Trigger const *Trigger)
 {
-	if (g_ntriggers < TRIGGERS_MAX)
-		g_triggers[g_ntriggers++] = *trigger;
+	if (g_TriggerCnt < TRIGGERS_MAX)
+		g_Triggers[g_TriggerCnt++] = *Trigger;
 }
 
 void
-triggers_rm_trigger(size_t ind)
+Triggers_RmTrigger(size_t Idx)
 {
-	if (g_ntriggers == 0)
+	if (g_TriggerCnt == 0)
 		return;
 	
-	memmove(&g_triggers[ind],
-	        &g_triggers[ind + 1],
-	        sizeof(struct trigger) * (g_ntriggers - ind - 1));
-	--g_ntriggers;
+	memmove(
+		&g_Triggers[Idx],
+		&g_Triggers[Idx + 1],
+		sizeof(struct Trigger) * (g_TriggerCnt - Idx - 1)
+	);
+	--g_TriggerCnt;
 }
 
 void
-triggers_update(void)
+Triggers_Update(void)
 {
-	for (uint32_t i = 0; i < g_ntriggers; ++i)
+	for (uint32_t i = 0; i < g_TriggerCnt; ++i)
 	{
-		if (g_player.pos_x + CONF_PLAYER_SIZE >= g_triggers[i].pos_x
-		    && g_player.pos_x < g_triggers[i].pos_x + g_triggers[i].size_x
-		    && g_player.pos_y + CONF_PLAYER_SIZE >= g_triggers[i].pos_y
-		    && g_player.pos_y < g_triggers[i].pos_y + g_triggers[i].size_y)
+		if (g_Player.PosX + CONF_PLAYER_SIZE >= g_Triggers[i].PosX
+		    && g_Player.PosX < g_Triggers[i].PosX + g_Triggers[i].SizeX
+		    && g_Player.PosY + CONF_PLAYER_SIZE >= g_Triggers[i].PosY
+		    && g_Player.PosY < g_Triggers[i].PosY + g_Triggers[i].SizeY)
 		{
-			collide(&g_triggers[i], i);
+			Collide(&g_Triggers[i], i);
 		}
 	}
 }
 
 void
-triggers_draw(void)
+Triggers_Draw(void)
 {
-	for (uint32_t i = 0; i < g_ntriggers; ++i)
+	for (uint32_t i = 0; i < g_TriggerCnt; ++i)
 	{
-		struct trigger const *t = &g_triggers[i];
+		struct Trigger const *t = &g_Triggers[i];
 		
 		// draw bounding box.
 		{
-			uint8_t const *col = trigger_color(t->type);
-			SDL_SetRenderDrawColor(g_rend,
-			                       col[0],
-			                       col[1],
-			                       col[2],
-			                       CONF_COLOR_TRIGGER_OPACITY);
+			uint8_t const *Col = Trigger_TypeColor(t->Type);
+			SDL_SetRenderDrawColor(
+				g_Rend,
+				Col[0],
+				Col[1],
+				Col[2],
+				CONF_COLOR_TRIGGER_OPACITY
+			);
 		
-			relative_draw_rect(t->pos_x, t->pos_y, t->size_x, t->size_y);
+			RelativeDrawRect(t->PosX, t->PosY, t->SizeX, t->SizeY);
 		}
 		
 		// draw argument text.
 		{
-			int scr_x, scr_y;
-			game_to_screen_coord(&scr_x, &scr_y, t->pos_x, t->pos_y);
+			int ScrX, ScrY;
+			GameToScreenCoord(&ScrX, &ScrY, t->PosX, t->PosY);
 			
-			static char buf[32];
-			sprintf(buf, "%x", t->arg);
+			static char Buf[32];
+			sprintf(Buf, "%x", t->Arg);
 			
-			text_draw_str(buf, scr_x, scr_y);
+			Text_DrawStr(Buf, ScrX, ScrY);
 		}
 	}
 }
 
 static void
-collide(struct trigger const *trigger, size_t ind)
+Collide(struct Trigger const *Trigger, size_t Idx)
 {
 	// perform trigger functionality.
-	switch (trigger->type)
+	switch (Trigger->Type)
 	{
 	case TT_MSG:
-		if (trigger->arg < TLI_END__)
-			text_list_enqueue(trigger->arg);
+		if (Trigger->Arg < TLI_END__)
+			TextList_Enqueue(Trigger->Arg);
 		break;
 	case TT_KILL:
-		player_die();
+		Player_Die();
 		break;
 	case TT_MSG_TERM:
-		text_list_term();
+		TextList_Term();
 		break;
 	case TT_CAP_ENABLE:
-		player_set_cap_mask(trigger->arg, false);
+		Player_SetCapMask(Trigger->Arg, false);
 		break;
 	case TT_CAP_DISABLE:
-		player_set_cap_mask(trigger->arg, true);
+		Player_SetCapMask(Trigger->Arg, true);
 		break;
 	default:
 		break;
 	}
 	
-	if (trigger->single_use)
-		triggers_rm_trigger(ind);
+	if (Trigger->SingleUse)
+		Triggers_RmTrigger(Idx);
 }

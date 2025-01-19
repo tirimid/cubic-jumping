@@ -1,7 +1,7 @@
 #ifndef MAP_LIST_H
 #define MAP_LIST_H
 
-enum map_list_item
+enum MapListItem
 {
 	// custom map.
 	MLI_CUSTOM = 0,
@@ -22,13 +22,13 @@ enum map_list_item
 	MLI_C0E12,
 	MLI_C0E13,
 	
-	MLI_END__,
+	MLI_END__
 };
 
-void map_list_load(enum map_list_item item);
-int map_list_load_custom(char const *path);
-void map_list_hard_reload(void);
-void map_list_soft_reload(void);
-void map_list_load_next(void);
+void MapList_Load(enum MapListItem Item);
+int MapList_LoadCustom(char const *Path);
+void MapList_HardReload(void);
+void MapList_SoftReload(void);
+void MapList_LoadNext(void);
 
 #endif

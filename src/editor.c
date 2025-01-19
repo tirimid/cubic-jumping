@@ -17,88 +17,88 @@
 
 #define NO_DRAG_REGION 0.0f
 
-enum edit_mode
+enum EditMode
 {
 	EM_TILE_P = 0,
 	EM_TILE_F,
 	EM_TRIGGER,
-	EM_PLAYER,
+	EM_PLAYER
 };
 
-static void update_editor(void);
-static void draw_bg(void);
-static void draw_indicators(void);
-static void btn_mode_tile_p(void);
-static void btn_mode_tile_f(void);
-static void btn_mode_trigger(void);
-static void btn_mode_player(void);
-static void btn_type_next(void);
-static void btn_type_prev(void);
-static void btn_zoom_in(void);
-static void btn_zoom_out(void);
-static void btn_save(void);
-static void btn_arg_add(void);
-static void btn_arg_sub(void);
-static void btn_single(void);
-static void btn_exit(void);
+static void UpdateEditor(void);
+static void DrawBg(void);
+static void DrawIndicators(void);
+static void BtnModeTileP(void);
+static void BtnModeTileF(void);
+static void BtnModeTrigger(void);
+static void BtnModePlayer(void);
+static void BtnTypeNext(void);
+static void BtnTypePrev(void);
+static void BtnZoomIn(void);
+static void BtnZoomOut(void);
+static void BtnSave(void);
+static void BtnArgAdd(void);
+static void BtnArgSub(void);
+static void BtnSingle(void);
+static void BtnExit(void);
 
-static char const *map_file;
-static enum edit_mode mode = EM_TILE_P;
-static int type = 0;
-static bool unsaved = false;
-static float drag_orig_x = NO_DRAG_REGION, drag_orig_y = NO_DRAG_REGION;
-static uint32_t arg = 0;
-static bool single_use = true;
-static bool running;
+static char const *MapFile;
+static enum EditMode Mode = EM_TILE_P;
+static int Type = 0;
+static bool Unsaved = false;
+static float DragOrigX = NO_DRAG_REGION, DragOrigY = NO_DRAG_REGION;
+static uint32_t Arg = 0;
+static bool SingleUse = true;
+static bool Running;
 
 int
-editor_init(char const *file)
+Editor_Init(char const *File)
 {
-	map_file = file;
-	if (map_load_from_file(file))
+	MapFile = File;
+	if (Map_LoadFromFile(File))
 		return 1;
 	
 	// init editor state.
 	{
-		mode = EM_TILE_P;
-		type = 0;
-		unsaved = false;
-		drag_orig_x = drag_orig_y = NO_DRAG_REGION;
-		arg = 0;
-		single_use = true;
-		running = true;
+		Mode = EM_TILE_P;
+		Type = 0;
+		Unsaved = false;
+		DragOrigX = DragOrigY = NO_DRAG_REGION;
+		Arg = 0;
+		SingleUse = true;
+		Running = true;
 	}
 	
 	// init camera state.
 	{
-		g_cam.pos_x = 0.0f;
-		g_cam.pos_y = 0.0f;
-		g_cam.zoom = CONF_CAM_MAX_ZOOM;
+		g_Cam.PosX = 0.0f;
+		g_Cam.PosY = 0.0f;
+		g_Cam.Zoom = CONF_CAM_MAX_ZOOM;
 	}
 	
 	return 0;
 }
 
 void
-editor_loop(void)
+Editor_Loop(void)
 {
-	struct ui_button b_mode_tile_p = ui_button_create(10, 10, "Tile-P", btn_mode_tile_p);
-	struct ui_button b_mode_tile_f = ui_button_create(160, 10, "Tile-F", btn_mode_tile_f);
-	struct ui_button b_mode_trigger = ui_button_create(310, 10, "Trigger", btn_mode_trigger);
-	struct ui_button b_mode_player = ui_button_create(480, 10, "Player", btn_mode_player);
-	struct ui_button b_zoom_in = ui_button_create(10, 50, "Zoom+", btn_zoom_in);
-	struct ui_button b_zoom_out = ui_button_create(135, 50, "Zoom-", btn_zoom_out);
-	struct ui_button b_save = ui_button_create(260, 50, "Save", btn_save);
-	struct ui_button b_arg_add = ui_button_create(365, 50, "Arg+", btn_arg_add);
-	struct ui_button b_arg_sub = ui_button_create(470, 50, "Arg-", btn_arg_sub);
-	struct ui_button b_single = ui_button_create(575, 50, "Single", btn_single);
-	struct ui_button b_type_next = ui_button_create(320, 90, "Type>", btn_type_next);
-	struct ui_button b_type_prev = ui_button_create(450, 90, "Type<", btn_type_prev);
-	struct ui_button b_exit = ui_button_create(580, 90, "Exit", btn_exit);
+	struct UiButton BModeTileP = UiButton_Create(10, 10, "Tile-P", BtnModeTileP);
+	struct UiButton BModeTileF = UiButton_Create(160, 10, "Tile-F", BtnModeTileF);
+	struct UiButton BModeTrigger = UiButton_Create(310, 10, "Trigger", BtnModeTrigger);
+	struct UiButton BModePlayer = UiButton_Create(480, 10, "Player", BtnModePlayer);
+	struct UiButton BZoomIn = UiButton_Create(10, 50, "Zoom+", BtnZoomIn);
+	struct UiButton BZoomOut = UiButton_Create(135, 50, "Zoom-", BtnZoomOut);
+	struct UiButton BSave = UiButton_Create(260, 50, "Save", BtnSave);
+	struct UiButton BArgAdd = UiButton_Create(365, 50, "Arg+", BtnArgAdd);
+	struct UiButton BArgSub = UiButton_Create(470, 50, "Arg-", BtnArgSub);
+	struct UiButton BSingle = UiButton_Create(575, 50, "Single", BtnSingle);
+	struct UiButton BTypeNext = UiButton_Create(320, 90, "Type>", BtnTypeNext);
+	struct UiButton BTypePrev = UiButton_Create(450, 90, "Type<", BtnTypePrev);
+	struct UiButton BExit = UiButton_Create(580, 90, "Exit", BtnExit);
 	
-	while (running)
+	while (Running)
 	{
-		uint64_t tick_begin = get_unix_time_ms();
+		uint64_t TickBegin = GetUnixTimeMs();
 		
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
@@ -109,17 +109,17 @@ editor_loop(void)
 				exit(0);
 			case SDL_KEYDOWN:
 				if (!e.key.repeat)
-					keybd_set_key_state(&e, true);
+					Keybd_SetKeyState(&e, true);
 				break;
 			case SDL_KEYUP:
 				if (!e.key.repeat)
-					keybd_set_key_state(&e, false);
+					Keybd_SetKeyState(&e, false);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				mouse_release_button(&e);
+				Mouse_ReleaseButton(&e);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				mouse_press_button(&e);
+				Mouse_PressButton(&e);
 				break;
 			default:
 				break;
@@ -130,213 +130,212 @@ editor_loop(void)
 		{
 			// update UI.
 			{
-				ui_button_update(&b_mode_tile_p);
-				ui_button_update(&b_mode_tile_f);
-				ui_button_update(&b_mode_trigger);
-				ui_button_update(&b_mode_player);
-				ui_button_update(&b_zoom_in);
-				ui_button_update(&b_zoom_out);
-				ui_button_update(&b_type_next);
-				ui_button_update(&b_type_prev);
-				ui_button_update(&b_save);
-				ui_button_update(&b_arg_add);
-				ui_button_update(&b_arg_sub);
-				ui_button_update(&b_single);
-				ui_button_update(&b_exit);
+				UiButton_Update(&BModeTileP);
+				UiButton_Update(&BModeTileF);
+				UiButton_Update(&BModeTrigger);
+				UiButton_Update(&BModePlayer);
+				UiButton_Update(&BZoomIn);
+				UiButton_Update(&BZoomOut);
+				UiButton_Update(&BTypeNext);
+				UiButton_Update(&BTypePrev);
+				UiButton_Update(&BSave);
+				UiButton_Update(&BArgAdd);
+				UiButton_Update(&BArgSub);
+				UiButton_Update(&BSingle);
+				UiButton_Update(&BExit);
 			}
 			
-			update_editor();
-			keybd_post_update();
-			mouse_post_update();
+			UpdateEditor();
+			Input_PostUpdate();
 		}
 		
 		// draw editor.
 		{
-			draw_bg();
-			map_draw();
-			map_draw_outlines();
-			triggers_draw();
-			draw_indicators();
+			DrawBg();
+			Map_Draw();
+			Map_DrawOutlines();
+			Triggers_Draw();
+			DrawIndicators();
 			
 			// draw UI.
 			{
-				ui_button_draw(&b_mode_tile_p);
-				ui_button_draw(&b_mode_tile_f);
-				ui_button_draw(&b_mode_trigger);
-				ui_button_draw(&b_mode_player);
-				ui_button_draw(&b_zoom_in);
-				ui_button_draw(&b_zoom_out);
-				ui_button_draw(&b_type_next);
-				ui_button_draw(&b_type_prev);
-				ui_button_draw(&b_save);
-				ui_button_draw(&b_arg_add);
-				ui_button_draw(&b_arg_sub);
-				ui_button_draw(&b_single);
-				ui_button_draw(&b_exit);
+				UiButton_Draw(&BModeTileP);
+				UiButton_Draw(&BModeTileF);
+				UiButton_Draw(&BModeTrigger);
+				UiButton_Draw(&BModePlayer);
+				UiButton_Draw(&BZoomIn);
+				UiButton_Draw(&BZoomOut);
+				UiButton_Draw(&BTypeNext);
+				UiButton_Draw(&BTypePrev);
+				UiButton_Draw(&BSave);
+				UiButton_Draw(&BArgAdd);
+				UiButton_Draw(&BArgSub);
+				UiButton_Draw(&BSingle);
+				UiButton_Draw(&BExit);
 			}
 			
-			SDL_RenderPresent(g_rend);
+			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t tick_end = get_unix_time_ms();
-		int64_t tick_time_left = CONF_TICK_MS - tick_end + tick_begin;
-		SDL_Delay(tick_time_left * (tick_time_left > 0));
+		uint64_t TickEnd = GetUnixTimeMs();
+		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
 static void
-update_editor(void)
+UpdateEditor(void)
 {
 	// move camera.
 	{
-		float mv_horiz = key_down(g_options.k_editor_right) - key_down(g_options.k_editor_left);
-		float mv_vert = key_down(g_options.k_editor_down) - key_down(g_options.k_editor_up);
-		float speed = key_shift_held() ? CONF_EDITOR_CAM_SPEED_FAST : CONF_EDITOR_CAM_SPEED;
-		g_cam.pos_x += speed * mv_horiz;
-		g_cam.pos_y += speed * mv_vert;
+		float MvHoriz = Keybd_Down(g_Options.KEditorRight) - Keybd_Down(g_Options.KEditorLeft);
+		float MvVert = Keybd_Down(g_Options.KEditorDown) - Keybd_Down(g_Options.KEditorUp);
+		float Speed = Keybd_ShiftHeld() ? CONF_EDITOR_CAM_SPEED_FAST : CONF_EDITOR_CAM_SPEED;
+		g_Cam.PosX += Speed * MvHoriz;
+		g_Cam.PosY += Speed * MvVert;
 	}
 	
 	// mouse interaction based on mode.
-	switch (mode)
+	switch (Mode)
 	{
 	case EM_TILE_P:
 	{
-		int mouse_x, mouse_y;
-		mouse_pos(&mouse_x, &mouse_y);
+		int MouseX, MouseY;
+		Mouse_Pos(&MouseX, &MouseY);
 		
-		if (mouse_y < CONF_EDITOR_BAR_SIZE)
+		if (MouseY < CONF_EDITOR_BAR_SIZE)
 			break;
 		
-		if (mouse_down(MB_LEFT))
+		if (Mouse_Down(MB_LEFT))
 		{
-			unsaved = true;
+			Unsaved = true;
 			
-			float sel_x, sel_y;
-			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
-			sel_x = MAX(0.0f, sel_x);
-			sel_y = MAX(0.0f, sel_y);
+			float SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			SelX = MAX(0.0f, SelX);
+			SelY = MAX(0.0f, SelY);
 			
-			if (sel_x >= g_map.size_x)
-				map_grow((int)sel_x - g_map.size_x + 1, 0);
-			if (sel_y >= g_map.size_y)
-				map_grow(0, (int)sel_y - g_map.size_y + 1);
+			if (SelX >= g_Map.SizeX)
+				Map_Grow((int)SelX - g_Map.SizeX + 1, 0);
+			if (SelY >= g_Map.SizeY)
+				Map_Grow(0, (int)SelY - g_Map.SizeY + 1);
 			
-			map_get((int)sel_x, (int)sel_y)->type = type;
+			Map_Get((int)SelX, (int)SelY)->Type = Type;
 		}
 		
 		break;
 	}
 	case EM_TILE_F:
 	{
-		int mouse_x, mouse_y;
-		mouse_pos(&mouse_x, &mouse_y);
+		int MouseX, MouseY;
+		Mouse_Pos(&MouseX, &MouseY);
 		
-		if (mouse_y < CONF_EDITOR_BAR_SIZE)
+		if (MouseY < CONF_EDITOR_BAR_SIZE)
 			break;
 		
-		float drag_x, drag_y;
-		screen_to_game_coord(&drag_x, &drag_y, mouse_x, mouse_y);
+		float DragX, DragY;
+		ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
 		
-		if (mouse_pressed(MB_LEFT))
+		if (Mouse_Pressed(MB_LEFT))
 		{
-			drag_orig_x = drag_x;
-			drag_orig_y = drag_y;
+			DragOrigX = DragX;
+			DragOrigY = DragY;
 		}
-		else if (mouse_released(MB_LEFT))
+		else if (Mouse_Released(MB_LEFT))
 		{
-			unsaved = true;
+			Unsaved = true;
 			
-			if (drag_x < drag_orig_x)
+			if (DragX < DragOrigX)
 			{
-				float tmp = drag_x;
-				drag_x = drag_orig_x;
-				drag_orig_x = tmp;
+				float Tmp = DragX;
+				DragX = DragOrigX;
+				DragOrigX = Tmp;
 			}
 			
-			if (drag_y < drag_orig_y)
+			if (DragY < DragOrigY)
 			{
-				float tmp = drag_y;
-				drag_y = drag_orig_y;
-				drag_orig_y = tmp;
+				float Tmp = DragY;
+				DragY = DragOrigY;
+				DragOrigY = Tmp;
 			}
 			
-			drag_x = CLAMP(0.0f, drag_x, g_map.size_x - 1);
-			drag_y = CLAMP(0.0f, drag_y, g_map.size_y - 1);
-			drag_orig_x = CLAMP(0.0f, drag_orig_x, g_map.size_x - 1);
-			drag_orig_y = CLAMP(0.0f, drag_orig_y, g_map.size_y - 1);
+			DragX = CLAMP(0.0f, DragX, g_Map.SizeX - 1);
+			DragY = CLAMP(0.0f, DragY, g_Map.SizeY - 1);
+			DragOrigX = CLAMP(0.0f, DragOrigX, g_Map.SizeX - 1);
+			DragOrigY = CLAMP(0.0f, DragOrigY, g_Map.SizeY - 1);
 			
-			for (int x = drag_orig_x; x < (int)drag_x + 1; ++x)
+			for (int x = DragOrigX; x < (int)DragX + 1; ++x)
 			{
-				for (int y = drag_orig_y; y < (int)drag_y + 1; ++y)
-					map_get(x, y)->type = type;
+				for (int y = DragOrigY; y < (int)DragY + 1; ++y)
+					Map_Get(x, y)->Type = Type;
 			}
 			
-			drag_orig_x = drag_orig_y = NO_DRAG_REGION;
+			DragOrigX = DragOrigY = NO_DRAG_REGION;
 		}
 		
 		break;
 	}
 	case EM_TRIGGER:
 	{
-		int mouse_x, mouse_y;
-		mouse_pos(&mouse_x, &mouse_y);
+		int MouseX, MouseY;
+		Mouse_Pos(&MouseX, &MouseY);
 		
-		if (mouse_y < CONF_EDITOR_BAR_SIZE)
+		if (MouseY < CONF_EDITOR_BAR_SIZE)
 			break;
 		
-		float drag_x, drag_y;
-		screen_to_game_coord(&drag_x, &drag_y, mouse_x, mouse_y);
+		float DragX, DragY;
+		ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
 		
-		if (mouse_pressed(MB_LEFT))
+		if (Mouse_Pressed(MB_LEFT))
 		{
-			drag_orig_x = drag_x;
-			drag_orig_y = drag_y;
+			DragOrigX = DragX;
+			DragOrigY = DragY;
 		}
-		else if (mouse_released(MB_LEFT))
+		else if (Mouse_Released(MB_LEFT))
 		{
-			unsaved = true;
+			Unsaved = true;
 			
-			if (drag_x < drag_orig_x)
+			if (DragX < DragOrigX)
 			{
-				float tmp = drag_x;
-				drag_x = drag_orig_x;
-				drag_orig_x = tmp;
+				float Tmp = DragX;
+				DragX = DragOrigX;
+				DragOrigX = Tmp;
 			}
 			
-			if (drag_y < drag_orig_y)
+			if (DragY < DragOrigY)
 			{
-				float tmp = drag_y;
-				drag_y = drag_orig_y;
-				drag_orig_y = tmp;
+				float Tmp = DragY;
+				DragY = DragOrigY;
+				DragOrigY = Tmp;
 			}
 			
-			struct trigger new_trigger =
+			struct Trigger NewTrigger =
 			{
-				.pos_x = drag_orig_x,
-				.pos_y = drag_orig_y,
-				.size_x = drag_x - drag_orig_x,
-				.size_y = drag_y - drag_orig_y,
-				.arg = arg,
-				.single_use = single_use,
-				.type = type,
+				.PosX = DragOrigX,
+				.PosY = DragOrigY,
+				.SizeX = DragX - DragOrigX,
+				.SizeY = DragY - DragOrigY,
+				.Arg = Arg,
+				.SingleUse = SingleUse,
+				.Type = Type,
 			};
-			triggers_add_trigger(&new_trigger);
+			Triggers_AddTrigger(&NewTrigger);
 			
-			drag_orig_x = drag_orig_y = NO_DRAG_REGION;
+			DragOrigX = DragOrigY = NO_DRAG_REGION;
 		}
 		
-		if (mouse_down(MB_RIGHT))
+		if (Mouse_Down(MB_RIGHT))
 		{
-			for (size_t i = 0; i < g_ntriggers; ++i)
+			for (size_t i = 0; i < g_TriggerCnt; ++i)
 			{
-				struct trigger const *trigger = &g_triggers[i];
-				if (drag_x >= trigger->pos_x
-				    && drag_x < trigger->pos_x + trigger->size_x
-				    && drag_y >= trigger->pos_y
-				    && drag_y < trigger->pos_y + trigger->size_y)
+				struct Trigger const *Trigger = &g_Triggers[i];
+				if (DragX >= Trigger->PosX
+				    && DragX < Trigger->PosX + Trigger->SizeX
+				    && DragY >= Trigger->PosY
+				    && DragY < Trigger->PosY + Trigger->SizeY)
 				{
-					triggers_rm_trigger(i);
-					unsaved = true;
+					Triggers_RmTrigger(i);
+					Unsaved = true;
 				}
 			}
 		}
@@ -345,25 +344,25 @@ update_editor(void)
 	}
 	case EM_PLAYER:
 	{
-		int mouse_x, mouse_y;
-		mouse_pos(&mouse_x, &mouse_y);
+		int MouseX, MouseY;
+		Mouse_Pos(&MouseX, &MouseY);
 		
-		if (mouse_y < CONF_EDITOR_BAR_SIZE)
+		if (MouseY < CONF_EDITOR_BAR_SIZE)
 			break;
 		
-		if (mouse_down(MB_LEFT))
+		if (Mouse_Down(MB_LEFT))
 		{
-			unsaved = true;
+			Unsaved = true;
 			
-			float sel_x, sel_y;
-			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
-			sel_x = MAX(0.0f, sel_x);
-			sel_y = MAX(0.0f, sel_y);
-			sel_x = (int)sel_x;
-			sel_y = (int)sel_y;
+			float SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			SelX = MAX(0.0f, SelX);
+			SelY = MAX(0.0f, SelY);
+			SelX = (int)SelX;
+			SelY = (int)SelY;
 			
-			g_map.player_spawn_x = sel_x;
-			g_map.player_spawn_y = sel_y;
+			g_Map.PlayerSpawnX = SelX;
+			g_Map.PlayerSpawnY = SelY;
 		}
 		
 		break;
@@ -372,75 +371,79 @@ update_editor(void)
 }
 
 static void
-draw_bg(void)
+DrawBg(void)
 {
-	static uint8_t cbg[] = CONF_COLOR_BG;
-	SDL_SetRenderDrawColor(g_rend, cbg[0], cbg[1], cbg[2], 255);
-	SDL_RenderClear(g_rend);
+	static uint8_t Cbg[] = CONF_COLOR_BG;
+	SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
+	SDL_RenderClear(g_Rend);
 }
 
 static void
-draw_indicators(void)
+DrawIndicators(void)
 {
 	// draw player spawn position.
 	{
-		static uint8_t cp[] = CONF_COLOR_PLAYER;
+		static uint8_t Cp[] = CONF_COLOR_PLAYER;
 		
-		SDL_SetRenderDrawColor(g_rend, cp[0], cp[1], cp[2], 255);
+		SDL_SetRenderDrawColor(g_Rend, Cp[0], Cp[1], Cp[2], 255);
 		
-		relative_draw_rect(g_map.player_spawn_x,
-		                   g_map.player_spawn_y,
-		                   CONF_PLAYER_SIZE,
-		                   CONF_PLAYER_SIZE);
+		RelativeDrawRect(
+			g_Map.PlayerSpawnX,
+			g_Map.PlayerSpawnY,
+			CONF_PLAYER_SIZE,
+			CONF_PLAYER_SIZE
+		);
 	}
 	
 	// draw hover / selection boundary.
 	{
-		static uint8_t cb[] = CONF_COLOR_EDITOR_BOUNDARY;
+		static uint8_t Cb[] = CONF_COLOR_EDITOR_BOUNDARY;
 		
-		SDL_SetRenderDrawColor(g_rend,
-		                       cb[0],
-		                       cb[1],
-		                       cb[2],
-		                       CONF_COLOR_EDITOR_BOUNDARY_OPACITY);
+		SDL_SetRenderDrawColor(
+			g_Rend,
+			Cb[0],
+			Cb[1],
+			Cb[2],
+			CONF_COLOR_EDITOR_BOUNDARY_OPACITY
+		);
 		
-		switch (mode)
+		switch (Mode)
 		{
 		case EM_TILE_P:
 		case EM_PLAYER:
 		{
-			int mouse_x, mouse_y;
-			mouse_pos(&mouse_x, &mouse_y);
+			int MouseX, MouseY;
+			Mouse_Pos(&MouseX, &MouseY);
 			
-			float sel_x, sel_y;
-			screen_to_game_coord(&sel_x, &sel_y, mouse_x, mouse_y);
-			sel_x = MAX(0.0f, sel_x);
-			sel_y = MAX(0.0f, sel_y);
-			sel_x = (int)sel_x;
-			sel_y = (int)sel_y;
+			float SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			SelX = MAX(0.0f, SelX);
+			SelY = MAX(0.0f, SelY);
+			SelX = (int)SelX;
+			SelY = (int)SelY;
 			
-			relative_draw_rect(sel_x, sel_y, 1.0f, 1.0f);
+			RelativeDrawRect(SelX, SelY, 1.0f, 1.0f);
 			
 			break;
 		}
 		case EM_TILE_F:
 		case EM_TRIGGER:
 		{
-			if (drag_orig_x == NO_DRAG_REGION)
+			if (DragOrigX == NO_DRAG_REGION)
 				break;
 			
-			int mouse_x, mouse_y;
-			mouse_pos(&mouse_x, &mouse_y);
+			int MouseX, MouseY;
+			Mouse_Pos(&MouseX, &MouseY);
 			
-			float drag_x, drag_y;
-			screen_to_game_coord(&drag_x, &drag_y, mouse_x, mouse_y);
+			float DragX, DragY;
+			ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
 			
-			float lbx = MIN(drag_x, drag_orig_x);
-			float lby = MIN(drag_y, drag_orig_y);
-			float ubx = MAX(drag_x, drag_orig_x);
-			float uby = MAX(drag_y, drag_orig_y);
+			float Lbx = MIN(DragX, DragOrigX);
+			float Lby = MIN(DragY, DragOrigY);
+			float Ubx = MAX(DragX, DragOrigX);
+			float Uby = MAX(DragY, DragOrigY);
 			
-			relative_draw_rect(lbx, lby, ubx - lbx, uby - lby);
+			RelativeDrawRect(Lbx, Lby, Ubx - Lbx, Uby - Lby);
 			
 			break;
 		}
@@ -449,7 +452,7 @@ draw_indicators(void)
 	
 	// draw editor bar.
 	{
-		static uint8_t cbgs[] = CONF_COLOR_BG_SQUARE;
+		static uint8_t Cbgs[] = CONF_COLOR_BG_SQUARE;
 		
 		SDL_Rect r =
 		{
@@ -459,13 +462,13 @@ draw_indicators(void)
 			.h = CONF_EDITOR_BAR_SIZE,
 		};
 		
-		SDL_SetRenderDrawColor(g_rend, cbgs[0], cbgs[1], cbgs[2], 255);
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_SetRenderDrawColor(g_Rend, Cbgs[0], Cbgs[1], Cbgs[2], 255);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 	
 	// draw current type indicator.
 	{
-		static uint8_t co[] = CONF_COLOR_OUTLINE;
+		static uint8_t Co[] = CONF_COLOR_OUTLINE;
 		
 		SDL_Rect r =
 		{
@@ -475,52 +478,52 @@ draw_indicators(void)
 			.h = CONF_EDITOR_TYPE_INDICATOR_SIZE,
 		};
 		
-		switch (mode)
+		switch (Mode)
 		{
 		case EM_TILE_P:
 		case EM_TILE_F:
 		{
-			uint8_t const *col = map_tile_color(type);
-			SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
-			SDL_RenderFillRect(g_rend, &r);
+			uint8_t const *Col = Map_TileColor(Type);
+			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
+			SDL_RenderFillRect(g_Rend, &r);
 			break;
 		}
 		case EM_TRIGGER:
 		{
-			uint8_t const *col = trigger_color(type);
-			SDL_SetRenderDrawColor(g_rend, col[0], col[1], col[2], 255);
-			SDL_RenderFillRect(g_rend, &r);
+			uint8_t const *Col = Trigger_TypeColor(Type);
+			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
+			SDL_RenderFillRect(g_Rend, &r);
 			break;
 		}
 		default:
 			break;
 		}
 		
-		SDL_SetRenderDrawColor(g_rend, co[0], co[1], co[2], 255);
-		SDL_RenderDrawRect(g_rend, &r);
+		SDL_SetRenderDrawColor(g_Rend, Co[0], Co[1], Co[2], 255);
+		SDL_RenderDrawRect(g_Rend, &r);
 	}
 	
 	// draw arg indicator.
 	{
-		static char buf[32];
-		snprintf(buf, sizeof(buf), "%08x", arg);
-		text_draw_str(buf, 10, 100);
+		static char Buf[32];
+		snprintf(Buf, sizeof(Buf), "%08x", Arg);
+		Text_DrawStr(Buf, 10, 100);
 	}
 	
 	// draw single use indicator.
 	{
-		text_draw_str(single_use ? "Sing." : "Mult.", 200, 100);
+		Text_DrawStr(SingleUse ? "Sing." : "Mult.", 200, 100);
 	}
 	
 	// draw save status indicator.
 	{
-		static uint8_t ces[] = CONF_COLOR_EDITOR_SAVED;
-		static uint8_t ceu[] = CONF_COLOR_EDITOR_UNSAVED;
+		static uint8_t Ces[] = CONF_COLOR_EDITOR_SAVED;
+		static uint8_t Ceu[] = CONF_COLOR_EDITOR_UNSAVED;
 		
-		if (unsaved)
-			SDL_SetRenderDrawColor(g_rend, ceu[0], ceu[1], ceu[2], 255);
+		if (Unsaved)
+			SDL_SetRenderDrawColor(g_Rend, Ceu[0], Ceu[1], Ceu[2], 255);
 		else
-			SDL_SetRenderDrawColor(g_rend, ces[0], ces[1], ces[2], 255);
+			SDL_SetRenderDrawColor(g_Rend, Ces[0], Ces[1], Ces[2], 255);
 		
 		SDL_Rect r =
 		{
@@ -529,50 +532,50 @@ draw_indicators(void)
 			.w = CONF_WND_WIDTH,
 			.h = CONF_EDITOR_SAVE_INDICATOR_SIZE,
 		};
-		SDL_RenderFillRect(g_rend, &r);
+		SDL_RenderFillRect(g_Rend, &r);
 	}
 }
 
 static void
-btn_mode_tile_p(void)
+BtnModeTileP(void)
 {
-	if (mode != EM_TILE_P && mode != EM_TILE_F)
-		type = 0;
-	mode = EM_TILE_P;
+	if (Mode != EM_TILE_P && Mode != EM_TILE_F)
+		Type = 0;
+	Mode = EM_TILE_P;
 }
 
 static void
-btn_mode_tile_f(void)
+BtnModeTileF(void)
 {
-	if (mode != EM_TILE_P && mode != EM_TILE_F)
-		type = 0;
-	mode = EM_TILE_F;
+	if (Mode != EM_TILE_P && Mode != EM_TILE_F)
+		Type = 0;
+	Mode = EM_TILE_F;
 }
 
 static void
-btn_mode_trigger(void)
+BtnModeTrigger(void)
 {
-	type = 0;
-	mode = EM_TRIGGER;
+	Type = 0;
+	Mode = EM_TRIGGER;
 }
 
 static void
-btn_mode_player(void)
+BtnModePlayer(void)
 {
-	mode = EM_PLAYER;
+	Mode = EM_PLAYER;
 }
 
 static void
-btn_type_next(void)
+BtnTypeNext(void)
 {
-	switch (mode)
+	switch (Mode)
 	{
 	case EM_TILE_P:
 	case EM_TILE_F:
-		type = type == MTT_END__ - 1 ? 0 : type + 1;
+		Type = Type == MTT_END__ - 1 ? 0 : Type + 1;
 		break;
 	case EM_TRIGGER:
-		type = type == TT_END__ - 1 ? 0 : type + 1;
+		Type = Type == TT_END__ - 1 ? 0 : Type + 1;
 		break;
 	default:
 		break;
@@ -580,16 +583,16 @@ btn_type_next(void)
 }
 
 static void
-btn_type_prev(void)
+BtnTypePrev(void)
 {
-	switch (mode)
+	switch (Mode)
 	{
 	case EM_TILE_P:
 	case EM_TILE_F:
-		type = type == 0 ? MTT_END__ - 1 : type - 1;
+		Type = Type == 0 ? MTT_END__ - 1 : Type - 1;
 		break;
 	case EM_TRIGGER:
-		type = type == 0 ? TT_END__ - 1 : type - 1;
+		Type = Type == 0 ? TT_END__ - 1 : Type - 1;
 		break;
 	default:
 		break;
@@ -597,50 +600,50 @@ btn_type_prev(void)
 }
 
 static void
-btn_zoom_in(void)
+BtnZoomIn(void)
 {
-	g_cam.zoom += CONF_EDITOR_CAM_ZOOM;
-	g_cam.zoom = MIN(g_cam.zoom, CONF_CAM_MAX_ZOOM);
+	g_Cam.Zoom += CONF_EDITOR_CAM_ZOOM;
+	g_Cam.Zoom = MIN(g_Cam.Zoom, CONF_CAM_MAX_ZOOM);
 }
 
 static void
-btn_zoom_out(void)
+BtnZoomOut(void)
 {
-	g_cam.zoom -= CONF_EDITOR_CAM_ZOOM;
-	g_cam.zoom = MAX(g_cam.zoom, CONF_CAM_MIN_ZOOM);
+	g_Cam.Zoom -= CONF_EDITOR_CAM_ZOOM;
+	g_Cam.Zoom = MAX(g_Cam.Zoom, CONF_CAM_MIN_ZOOM);
 }
 
 static void
-btn_save(void)
+BtnSave(void)
 {
-	if (!unsaved)
+	if (!Unsaved)
 		return;
 	
-	map_refit_bounds();
-	map_write_to_file(map_file);
-	unsaved = false;
+	Map_RefitBounds();
+	Map_WriteToFile(MapFile);
+	Unsaved = false;
 }
 
 static void
-btn_arg_add(void)
+BtnArgAdd(void)
 {
-	++arg;
+	++Arg;
 }
 
 static void
-btn_arg_sub(void)
+BtnArgSub(void)
 {
-	--arg;
+	--Arg;
 }
 
 static void
-btn_single(void)
+BtnSingle(void)
 {
-	single_use = !single_use;
+	SingleUse = !SingleUse;
 }
 
 static void
-btn_exit(void)
+BtnExit(void)
 {
-	running = false;
+	Running = false;
 }

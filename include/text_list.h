@@ -2,7 +2,7 @@
 #define TEXT_LIST_H
 
 // consult these values when placing message triggers in maps.
-enum text_list_item
+enum TextListItem
 {
 	TLI_CTE0_TEST = 0x0,
 	
@@ -47,12 +47,12 @@ enum text_list_item
 	// c0e11.
 	TLI_C0E11_GRIP_INTRO = 0x15,
 	
-	TLI_END__,
+	TLI_END__
 };
 
-void text_list_term(void);
-void text_list_enqueue(enum text_list_item item);
-void text_list_update(void);
-void text_list_draw(void);
+void TextList_Term(void);
+void TextList_Enqueue(enum TextListItem Item);
+void TextList_Update(void);
+void TextList_Draw(void);
 
 #endif

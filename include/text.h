@@ -8,9 +8,9 @@
 #define TEXT_EFF_WIDTH (CONF_TEXT_SCALE * (TEXT_FONT_WIDTH + 0.5f))
 #define TEXT_EFF_HEIGHT (CONF_TEXT_SCALE * (TEXT_FONT_HEIGHT + 0.5f))
 
-void text_draw_ch(char ch, int x, int y);
-void text_draw_str(char const *s, int x, int y);
-void text_draw_str_bounded(char const *s, int px, int py, int sx, int sy);
-void text_box_draw(char const *text);
+void Text_DrawCh(char Ch, int x, int y);
+void Text_DrawStr(char const *s, int x, int y);
+void Text_DrawStrBounded(char const *s, int Px, int Py, int Sx, int Sy);
+void Text_BoxDraw(char const *Text);
 
 #endif

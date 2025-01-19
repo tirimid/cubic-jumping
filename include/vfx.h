@@ -1,24 +1,24 @@
 #ifndef VFX_H
 #define VFX_H
 
-enum particle_type
+enum ParticleType
 {
 	PT_PLAYER_TRACE = 0,
 	PT_PLAYER_SHARD,
-	PT_AIR_PUFF,
+	PT_AIR_PUFF
 };
 
-struct particle
+struct Particle
 {
-	float pos_x, pos_y;
-	float vel_x, vel_y;
-	unsigned lifetime;
-	unsigned char type;
+	float PosX, PosY;
+	float VelX, VelY;
+	unsigned Lifetime;
+	unsigned char Type;
 };
 
-void vfx_clear_particles(void);
-void vfx_put_particle(enum particle_type type, float x, float y);
-void vfx_update(void);
-void vfx_draw(void);
+void Vfx_ClearParticles(void);
+void Vfx_PutParticle(enum ParticleType Type, float x, float y);
+void Vfx_Update(void);
+void Vfx_Draw(void);
 
 #endif

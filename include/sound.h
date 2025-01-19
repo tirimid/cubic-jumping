@@ -1,7 +1,7 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-enum sfx_id
+enum SfxId
 {
 	SI_BOUNCE = 0,
 	SI_DASH_DOWN,
@@ -14,12 +14,12 @@ enum sfx_id
 	SI_SWITCH,
 	SI_WALLJUMP,
 	
-	SI_END__,
+	SI_END__
 };
 
-int sound_init(void);
-void sound_quit(void);
-void sound_set_sfx_volume(float vol);
-void sound_play_sfx(enum sfx_id id);
+int Sound_Init(void);
+void Sound_Quit(void);
+void Sound_SetSfxVolume(float Vol);
+void Sound_PlaySfx(enum SfxId Id);
 
 #endif

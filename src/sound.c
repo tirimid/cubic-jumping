@@ -23,20 +23,20 @@
 #define SOUND_FREQ 44100
 #define CHUNK_SIZE 2048
 
-#define INCLUDE_SOUND(name) \
+#define INCLUDE_SOUND(Name) \
 	{ \
-		.data = name##_wav, \
-		.size = sizeof(name##_wav), \
+		.Data = Name##_wav, \
+		.Size = sizeof(Name##_wav) \
 	}
 
-struct sound
+struct Sound
 {
-	unsigned char const *data;
-	size_t size;
-	Mix_Chunk *chunk;
+	unsigned char const *Data;
+	size_t Size;
+	Mix_Chunk *Chunk;
 };
 
-static struct sound sfx_sounds[SI_END__] =
+static struct Sound SfxSounds[SI_END__] =
 {
 	INCLUDE_SOUND(bounce),
 	INCLUDE_SOUND(dash_down),
@@ -47,38 +47,38 @@ static struct sound sfx_sounds[SI_END__] =
 	INCLUDE_SOUND(launch),
 	INCLUDE_SOUND(powerjump),
 	INCLUDE_SOUND(switch),
-	INCLUDE_SOUND(walljump),
+	INCLUDE_SOUND(walljump)
 };
 
 int
-sound_init(void)
+Sound_Init(void)
 {
 	// initialize SDL mixer resources.
 	{
 		if (Mix_OpenAudio(SOUND_FREQ, MIX_DEFAULT_FORMAT, 2, CHUNK_SIZE))
 		{
-			log_err("sound: failed to open audio device - %s", Mix_GetError());
+			LogErr("sound: failed to open audio device - %s", Mix_GetError());
 			return 1;
 		}
 	}
 	
-	atexit(sound_quit);
+	atexit(Sound_Quit);
 	
 	// allocate sound effect references.
 	{
 		for (size_t i = 0; i < SI_END__; ++i)
 		{
-			SDL_RWops *rwops = SDL_RWFromConstMem(sfx_sounds[i].data, sfx_sounds[i].size);
-			if (!rwops)
+			SDL_RWops *Rwops = SDL_RWFromConstMem(SfxSounds[i].Data, SfxSounds[i].Size);
+			if (!Rwops)
 			{
-				log_err("sound: failed to create RWops - %s", SDL_GetError());
+				LogErr("sound: failed to create RWops - %s", SDL_GetError());
 				return 1;
 			}
 			
-			sfx_sounds[i].chunk = Mix_LoadWAV_RW(rwops, 1);
-			if (!sfx_sounds[i].chunk)
+			SfxSounds[i].Chunk = Mix_LoadWAV_RW(Rwops, 1);
+			if (!SfxSounds[i].Chunk)
 			{
-				log_err("sound: failed to create Mix_Chunk - %s", Mix_GetError());
+				LogErr("sound: failed to create Mix_Chunk - %s", Mix_GetError());
 				return 1;
 			}
 		}
@@ -88,12 +88,12 @@ sound_init(void)
 }
 
 void
-sound_quit(void)
+Sound_Quit(void)
 {
 	// free sound effect references.
 	{
-		for (size_t i = 0; i < SI_END__ && sfx_sounds[i].chunk; ++i)
-			Mix_FreeChunk(sfx_sounds[i].chunk);
+		for (size_t i = 0; i < SI_END__ && SfxSounds[i].Chunk; ++i)
+			Mix_FreeChunk(SfxSounds[i].Chunk);
 	}
 	
 	// deinitialize SDL mixer resources.
@@ -103,14 +103,14 @@ sound_quit(void)
 }
 
 void
-sound_set_sfx_volume(float vol)
+Sound_SetSfxVolume(float Vol)
 {
-	vol = CLAMP(0.0f, vol, 1.0f);
-	Mix_Volume(-1, vol * MIX_MAX_VOLUME);
+	Vol = CLAMP(0.0f, Vol, 1.0f);
+	Mix_Volume(-1, Vol * MIX_MAX_VOLUME);
 }
 
 void
-sound_play_sfx(enum sfx_id id)
+Sound_PlaySfx(enum SfxId Id)
 {
-	Mix_PlayChannel(-1, sfx_sounds[id].chunk, 0);
+	Mix_PlayChannel(-1, SfxSounds[Id].Chunk, 0);
 }

@@ -12,94 +12,94 @@
 #include "conf.h"
 #include "wnd.h"
 
-#define ERR_TITLE "CJ - error"
+#define ERR_TITLE "CJ - Error"
 #define MAX_LOG_LEN 512
 
 void
-log_err(char const *fmt, ...)
+LogErr(char const *Fmt, ...)
 {
-	va_list args;
-	va_start(args, fmt);
+	va_list Args;
+	va_start(Args, Fmt);
 	
-	char msg[MAX_LOG_LEN];
-	vsnprintf(msg, MAX_LOG_LEN, fmt, args);
+	char Msg[MAX_LOG_LEN];
+	vsnprintf(Msg, MAX_LOG_LEN, Fmt, Args);
 	
 	// stderr is backup so that error can still be processed in case a message
 	// box can't be opened.
-	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, ERR_TITLE, msg, NULL))
-		fprintf(stderr, "%s\n", msg);
+	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, ERR_TITLE, Msg, NULL))
+		fprintf(stderr, "%s\n", Msg);
 	
-	va_end(args);
+	va_end(Args);
 }
 
 uint64_t
-get_unix_time_ms(void)
+GetUnixTimeMs(void)
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000;
+	struct timeval Tv;
+	gettimeofday(&Tv, NULL);
+	return (uint64_t)Tv.tv_sec * 1000 + (uint64_t)Tv.tv_usec / 1000;
 }
 
 float
-lerp(float a, float b, float t)
+Lerp(float a, float b, float t)
 {
 	return a + t * (b - a);
 }
 
 void
-relative_draw_rect(float x, float y, float w, float h)
+RelativeDrawRect(float x, float y, float w, float h)
 {
 	// 1 is added to pixel width and height in order to remove any seams that
 	// appear as a result of dynamic camera movement / zooming.
-	SDL_Rect rect =
+	SDL_Rect Rect =
 	{
-		.w = g_cam.zoom * CONF_DRAW_SCALE * w + 1,
-		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
+		.w = g_Cam.Zoom * CONF_DRAW_SCALE * w + 1,
+		.h = g_Cam.Zoom * CONF_DRAW_SCALE * h + 1
 	};
-	game_to_screen_coord(&rect.x, &rect.y, x, y);
-	SDL_RenderFillRect(g_rend, &rect);
+	GameToScreenCoord(&Rect.x, &Rect.y, x, y);
+	SDL_RenderFillRect(g_Rend, &Rect);
 }
 
 void
-relative_draw_hollow_rect(float x, float y, float w, float h)
+RelativeDrawHollowRect(float x, float y, float w, float h)
 {
-	SDL_Rect rect =
+	SDL_Rect Rect =
 	{
-		.w = g_cam.zoom * CONF_DRAW_SCALE * w + 1,
-		.h = g_cam.zoom * CONF_DRAW_SCALE * h + 1,
+		.w = g_Cam.Zoom * CONF_DRAW_SCALE * w + 1,
+		.h = g_Cam.Zoom * CONF_DRAW_SCALE * h + 1
 	};
-	game_to_screen_coord(&rect.x, &rect.y, x, y);
-	SDL_RenderDrawRect(g_rend, &rect);
+	GameToScreenCoord(&Rect.x, &Rect.y, x, y);
+	SDL_RenderDrawRect(g_Rend, &Rect);
 }
 
 float
-rand_float(float max)
+RandFloat(float Max)
 {
-	return (float)rand() / (float)(RAND_MAX / max);
+	return (float)rand() / (float)(RAND_MAX / Max);
 }
 
 int
-rand_int(int max)
+RandInt(int Max)
 {
-	return rand() % max;
+	return rand() % Max;
 }
 
 void
-game_to_screen_coord(int *out_x, int *out_y, float x, float y)
+GameToScreenCoord(int *OutX, int *OutY, float x, float y)
 {
-	*out_x = g_cam.zoom * CONF_DRAW_SCALE * (x - g_cam.pos_x) + CONF_WND_WIDTH / 2;
-	*out_y = g_cam.zoom * CONF_DRAW_SCALE * (y - g_cam.pos_y) + CONF_WND_HEIGHT / 2;
+	*OutX = g_Cam.Zoom * CONF_DRAW_SCALE * (x - g_Cam.PosX) + CONF_WND_WIDTH / 2;
+	*OutY = g_Cam.Zoom * CONF_DRAW_SCALE * (y - g_Cam.PosY) + CONF_WND_HEIGHT / 2;
 }
 
 void
-screen_to_game_coord(float *out_x, float *out_y, int x, int y)
+ScreenToGameCoord(float *OutX, float *OutY, int x, int y)
 {
-	*out_x = (x - CONF_WND_WIDTH / 2) / (g_cam.zoom * CONF_DRAW_SCALE) + g_cam.pos_x;
-	*out_y = (y - CONF_WND_HEIGHT / 2) / (g_cam.zoom * CONF_DRAW_SCALE) + g_cam.pos_y;
+	*OutX = (x - CONF_WND_WIDTH / 2) / (g_Cam.Zoom * CONF_DRAW_SCALE) + g_Cam.PosX;
+	*OutY = (y - CONF_WND_HEIGHT / 2) / (g_Cam.Zoom * CONF_DRAW_SCALE) + g_Cam.PosY;
 }
 
 unsigned
-count_lines(char const *s)
+CountLines(char const *s)
 {
 	unsigned n = 1;
 	for (size_t i = 0; s[i]; ++i)

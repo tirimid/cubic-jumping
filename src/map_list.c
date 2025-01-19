@@ -29,27 +29,27 @@
 #include "maps/c0e12.hfm"
 #include "maps/c0e13.hfm"
 
-#define INCLUDE_MAP(name) \
+#define INCLUDE_MAP(Name) \
 	{ \
-		.map = &name##_map, \
-		.triggers = name##_triggers, \
-		.ntriggers = name##_NTRIGGERS, \
+		.Map = &Name##_map, \
+		.Triggers = Name##_triggers, \
+		.TriggerCnt = Name##_NTRIGGERS, \
 	}
 
-struct item
+struct Item
 {
-	struct map *map;
-	struct trigger *triggers;
-	size_t ntriggers;
+	struct Map *Map;
+	struct Trigger *Triggers;
+	size_t TriggerCnt;
 };
 
-static char const *cur_custom;
-static enum map_list_item cur_item;
-static struct item item_data[MLI_END__] =
+static char const *CurCustom;
+static enum MapListItem CurItem;
+static struct Item ItemData[MLI_END__] =
 {
 	{
 		// dummy: custom map.
-		.map = NULL,
+		.Map = NULL,
 	},
 	
 	// chapter 0.
@@ -70,139 +70,139 @@ static struct item item_data[MLI_END__] =
 };
 
 void
-map_list_load(enum map_list_item item)
+MapList_Load(enum MapListItem Item)
 {
 	// init gameplay elements.
 	{
-		g_map = *item_data[item].map;
+		g_Map = *ItemData[Item].Map;
 		
-		g_ntriggers = 0;
-		for (size_t i = 0; i < item_data[item].ntriggers; ++i)
-			triggers_add_trigger(&item_data[item].triggers[i]);
+		g_TriggerCnt = 0;
+		for (size_t i = 0; i < ItemData[Item].TriggerCnt; ++i)
+			Triggers_AddTrigger(&ItemData[Item].Triggers[i]);
 		
-		g_player_state = PS_PLAYING;
-		g_player = (struct player)
+		g_PlayerState = PS_PLAYING;
+		g_Player = (struct Player)
 		{
-			.pos_x = g_map.player_spawn_x,
-			.pos_y = g_map.player_spawn_y,
+			.PosX = g_Map.PlayerSpawnX,
+			.PosY = g_Map.PlayerSpawnY,
 		};
-		g_player_cap_mask = (struct player_cap_mask){0};
+		g_PlayerCapMask = (struct PlayerCapMask){0};
 		
-		game_disable_switches();
+		Game_DisableSwitches();
 	}
 	
 	// init aesthetic elements.
 	{
-		g_cam = (struct cam)
+		g_Cam = (struct Cam)
 		{
-			.pos_x = g_map.player_spawn_x,
-			.pos_y = g_map.player_spawn_y,
-			.zoom = 1.0f,
+			.PosX = g_Map.PlayerSpawnX,
+			.PosY = g_Map.PlayerSpawnY,
+			.Zoom = 1.0f,
 		};
 		
-		g_game.il_time_ms = 0;
-		g_game.il_deaths = 0;
+		g_Game.IlTimeMs = 0;
+		g_Game.IlDeaths = 0;
 		
-		text_list_term();
+		TextList_Term();
 		
-		vfx_clear_particles();
+		Vfx_ClearParticles();
 	}
 	
 	// register map list item as being loaded.
 	{
-		cur_item = item;
+		CurItem = Item;
 	}
 }
 
 int
-map_list_load_custom(char const *path)
+MapList_LoadCustom(char const *Path)
 {
 	// init gameplay elements.
 	{
-		if (map_load_from_file(path))
+		if (Map_LoadFromFile(Path))
 			return 1;
 		
-		g_player_state = PS_PLAYING;
-		g_player = (struct player)
+		g_PlayerState = PS_PLAYING;
+		g_Player = (struct Player)
 		{
-			.pos_x = g_map.player_spawn_x,
-			.pos_y = g_map.player_spawn_y,
+			.PosX = g_Map.PlayerSpawnX,
+			.PosY = g_Map.PlayerSpawnY,
 		};
-		g_player_cap_mask = (struct player_cap_mask){0};
+		g_PlayerCapMask = (struct PlayerCapMask){0};
 		
-		game_disable_switches();
+		Game_DisableSwitches();
 	}
 	
 	// init aesthetic elements.
 	{
-		g_cam = (struct cam)
+		g_Cam = (struct Cam)
 		{
-			.pos_x = g_map.player_spawn_x,
-			.pos_y = g_map.player_spawn_y,
-			.zoom = 1.0f,
+			.PosX = g_Map.PlayerSpawnX,
+			.PosY = g_Map.PlayerSpawnY,
+			.Zoom = 1.0f,
 		};
 		
-		g_game.il_time_ms = 0;
-		g_game.il_deaths = 0;
+		g_Game.IlTimeMs = 0;
+		g_Game.IlDeaths = 0;
 		
-		text_list_term();
+		TextList_Term();
 		
-		vfx_clear_particles();
+		Vfx_ClearParticles();
 	}
 	
 	// register map list item as being loaded.
 	{
-		cur_item = MLI_CUSTOM;
-		cur_custom = path;
+		CurItem = MLI_CUSTOM;
+		CurCustom = Path;
 	}
 	
 	return 0;
 }
 
 void
-map_list_hard_reload(void)
+MapList_HardReload(void)
 {
-	if (cur_item == MLI_CUSTOM)
+	if (CurItem == MLI_CUSTOM)
 	{
-		free(g_map.data);
-		map_list_load_custom(cur_custom);
+		free(g_Map.Data);
+		MapList_LoadCustom(CurCustom);
 	}
 	else
-		map_list_load(cur_item);
+		MapList_Load(CurItem);
 }
 
 void
-map_list_soft_reload(void)
+MapList_SoftReload(void)
 {
-	g_player_state = PS_PLAYING;
-	g_player = (struct player)
+	g_PlayerState = PS_PLAYING;
+	g_Player = (struct Player)
 	{
-		.pos_x = g_map.player_spawn_x,
-		.pos_y = g_map.player_spawn_y,
+		.PosX = g_Map.PlayerSpawnX,
+		.PosY = g_Map.PlayerSpawnY,
 	};
 	
-	game_disable_switches();
+	Game_DisableSwitches();
 }
 
 void
-map_list_load_next(void)
+MapList_LoadNext(void)
 {
-	switch (level_end_menu_loop())
+	switch (LevelEndMenuLoop())
 	{
 	case MR_NEXT:
-		if (cur_item == MLI_CUSTOM)
-			g_game.running = false;
-		else if (cur_item == MLI_END__ - 1)
+		if (CurItem == MLI_CUSTOM)
+			g_Game.Running = false;
+		else if (CurItem == MLI_END__ - 1)
 		{
 			// TODO: uncomment when credits sequence is done.
 			//credits_sequence();
-			g_game.running = false;
+			g_Game.Running = false;
 		}
 		else
-			map_list_load(cur_item + 1);
+			MapList_Load(CurItem + 1);
 		break;
 	case MR_RETRY:
-		map_list_hard_reload();
+		MapList_HardReload();
 		break;
 	default:
 		break;

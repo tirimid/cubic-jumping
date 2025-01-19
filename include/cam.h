@@ -1,14 +1,14 @@
 #ifndef CAM_H
 #define CAM_H
 
-struct cam
+struct Cam
 {
-	float pos_x, pos_y;
-	float zoom;
+	float PosX, PosY;
+	float Zoom;
 };
 
-extern struct cam g_cam;
+extern struct Cam g_Cam;
 
-void cam_update(void);
+void Cam_Update(void);
 
 #endif
