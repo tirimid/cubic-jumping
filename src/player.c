@@ -1,7 +1,5 @@
 #include "player.h"
 
-#include <stddef.h>
-
 #include "cam.h"
 #include "conf.h"
 #include "game.h"
@@ -10,7 +8,6 @@
 #include "map_list.h"
 #include "options.h"
 #include "sound.h"
-#include "util.h"
 #include "vfx.h"
 #include "wnd.h"
 
@@ -48,7 +45,7 @@ Player_Draw(void)
 	if (g_PlayerState == PS_DEAD)
 		return;
 	
-	static uint8_t Cp[] = CONF_COLOR_PLAYER;
+	static u8 Cp[] = CONF_COLOR_PLAYER;
 	SDL_SetRenderDrawColor(g_Rend, Cp[0], Cp[1], Cp[2], 255);
 	RelativeDrawRect(
 		g_Player.PosX,
@@ -89,7 +86,7 @@ Player_Die(void)
 	g_Player.DeadTicks = CONF_PLAYER_DEATH_TICKS;
 	g_PlayerState = PS_DEAD;
 	
-	for (int i = 0; i < CONF_PLAYER_SHARD_CNT; ++i)
+	for (i32 i = 0; i < CONF_PLAYER_SHARD_CNT; ++i)
 	{
 		Vfx_PutParticle(
 			PT_PLAYER_SHARD,
@@ -159,7 +156,7 @@ UpdatePlaying(void)
 	{
 		if (Player_Grounded() || (!Player_Grounded() && g_Player.AirControl))
 		{
-			float MvHoriz = Keybd_Down(g_Options.KRight) - Keybd_Down(g_Options.KLeft);
+			f32 MvHoriz = Keybd_Down(g_Options.KRight) - Keybd_Down(g_Options.KLeft);
 			MvHoriz *= Player_Grounded() ? CONF_PLAYER_SPEED : CONF_PLAYER_AIR_SPEED;
 			g_Player.VelX += MvHoriz;
 		}
@@ -169,7 +166,7 @@ UpdatePlaying(void)
 			&& Keybd_Pressed(g_Options.KDashDown))
 		{
 			g_Player.VelY = CONF_PLAYER_DASH_DOWN_SPEED;
-			for (int i = 0; i < CONF_AIR_PUFF_CNT; ++i)
+			for (i32 i = 0; i < CONF_AIR_PUFF_CNT; ++i)
 			{
 				Vfx_PutParticle(
 					PT_AIR_PUFF,
@@ -442,7 +439,7 @@ ComputeCollisionDistances(void)
 {
 	// find nearest left edge.
 	{
-		int Cxtl;
+		i32 Cxtl;
 		struct MapTile *CxtlTile = NULL;
 		for (Cxtl = g_Player.PosX; Cxtl >= 0; --Cxtl)
 		{
@@ -454,7 +451,7 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cxbl;
+		i32 Cxbl;
 		struct MapTile *CxblTile = NULL;
 		for (Cxbl = g_Player.PosX; Cxbl >= 0; --Cxbl)
 		{
@@ -466,14 +463,14 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cxl = MAX(Cxtl, Cxbl);
+		i32 Cxl = MAX(Cxtl, Cxbl);
 		g_Player.DistLeft = g_Player.PosX - Cxl - 1.0f;
 		g_Player.NearLeft = Cxtl > Cxbl ? CxtlTile : CxblTile;
 	}
 	
 	// find nearest right edge.
 	{
-		int Cxtr;
+		i32 Cxtr;
 		struct MapTile *CxtrTile = NULL;
 		for (Cxtr = g_Player.PosX + CONF_PLAYER_SIZE; Cxtr < g_Map.SizeX; ++Cxtr)
 		{
@@ -485,7 +482,7 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cxbr;
+		i32 Cxbr;
 		struct MapTile *CxbrTile = NULL;
 		for (Cxbr = g_Player.PosX + CONF_PLAYER_SIZE; Cxbr < g_Map.SizeX; ++Cxbr)
 		{
@@ -497,14 +494,14 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cxr = MIN(Cxtr, Cxbr);
+		i32 Cxr = MIN(Cxtr, Cxbr);
 		g_Player.DistRight = Cxr - g_Player.PosX - CONF_PLAYER_SIZE;
 		g_Player.NearRight = Cxtr < Cxbr ? CxtrTile : CxbrTile;
 	}
 	
 	// find nearest top edge.
 	{
-		int Cytl;
+		i32 Cytl;
 		struct MapTile *CytlTile = NULL;
 		for (Cytl = g_Player.PosY; Cytl >= 0; --Cytl)
 		{
@@ -516,7 +513,7 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cytr;
+		i32 Cytr;
 		struct MapTile *CytrTile = NULL;
 		for (Cytr = g_Player.PosY; Cytr >= 0; --Cytr)
 		{
@@ -528,14 +525,14 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cyt = MAX(Cytl, Cytr);
+		i32 Cyt = MAX(Cytl, Cytr);
 		g_Player.DistTop = g_Player.PosY - Cyt - 1.0f;
 		g_Player.NearTop = Cytl > Cytr ? CytlTile : CytrTile;
 	}
 	
 	// find nearest bottom edge.
 	{
-		int Cybl;
+		i32 Cybl;
 		struct MapTile *CyblTile = NULL;
 		for (Cybl = g_Player.PosY + CONF_PLAYER_SIZE; Cybl < g_Map.SizeY; ++Cybl)
 		{
@@ -547,7 +544,7 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cybr;
+		i32 Cybr;
 		struct MapTile *CybrTile = NULL;
 		for (Cybr = g_Player.PosY + CONF_PLAYER_SIZE; Cybr < g_Map.SizeY; ++Cybr)
 		{
@@ -559,7 +556,7 @@ ComputeCollisionDistances(void)
 			}
 		}
 		
-		int Cyb = MIN(Cybl, Cybr);
+		i32 Cyb = MIN(Cybl, Cybr);
 		g_Player.DistBottom = Cyb - g_Player.PosY - CONF_PLAYER_SIZE;
 		g_Player.NearBottom = Cybl < Cybr ? CyblTile : CybrTile;
 	}

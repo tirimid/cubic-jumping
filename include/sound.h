@@ -1,6 +1,8 @@
 #ifndef SOUND_H
 #define SOUND_H
 
+#include "util.h"
+
 enum SfxId
 {
 	SI_BOUNCE = 0,
@@ -17,9 +19,9 @@ enum SfxId
 	SI_END__
 };
 
-int Sound_Init(void);
+i32 Sound_Init(void);
 void Sound_Quit(void);
-void Sound_SetSfxVolume(float Vol);
+void Sound_SetSfxVolume(f32 Vol);
 void Sound_PlaySfx(enum SfxId Id);
 
 #endif

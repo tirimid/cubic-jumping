@@ -1,6 +1,8 @@
 #ifndef VFX_H
 #define VFX_H
 
+#include "util.h"
+
 enum ParticleType
 {
 	PT_PLAYER_TRACE = 0,
@@ -10,14 +12,14 @@ enum ParticleType
 
 struct Particle
 {
-	float PosX, PosY;
-	float VelX, VelY;
-	unsigned Lifetime;
-	unsigned char Type;
+	f32 PosX, PosY;
+	f32 VelX, VelY;
+	u32 Lifetime;
+	u8 Type;
 };
 
 void Vfx_ClearParticles(void);
-void Vfx_PutParticle(enum ParticleType Type, float x, float y);
+void Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y);
 void Vfx_Update(void);
 void Vfx_Draw(void);
 

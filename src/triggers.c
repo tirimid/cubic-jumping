@@ -13,14 +13,14 @@
 #include "wnd.h"
 
 struct Trigger g_Triggers[TRIGGERS_MAX];
-size_t g_TriggerCnt = 0;
+usize g_TriggerCnt = 0;
 
-static void Collide(struct Trigger const *Trigger, size_t Idx);
+static void Collide(struct Trigger const *Trigger, usize Idx);
 
-uint8_t const *
+u8 const *
 Trigger_TypeColor(enum TriggerType Type)
 {
-	static uint8_t Colors[TT_END__][3] =
+	static u8 Colors[TT_END__][3] =
 	{
 		CONF_COLOR_TRIGGER_MSG,
 		CONF_COLOR_TRIGGER_KILL,
@@ -40,7 +40,7 @@ Triggers_AddTrigger(struct Trigger const *Trigger)
 }
 
 void
-Triggers_RmTrigger(size_t Idx)
+Triggers_RmTrigger(usize Idx)
 {
 	if (g_TriggerCnt == 0)
 		return;
@@ -56,7 +56,7 @@ Triggers_RmTrigger(size_t Idx)
 void
 Triggers_Update(void)
 {
-	for (uint32_t i = 0; i < g_TriggerCnt; ++i)
+	for (u32 i = 0; i < g_TriggerCnt; ++i)
 	{
 		if (g_Player.PosX + CONF_PLAYER_SIZE >= g_Triggers[i].PosX
 			&& g_Player.PosX < g_Triggers[i].PosX + g_Triggers[i].SizeX
@@ -71,13 +71,13 @@ Triggers_Update(void)
 void
 Triggers_Draw(void)
 {
-	for (uint32_t i = 0; i < g_TriggerCnt; ++i)
+	for (u32 i = 0; i < g_TriggerCnt; ++i)
 	{
 		struct Trigger const *t = &g_Triggers[i];
 		
 		// draw bounding box.
 		{
-			uint8_t const *Col = Trigger_TypeColor(t->Type);
+			u8 const *Col = Trigger_TypeColor(t->Type);
 			SDL_SetRenderDrawColor(
 				g_Rend,
 				Col[0],
@@ -91,7 +91,7 @@ Triggers_Draw(void)
 		
 		// draw argument text.
 		{
-			int ScrX, ScrY;
+			i32 ScrX, ScrY;
 			GameToScreenCoord(&ScrX, &ScrY, t->PosX, t->PosY);
 			
 			static char Buf[32];
@@ -103,7 +103,7 @@ Triggers_Draw(void)
 }
 
 static void
-Collide(struct Trigger const *Trigger, size_t Idx)
+Collide(struct Trigger const *Trigger, usize Idx)
 {
 	// perform trigger functionality.
 	switch (Trigger->Type)

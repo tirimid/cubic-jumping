@@ -1,6 +1,5 @@
 #include "map.h"
 
-#include <stddef.h>
 #include <stdio.h>
 
 #include <SDL2/SDL.h>
@@ -8,20 +7,19 @@
 #include "cam.h"
 #include "conf.h"
 #include "triggers.h"
-#include "util.h"
 #include "wnd.h"
 
 struct Map g_Map;
 
-static int RdUint8(uint8_t *Out, FILE *Fp);
-static int RdUint32(uint32_t *Out, FILE *Fp);
-static void WrUint8(FILE *Fp, uint8_t U8);
-static void WrUint32(FILE *Fp, uint32_t U32);
+static i32 RdUint8(u8 *Out, FILE *Fp);
+static i32 RdUint32(u32 *Out, FILE *Fp);
+static void WrUint8(FILE *Fp, u8 U8);
+static void WrUint32(FILE *Fp, u32 U32);
 
-int
+i32
 Map_CreateFile(char const *File, char const *Name)
 {
-	unsigned NameLen = strlen(Name);
+	u32 NameLen = strlen(Name);
 	if (NameLen > MAP_MAX_NAME_LEN)
 	{
 		LogErr("map: map name is too long (%u > %u)!", NameLen, MAP_MAX_NAME_LEN);
@@ -41,7 +39,7 @@ Map_CreateFile(char const *File, char const *Name)
 		
 		char NameBuf[MAP_MAX_NAME_LEN + 1] = {0};
 		strncpy(NameBuf, Name, MAP_MAX_NAME_LEN);
-		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
+		for (usize i = 0; i < MAP_MAX_NAME_LEN; ++i)
 			WrUint8(Fp, NameBuf[i]);
 		
 		WrUint32(Fp, 1);
@@ -102,7 +100,7 @@ Map_CreateFile(char const *File, char const *Name)
 	return 0;
 }
 
-int
+i32
 Map_LoadFromFile(char const *File)
 {
 	FILE *Fp = fopen(File, "rb");
@@ -124,9 +122,9 @@ Map_LoadFromFile(char const *File)
 		}
 		
 		memset(g_Map.Name, 0, sizeof(g_Map.Name));
-		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
+		for (usize i = 0; i < MAP_MAX_NAME_LEN; ++i)
 		{
-			uint8_t Ch;
+			u8 Ch;
 			if (RdUint8(&Ch, Fp))
 				return 1;
 			g_Map.Name[i] = Ch;
@@ -144,9 +142,9 @@ Map_LoadFromFile(char const *File)
 	// read main map data.
 	{
 		g_Map.Data = malloc(sizeof(struct MapTile) * g_Map.SizeX * g_Map.SizeY);
-		for (size_t i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
+		for (usize i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
 		{
-			uint8_t Type;
+			u8 Type;
 			if (RdUint8(&Type, Fp))
 				return 1;
 			
@@ -159,20 +157,20 @@ Map_LoadFromFile(char const *File)
 	
 	// read trigger data.
 	{
-		uint32_t TriggerCnt;
+		u32 TriggerCnt;
 		if (RdUint32(&TriggerCnt, Fp))
 			return 1;
 		
 		g_TriggerCnt = 0;
-		for (uint32_t i = 0; i < TriggerCnt; ++i)
+		for (u32 i = 0; i < TriggerCnt; ++i)
 		{
 			struct Trigger NewTrigger;
-			if (RdUint32((uint32_t *)&NewTrigger.PosX, Fp)
-				|| RdUint32((uint32_t *)&NewTrigger.PosY, Fp)
-				|| RdUint32((uint32_t *)&NewTrigger.SizeX, Fp)
-				|| RdUint32((uint32_t *)&NewTrigger.SizeY, Fp)
-				|| RdUint32((uint32_t *)&NewTrigger.Arg, Fp)
-				|| RdUint8((uint8_t *)&NewTrigger.SingleUse, Fp)
+			if (RdUint32((u32 *)&NewTrigger.PosX, Fp)
+				|| RdUint32((u32 *)&NewTrigger.PosY, Fp)
+				|| RdUint32((u32 *)&NewTrigger.SizeX, Fp)
+				|| RdUint32((u32 *)&NewTrigger.SizeY, Fp)
+				|| RdUint32((u32 *)&NewTrigger.Arg, Fp)
+				|| RdUint8((u8 *)&NewTrigger.SingleUse, Fp)
 				|| RdUint8(&NewTrigger.Type, Fp))
 			{
 				LogErr("map: failed to read one or more triggers from file: %s!", File);
@@ -189,9 +187,9 @@ Map_LoadFromFile(char const *File)
 }
 
 void
-Map_Grow(uint32_t Dx, uint32_t Dy)
+Map_Grow(u32 Dx, u32 Dy)
 {
-	uint32_t OldSizeX = g_Map.SizeX, OldSizeY = g_Map.SizeY;
+	u32 OldSizeX = g_Map.SizeX, OldSizeY = g_Map.SizeY;
 	g_Map.SizeX += Dx;
 	g_Map.SizeY += Dy;
 	
@@ -199,8 +197,8 @@ Map_Grow(uint32_t Dx, uint32_t Dy)
 	
 	// create new air cells (horizontal).
 	{
-		size_t MvLen = OldSizeX * (OldSizeY - 1);
-		size_t MvIdx = OldSizeX;
+		usize MvLen = OldSizeX * (OldSizeY - 1);
+		usize MvIdx = OldSizeX;
 		while (MvLen > 0)
 		{
 			memmove(
@@ -232,10 +230,10 @@ void
 Map_RefitBounds(void)
 {
 	// determine minimum bounds of map.
-	uint32_t FarX = 0, FarY = 0;
-	for (uint32_t x = 0; x < g_Map.SizeX; ++x)
+	u32 FarX = 0, FarY = 0;
+	for (u32 x = 0; x < g_Map.SizeX; ++x)
 	{
-		for (uint32_t y = 0; y < g_Map.SizeY; ++y)
+		for (u32 y = 0; y < g_Map.SizeY; ++y)
 		{
 			struct MapTile *Tile = Map_Get(x, y);
 			if (Tile->Type == MTT_AIR)
@@ -249,9 +247,9 @@ Map_RefitBounds(void)
 	// if needed, shrink horizontally and move cell memory.
 	if (g_Map.SizeX > FarX + 1)
 	{
-		size_t Dx = g_Map.SizeX - FarX - 1;
-		size_t MvIdx = g_Map.SizeX;
-		size_t MvLen = g_Map.SizeX * (g_Map.SizeY - 1);
+		usize Dx = g_Map.SizeX - FarX - 1;
+		usize MvIdx = g_Map.SizeX;
+		usize MvLen = g_Map.SizeX * (g_Map.SizeY - 1);
 		
 		while (MvLen > 0)
 		{
@@ -273,7 +271,7 @@ Map_RefitBounds(void)
 	}
 }
 
-int
+i32
 Map_WriteToFile(char const *File)
 {
 	FILE *Fp = fopen(File, "wb");
@@ -287,7 +285,7 @@ Map_WriteToFile(char const *File)
 	{
 		fprintf(Fp, "//CJ");
 		
-		for (size_t i = 0; i < MAP_MAX_NAME_LEN; ++i)
+		for (usize i = 0; i < MAP_MAX_NAME_LEN; ++i)
 			WrUint8(Fp, g_Map.Name[i]);
 		
 		WrUint32(Fp, g_Map.SizeX);
@@ -295,7 +293,7 @@ Map_WriteToFile(char const *File)
 		WrUint32(Fp, g_Map.PlayerSpawnX);
 		WrUint32(Fp, g_Map.PlayerSpawnY);
 		
-		for (size_t i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
+		for (usize i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
 			WrUint8(Fp, g_Map.Data[i].Type);
 	}
 	
@@ -303,14 +301,14 @@ Map_WriteToFile(char const *File)
 	{
 		WrUint32(Fp, g_TriggerCnt);
 		
-		for (size_t i = 0; i < g_TriggerCnt; ++i)
+		for (usize i = 0; i < g_TriggerCnt; ++i)
 		{
 			struct Trigger const *Trigger = &g_Triggers[i];
 			
-			WrUint32(Fp, *(uint32_t *)&Trigger->PosX);
-			WrUint32(Fp, *(uint32_t *)&Trigger->PosY);
-			WrUint32(Fp, *(uint32_t *)&Trigger->SizeX);
-			WrUint32(Fp, *(uint32_t *)&Trigger->SizeY);
+			WrUint32(Fp, *(u32 *)&Trigger->PosX);
+			WrUint32(Fp, *(u32 *)&Trigger->PosY);
+			WrUint32(Fp, *(u32 *)&Trigger->SizeX);
+			WrUint32(Fp, *(u32 *)&Trigger->SizeY);
 			WrUint32(Fp, Trigger->Arg);
 			WrUint8(Fp, Trigger->SingleUse);
 			WrUint8(Fp, Trigger->Type);
@@ -338,7 +336,7 @@ Map_WriteToFile(char const *File)
 			g_Map.Name
 		);
 		
-		for (size_t i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
+		for (usize i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
 			fprintf(Fp, "{%u},", g_Map.Data[i].Type);
 		
 		fprintf(
@@ -365,7 +363,7 @@ Map_WriteToFile(char const *File)
 			g_Map.Name
 		);
 		
-		for (size_t i = 0; i < g_TriggerCnt; ++i)
+		for (usize i = 0; i < g_TriggerCnt; ++i)
 		{
 			fprintf(
 				Fp,
@@ -393,10 +391,10 @@ Map_WriteToFile(char const *File)
 	return 0;
 }
 
-uint8_t const *
+u8 const *
 Map_TileColor(enum MapTileType Type)
 {
-	static uint8_t Colors[MTT_END__][3] =
+	static u8 Colors[MTT_END__][3] =
 	{
 		CONF_COLOR_BG,
 		CONF_COLOR_GROUND,
@@ -483,15 +481,25 @@ Map_TileClimbable(enum MapTileType Type)
 void
 Map_Draw(void)
 {
-	for (uint32_t x = 0; x < g_Map.SizeX; ++x)
+	f32 MinX, MinY;
+	ScreenToGameCoord(&MinX, &MinY, 0, 0);
+	MinX = MAX(0.0f, MinX);
+	MinY = MAX(0.0f, MinY);
+	
+	f32 MaxX, MaxY;
+	ScreenToGameCoord(&MaxX, &MaxY, CONF_WND_WIDTH, CONF_WND_HEIGHT);
+	MaxX = MIN((u32)(MaxX + 1.0f), g_Map.SizeX);
+	MaxY = MIN((u32)(MaxY + 1.0f), g_Map.SizeY);
+	
+	for (u32 x = MinX; x < (u32)MaxX; ++x)
 	{
-		for (uint32_t y = 0; y < g_Map.SizeY; ++y)
+		for (u32 y = MinY; y < (u32)MaxY; ++y)
 		{
 			struct MapTile *Tile = Map_Get(x, y);
 			if (Tile->Type == MTT_AIR)
 				continue;
 			
-			uint8_t const *Col = Map_TileColor(Tile->Type);
+			u8 const *Col = Map_TileColor(Tile->Type);
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			RelativeDrawRect(x, y, 1.0f, 1.0f);
 		}
@@ -501,40 +509,40 @@ Map_Draw(void)
 void
 Map_DrawOutlines(void)
 {
-	static uint8_t Co[] = CONF_COLOR_OUTLINE;
+	static u8 Co[] = CONF_COLOR_OUTLINE;
 	
 	SDL_SetRenderDrawColor(g_Rend, Co[0], Co[1], Co[2], 255);
-	for (uint32_t x = 0; x < g_Map.SizeX; ++x)
+	for (u32 x = 0; x < g_Map.SizeX; ++x)
 	{
-		for (uint32_t y = 0; y < g_Map.SizeY; ++y)
+		for (u32 y = 0; y < g_Map.SizeY; ++y)
 			RelativeDrawHollowRect(x, y, 1.0f, 1.0f);
 	}
 }
 
 struct MapTile *
-Map_Get(uint32_t x, uint32_t y)
+Map_Get(u32 x, u32 y)
 {
 	return &g_Map.Data[g_Map.SizeX * y + x];
 }
 
-static int
-RdUint8(uint8_t *Out, FILE *Fp)
+static i32
+RdUint8(u8 *Out, FILE *Fp)
 {
-	int High = fgetc(Fp);
+	i32 High = fgetc(Fp);
 	if (High == EOF)
 	{
 		LogErr("map: failed to read U8 higher-half!");
 		return 1;
 	}
 	
-	int Low = fgetc(Fp);
+	i32 Low = fgetc(Fp);
 	if (Low == EOF)
 	{
 		LogErr("map: failed to read U8 lower-half!");
 		return 1;
 	}
 	
-	static uint8_t ValLookup[] =
+	static u8 ValLookup[] =
 	{
 		['0'] = 0,
 		['1'] = 1,
@@ -554,15 +562,15 @@ RdUint8(uint8_t *Out, FILE *Fp)
 		['f'] = 15,
 	};
 	
-	*Out = (uint8_t)ValLookup[Low];
-	*Out |= (uint8_t)ValLookup[High] << 4;
+	*Out = (u8)ValLookup[Low];
+	*Out |= (u8)ValLookup[High] << 4;
 	return 0;
 }
 
-static int
-RdUint32(uint32_t *Out, FILE *Fp)
+static i32
+RdUint32(u32 *Out, FILE *Fp)
 {
-	uint8_t B0, B1, B2, B3;
+	u8 B0, B1, B2, B3;
 	if (RdUint8(&B3, Fp)
 		|| RdUint8(&B2, Fp)
 		|| RdUint8(&B1, Fp)
@@ -571,17 +579,17 @@ RdUint32(uint32_t *Out, FILE *Fp)
 		return 1;
 	}
 	
-	*Out = (uint32_t)B0;
-	*Out |= (uint32_t)B1 << 8;
-	*Out |= (uint32_t)B2 << 16;
-	*Out |= (uint32_t)B3 << 24;
+	*Out = (u32)B0;
+	*Out |= (u32)B1 << 8;
+	*Out |= (u32)B2 << 16;
+	*Out |= (u32)B3 << 24;
 	return 0;
 }
 
 static void
-WrUint8(FILE *Fp, uint8_t U8)
+WrUint8(FILE *Fp, u8 U8)
 {
-	static uint8_t HexLookup[] =
+	static u8 HexLookup[] =
 	{
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
@@ -591,12 +599,12 @@ WrUint8(FILE *Fp, uint8_t U8)
 }
 
 static void
-WrUint32(FILE *Fp, uint32_t U32)
+WrUint32(FILE *Fp, u32 U32)
 {
-	uint8_t B0 = U32 & 0xff;
-	uint8_t B1 = (U32 & 0xff00) >> 8;
-	uint8_t B2 = (U32 & 0xff0000) >> 16;
-	uint8_t B3 = (U32 & 0xff000000) >> 24;
+	u8 B0 = U32 & 0xff;
+	u8 B1 = (U32 & 0xff00) >> 8;
+	u8 B2 = (U32 & 0xff0000) >> 16;
+	u8 B3 = (U32 & 0xff000000) >> 24;
 	
 	WrUint8(Fp, B3);
 	WrUint8(Fp, B2);

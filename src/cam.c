@@ -4,7 +4,6 @@
 
 #include "conf.h"
 #include "player.h"
-#include "util.h"
 
 struct Cam g_Cam =
 {
@@ -31,10 +30,10 @@ Cam_Update(void)
 	
 	// zoom out based on player speed.
 	{
-		float Psx2 = g_Player.VelX * g_Player.VelX;
-		float Psy2 = g_Player.VelY * g_Player.VelY;
+		f32 Psx2 = g_Player.VelX * g_Player.VelX;
+		f32 Psy2 = g_Player.VelY * g_Player.VelY;
 		
-		float ZoomExt = sqrtf(Psx2 + Psy2);
+		f32 ZoomExt = sqrtf(Psx2 + Psy2);
 		ZoomExt = MIN(ZoomExt, CONF_CAM_MAX_ZOOM);
 		ZoomExt = MAX(ZoomExt, CONF_CAM_MIN_ZOOM);
 		

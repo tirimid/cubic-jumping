@@ -1,7 +1,6 @@
 #include "ui.h"
 
 #include <ctype.h>
-#include <stdint.h>
 #include <string.h>
 
 #include <SDL2/SDL.h>
@@ -12,7 +11,7 @@
 #include "wnd.h"
 
 struct UiButton
-UiButton_Create(int x, int y, char const *Text, void (*Callback)(void))
+UiButton_Create(i32 x, i32 y, char const *Text, void (*Callback)(void))
 {
 	return (struct UiButton)
 	{
@@ -28,7 +27,7 @@ UiButton_Create(int x, int y, char const *Text, void (*Callback)(void))
 void
 UiButton_Update(struct UiButton *Btn)
 {
-	int MouseX, MouseY;
+	i32 MouseX, MouseY;
 	Mouse_Pos(&MouseX, &MouseY);
 	
 	if (MouseX >= Btn->x
@@ -58,9 +57,9 @@ UiButton_Draw(struct UiButton const *Btn)
 {
 	// set frame color based on button status.
 	{
-		static uint8_t Cb[] = CONF_COLOR_BUTTON;
-		static uint8_t Cbh[] = CONF_COLOR_BUTTON_HOVERED;
-		static uint8_t Cbp[] = CONF_COLOR_BUTTON_PRESSED;
+		static u8 Cb[] = CONF_COLOR_BUTTON;
+		static u8 Cbh[] = CONF_COLOR_BUTTON_HOVERED;
+		static u8 Cbp[] = CONF_COLOR_BUTTON_PRESSED;
 		
 		if (Btn->Pressed)
 			SDL_SetRenderDrawColor(g_Rend, Cbp[0], Cbp[1], Cbp[2], 255);
@@ -93,7 +92,7 @@ UiButton_Draw(struct UiButton const *Btn)
 }
 
 struct UiTextField
-UiTextField_Create(int x, int y, size_t Ndraw, char *Out, size_t Nmax)
+UiTextField_Create(i32 x, i32 y, u32 Ndraw, char *Out, u32 Nmax)
 {
 	return (struct UiTextField)
 	{
@@ -111,7 +110,7 @@ UiTextField_Create(int x, int y, size_t Ndraw, char *Out, size_t Nmax)
 void
 UiTextField_Update(struct UiTextField *Tf)
 {
-	int MouseX, MouseY;
+	i32 MouseX, MouseY;
 	Mouse_Pos(&MouseX, &MouseY);
 	
 	// handle text field selection.
@@ -168,7 +167,7 @@ UiTextField_Update(struct UiTextField *Tf)
 	// handle text field keyboard input.
 	{
 		// support ASCII input.
-		for (unsigned char i = 0; i < 128; ++i)
+		for (u8 i = 0; i < 128; ++i)
 		{
 			if (Tf->Len >= Tf->Nmax)
 				break;
@@ -215,9 +214,9 @@ UiTextField_Draw(struct UiTextField const *Tf)
 {
 	// set frame color based on text field status.
 	{
-		static uint8_t Ctf[] = CONF_COLOR_TEXT_FIELD;
-		static uint8_t Ctfs[] = CONF_COLOR_TEXT_FIELD_SELECTED;
-		static uint8_t Ctfh[] = CONF_COLOR_TEXT_FIELD_HOVERED;
+		static u8 Ctf[] = CONF_COLOR_TEXT_FIELD;
+		static u8 Ctfs[] = CONF_COLOR_TEXT_FIELD_SELECTED;
+		static u8 Ctfh[] = CONF_COLOR_TEXT_FIELD_HOVERED;
 		
 		if (Tf->Selected)
 			SDL_SetRenderDrawColor(g_Rend, Ctfs[0], Ctfs[1], Ctfs[2], 255);
@@ -241,8 +240,8 @@ UiTextField_Draw(struct UiTextField const *Tf)
 	
 	// draw text field text.
 	{
-		int x = Tf->x + CONF_TEXT_FIELD_PADDING;
-		for (size_t i = Tf->FirstDraw; i < Tf->Len; ++i)
+		i32 x = Tf->x + CONF_TEXT_FIELD_PADDING;
+		for (u32 i = Tf->FirstDraw; i < Tf->Len; ++i)
 		{
 			if (x > Tf->x + CONF_TEXT_FIELD_PADDING + Tf->w)
 				break;
@@ -253,7 +252,7 @@ UiTextField_Draw(struct UiTextField const *Tf)
 	
 	// draw cursor.
 	{
-		static uint8_t Ctfc[] = CONF_COLOR_TEXT_FIELD_CURSOR;
+		static u8 Ctfc[] = CONF_COLOR_TEXT_FIELD_CURSOR;
 		
 		SDL_Rect r =
 		{
@@ -269,14 +268,7 @@ UiTextField_Draw(struct UiTextField const *Tf)
 }
 
 struct UiSlider
-UiSlider_Create(
-	int x,
-	int y,
-	int w,
-	int h,
-	float Initial,
-	void (*Callback)(float)
-)
+UiSlider_Create(i32 x, i32 y, i32 w, i32 h, f32 Initial, void (*Callback)(f32))
 {
 	return (struct UiSlider)
 	{
@@ -292,7 +284,7 @@ UiSlider_Create(
 void
 UiSlider_Update(struct UiSlider *s)
 {
-	int MouseX, MouseY;
+	i32 MouseX, MouseY;
 	Mouse_Pos(&MouseX, &MouseY);
 	
 	if (MouseX >= s->x
@@ -303,7 +295,7 @@ UiSlider_Update(struct UiSlider *s)
 		s->Hovered = true;
 		if (Mouse_Down(MB_LEFT))
 		{
-			s->Val = (float)(MouseX - s->x) / s->w;
+			s->Val = (f32)(MouseX - s->x) / s->w;
 			if (s->Callback)
 				s->Callback(s->Val);
 			s->Pressed = true;
@@ -323,9 +315,9 @@ UiSlider_Draw(struct UiSlider const *s)
 {
 	// set frame color based on slider state.
 	{
-		static uint8_t Cs[] = CONF_COLOR_SLIDER;
-		static uint8_t Csh[] = CONF_COLOR_SLIDER_HOVERED;
-		static uint8_t Csp[] = CONF_COLOR_SLIDER_PRESSED;
+		static u8 Cs[] = CONF_COLOR_SLIDER;
+		static u8 Csh[] = CONF_COLOR_SLIDER_HOVERED;
+		static u8 Csp[] = CONF_COLOR_SLIDER_PRESSED;
 		
 		if (s->Pressed)
 			SDL_SetRenderDrawColor(g_Rend, Csp[0], Csp[1], Csp[2], 255);
@@ -349,7 +341,7 @@ UiSlider_Draw(struct UiSlider const *s)
 	
 	// draw slider cursor.
 	{
-		static uint8_t Csc[] = CONF_COLOR_SLIDER_CURSOR;
+		static u8 Csc[] = CONF_COLOR_SLIDER_CURSOR;
 		
 		SDL_Rect r =
 		{

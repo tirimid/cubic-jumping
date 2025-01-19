@@ -15,7 +15,6 @@
 #include "text.h"
 #include "text_list.h"
 #include "triggers.h"
-#include "util.h"
 #include "vfx.h"
 #include "wnd.h"
 
@@ -30,7 +29,7 @@ Game_Loop(void)
 {
 	while (g_Game.Running)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		Input_HandleEvents();
 		
@@ -70,8 +69,8 @@ Game_Loop(void)
 		g_Game.IlTimeMs += CONF_TICK_MS;
 		g_Game.TotalTimeMs += CONF_TICK_MS;
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -80,7 +79,7 @@ void
 Game_DisableSwitches(void)
 {
 	g_Game.OffSwitches = 0;
-	for (size_t i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
+	for (usize i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
 	{
 		if (g_Map.Data[i].Type == MTT_SWITCH_ON)
 		{
@@ -93,7 +92,7 @@ Game_DisableSwitches(void)
 	
 	if (g_Game.OffSwitches > 0)
 	{
-		for (size_t i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
+		for (usize i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
 		{
 			if (g_Map.Data[i].Type == MTT_END_ON)
 				g_Map.Data[i].Type = MTT_END_OFF;
@@ -107,7 +106,7 @@ Game_EnableSwitch(void)
 	--g_Game.OffSwitches;
 	if (g_Game.OffSwitches == 0)
 	{
-		for (size_t i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
+		for (usize i = 0, Size = g_Map.SizeX * g_Map.SizeY; i < Size; ++i)
 		{
 			if (g_Map.Data[i].Type == MTT_END_OFF)
 				g_Map.Data[i].Type = MTT_END_ON;
@@ -118,9 +117,9 @@ Game_EnableSwitch(void)
 static void
 DrawBg(void)
 {
-	static uint8_t Cbg[] = CONF_COLOR_BG, Cbgs[] = CONF_COLOR_BG_SQUARE;
-	static float FirstSquareX = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
-	static float FirstSquareY = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
+	static u8 Cbg[] = CONF_COLOR_BG, Cbgs[] = CONF_COLOR_BG_SQUARE;
+	static f32 FirstSquareX = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
+	static f32 FirstSquareY = -CONF_BG_SQUARE_SIZE - CONF_BG_SQUARE_GAP;
 	
 	// update square positions.
 	{
@@ -138,9 +137,9 @@ DrawBg(void)
 	SDL_RenderClear(g_Rend);
 	
 	SDL_SetRenderDrawColor(g_Rend, Cbgs[0], Cbgs[1], Cbgs[2], 255);
-	for (float x = FirstSquareX; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+	for (f32 x = FirstSquareX; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 	{
-		for (float y = FirstSquareY; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+		for (f32 y = FirstSquareY; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 		{
 			SDL_Rect Square =
 			{
@@ -157,15 +156,15 @@ DrawBg(void)
 static void
 FillOutOfBounds(void)
 {
-	int ScrLbx, ScrLby;
+	i32 ScrLbx, ScrLby;
 	GameToScreenCoord(&ScrLbx, &ScrLby, 0.0f, 0.0f);
 	
-	int ScrUbx, ScrUby;
+	i32 ScrUbx, ScrUby;
 	GameToScreenCoord(&ScrUbx, &ScrUby, g_Map.SizeX, g_Map.SizeY);
 	
 	// set OOB cover draw color.
 	{
-		static uint8_t Cg[] = CONF_COLOR_GROUND;
+		static u8 Cg[] = CONF_COLOR_GROUND;
 		SDL_SetRenderDrawColor(g_Rend, Cg[0], Cg[1], Cg[2], 255);
 	}
 	
@@ -227,8 +226,8 @@ DrawIndicators(void)
 {
 	// draw IL timer.
 	{
-		uint64_t IlTimeS = g_Game.IlTimeMs / 1000;
-		uint64_t IlTimeM = IlTimeS / 60;
+		u64 IlTimeS = g_Game.IlTimeMs / 1000;
+		u64 IlTimeM = IlTimeS / 60;
 		
 		static char Buf[32];
 		sprintf(

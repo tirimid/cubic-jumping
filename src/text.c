@@ -1,19 +1,15 @@
 #include "text.h"
 
-#include <stddef.h>
-#include <stdint.h>
-
 #include <SDL2/SDL.h>
 
-#include "util.h"
 #include "wnd.h"
 
-static size_t DrawableLenAt(char const *Text, size_t Off);
+static usize DrawableLenAt(char const *Text, usize Off);
 
 // thanks to azmr on github for creating this header font.
 // find the source at `https://github.com/azmr/blit-fonts/blob/master/blit32.h`.
 // modified to include the non-printable characters as zeroes.
-static uint32_t Font[] =
+static u32 Font[] =
 {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -34,18 +30,18 @@ static uint32_t Font[] =
 };
 
 void
-Text_DrawCh(char Ch, int x, int y)
+Text_DrawCh(char Ch, i32 x, i32 y)
 {
-	static uint8_t Ct[] = CONF_COLOR_TEXT, Cto[] = CONF_COLOR_TEXT_OUTLINE;
+	static u8 Ct[] = CONF_COLOR_TEXT, Cto[] = CONF_COLOR_TEXT_OUTLINE;
 	
 	// draw outline boxes.
 	SDL_SetRenderDrawColor(g_Rend, Cto[0], Cto[1], Cto[2], 255);
-	for (int Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
+	for (i32 Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
 	{
-		for (int Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
+		for (i32 Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
 		{
-			int Shift = Gy * TEXT_FONT_WIDTH + Gx;
-			if (!(Font[(unsigned char)Ch] & 1 << Shift))
+			i32 Shift = Gy * TEXT_FONT_WIDTH + Gx;
+			if (!(Font[(u8)Ch] & 1 << Shift))
 				continue;
 			
 			SDL_Rect Outline =
@@ -61,12 +57,12 @@ Text_DrawCh(char Ch, int x, int y)
 	
 	// draw inside boxes.
 	SDL_SetRenderDrawColor(g_Rend, Ct[0], Ct[1], Ct[2], 255);
-	for (int Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
+	for (i32 Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
 	{
-		for (int Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
+		for (i32 Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
 		{
 			int Shift = Gy * TEXT_FONT_WIDTH + Gx;
-			if (!(Font[(unsigned char)Ch] & 1 << Shift))
+			if (!(Font[(u8)Ch] & 1 << Shift))
 				continue;
 			
 			SDL_Rect Main =
@@ -82,9 +78,9 @@ Text_DrawCh(char Ch, int x, int y)
 }
 
 void
-Text_DrawStr(char const *s, int x, int y)
+Text_DrawStr(char const *s, i32 x, i32 y)
 {
-	int Dx = 0, Dy = 0;
+	i32 Dx = 0, Dy = 0;
 	for (char const *c = s; *c; ++c)
 	{
 		if (*c == '\n')
@@ -100,27 +96,27 @@ Text_DrawStr(char const *s, int x, int y)
 }
 
 void
-Text_DrawStrBounded(char const *s, int Px, int Py, int Sx, int Sy)
+Text_DrawStrBounded(char const *s, i32 Px, i32 Py, i32 Sx, i32 Sy)
 {
-	size_t i = 0;
-	for (int Dy = Py; Dy < Py + Sy; Dy += TEXT_EFF_HEIGHT)
+	usize i = 0;
+	for (i32 Dy = Py; Dy < Py + Sy; Dy += TEXT_EFF_HEIGHT)
 	{
 		// skip all non-renderable characters at start of line.
-		while (s[i] && !Font[(unsigned char)s[i]])
+		while (s[i] && !Font[(u8)s[i]])
 			++i;
 		
 		// draw all words on line that don't require a newline wrap.
-		for (int Dx = Px; Dx < Px + Sx;)
+		for (i32 Dx = Px; Dx < Px + Sx;)
 		{
 			if (!s[i])
 				return;
 			
-			size_t DrawLen = DrawableLenAt(s, i);
+			usize DrawLen = DrawableLenAt(s, i);
 			DrawLen = MAX(DrawLen, 1);
 			if (Dx + DrawLen * TEXT_EFF_WIDTH >= Px + Sx)
 				break;
 			
-			for (size_t j = i; j < i + DrawLen; ++j)
+			for (usize j = i; j < i + DrawLen; ++j)
 			{
 				Text_DrawCh(s[j], Dx, Dy);
 				Dx += TEXT_EFF_WIDTH;
@@ -136,7 +132,7 @@ Text_BoxDraw(char const *Text)
 {
 	// draw actual box of text box.
 	{
-		static uint8_t Ctb[] = CONF_COLOR_TEXT_BOX;
+		static u8 Ctb[] = CONF_COLOR_TEXT_BOX;
 		
 		SDL_Rect Box =
 		{
@@ -169,13 +165,13 @@ Text_BoxDraw(char const *Text)
 	}
 }
 
-static size_t
-DrawableLenAt(char const *Text, size_t Off)
+static usize
+DrawableLenAt(char const *Text, usize Off)
 {
-	size_t Len;
+	usize Len;
 	for (Len = 0; Text[Off + Len]; ++Len)
 	{
-		if (!Font[(unsigned char)Text[Off + Len]])
+		if (!Font[(u8)Text[Off + Len]])
 			break;
 	}
 	return Len;

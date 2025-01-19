@@ -12,7 +12,6 @@
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
-#include "util.h"
 #include "wnd.h"
 
 #define NO_DRAG_REGION 0.0f
@@ -44,14 +43,14 @@ static void BtnExit(void);
 
 static char const *MapFile;
 static enum EditMode Mode = EM_TILE_P;
-static int Type = 0;
+static i32 Type = 0;
 static bool Unsaved = false;
-static float DragOrigX = NO_DRAG_REGION, DragOrigY = NO_DRAG_REGION;
-static uint32_t Arg = 0;
+static f32 DragOrigX = NO_DRAG_REGION, DragOrigY = NO_DRAG_REGION;
+static u32 Arg = 0;
 static bool SingleUse = true;
 static bool Running;
 
-int
+i32
 Editor_Init(char const *File)
 {
 	MapFile = File;
@@ -98,7 +97,7 @@ Editor_Loop(void)
 	
 	while (Running)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
@@ -177,8 +176,8 @@ Editor_Loop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -188,9 +187,9 @@ UpdateEditor(void)
 {
 	// move camera.
 	{
-		float MvHoriz = Keybd_Down(g_Options.KEditorRight) - Keybd_Down(g_Options.KEditorLeft);
-		float MvVert = Keybd_Down(g_Options.KEditorDown) - Keybd_Down(g_Options.KEditorUp);
-		float Speed = Keybd_ShiftHeld() ? CONF_EDITOR_CAM_SPEED_FAST : CONF_EDITOR_CAM_SPEED;
+		f32 MvHoriz = Keybd_Down(g_Options.KEditorRight) - Keybd_Down(g_Options.KEditorLeft);
+		f32 MvVert = Keybd_Down(g_Options.KEditorDown) - Keybd_Down(g_Options.KEditorUp);
+		f32 Speed = Keybd_ShiftHeld() ? CONF_EDITOR_CAM_SPEED_FAST : CONF_EDITOR_CAM_SPEED;
 		g_Cam.PosX += Speed * MvHoriz;
 		g_Cam.PosY += Speed * MvVert;
 	}
@@ -200,7 +199,7 @@ UpdateEditor(void)
 	{
 	case EM_TILE_P:
 	{
-		int MouseX, MouseY;
+		i32 MouseX, MouseY;
 		Mouse_Pos(&MouseX, &MouseY);
 		
 		if (MouseY < CONF_EDITOR_BAR_SIZE)
@@ -210,30 +209,30 @@ UpdateEditor(void)
 		{
 			Unsaved = true;
 			
-			float SelX, SelY;
+			f32 SelX, SelY;
 			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
 			SelX = MAX(0.0f, SelX);
 			SelY = MAX(0.0f, SelY);
 			
 			if (SelX >= g_Map.SizeX)
-				Map_Grow((int)SelX - g_Map.SizeX + 1, 0);
+				Map_Grow((i32)SelX - g_Map.SizeX + 1, 0);
 			if (SelY >= g_Map.SizeY)
-				Map_Grow(0, (int)SelY - g_Map.SizeY + 1);
+				Map_Grow(0, (i32)SelY - g_Map.SizeY + 1);
 			
-			Map_Get((int)SelX, (int)SelY)->Type = Type;
+			Map_Get((i32)SelX, (i32)SelY)->Type = Type;
 		}
 		
 		break;
 	}
 	case EM_TILE_F:
 	{
-		int MouseX, MouseY;
+		i32 MouseX, MouseY;
 		Mouse_Pos(&MouseX, &MouseY);
 		
 		if (MouseY < CONF_EDITOR_BAR_SIZE)
 			break;
 		
-		float DragX, DragY;
+		f32 DragX, DragY;
 		ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
 		
 		if (Mouse_Pressed(MB_LEFT))
@@ -247,14 +246,14 @@ UpdateEditor(void)
 			
 			if (DragX < DragOrigX)
 			{
-				float Tmp = DragX;
+				f32 Tmp = DragX;
 				DragX = DragOrigX;
 				DragOrigX = Tmp;
 			}
 			
 			if (DragY < DragOrigY)
 			{
-				float Tmp = DragY;
+				f32 Tmp = DragY;
 				DragY = DragOrigY;
 				DragOrigY = Tmp;
 			}
@@ -264,9 +263,9 @@ UpdateEditor(void)
 			DragOrigX = CLAMP(0.0f, DragOrigX, g_Map.SizeX - 1);
 			DragOrigY = CLAMP(0.0f, DragOrigY, g_Map.SizeY - 1);
 			
-			for (int x = DragOrigX; x < (int)DragX + 1; ++x)
+			for (i32 x = DragOrigX; x < (i32)DragX + 1; ++x)
 			{
-				for (int y = DragOrigY; y < (int)DragY + 1; ++y)
+				for (i32 y = DragOrigY; y < (i32)DragY + 1; ++y)
 					Map_Get(x, y)->Type = Type;
 			}
 			
@@ -277,13 +276,13 @@ UpdateEditor(void)
 	}
 	case EM_TRIGGER:
 	{
-		int MouseX, MouseY;
+		i32 MouseX, MouseY;
 		Mouse_Pos(&MouseX, &MouseY);
 		
 		if (MouseY < CONF_EDITOR_BAR_SIZE)
 			break;
 		
-		float DragX, DragY;
+		f32 DragX, DragY;
 		ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
 		
 		if (Mouse_Pressed(MB_LEFT))
@@ -297,14 +296,14 @@ UpdateEditor(void)
 			
 			if (DragX < DragOrigX)
 			{
-				float Tmp = DragX;
+				f32 Tmp = DragX;
 				DragX = DragOrigX;
 				DragOrigX = Tmp;
 			}
 			
 			if (DragY < DragOrigY)
 			{
-				float Tmp = DragY;
+				f32 Tmp = DragY;
 				DragY = DragOrigY;
 				DragOrigY = Tmp;
 			}
@@ -326,7 +325,7 @@ UpdateEditor(void)
 		
 		if (Mouse_Down(MB_RIGHT))
 		{
-			for (size_t i = 0; i < g_TriggerCnt; ++i)
+			for (usize i = 0; i < g_TriggerCnt; ++i)
 			{
 				struct Trigger const *Trigger = &g_Triggers[i];
 				if (DragX >= Trigger->PosX
@@ -344,7 +343,7 @@ UpdateEditor(void)
 	}
 	case EM_PLAYER:
 	{
-		int MouseX, MouseY;
+		i32 MouseX, MouseY;
 		Mouse_Pos(&MouseX, &MouseY);
 		
 		if (MouseY < CONF_EDITOR_BAR_SIZE)
@@ -354,12 +353,12 @@ UpdateEditor(void)
 		{
 			Unsaved = true;
 			
-			float SelX, SelY;
+			f32 SelX, SelY;
 			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
 			SelX = MAX(0.0f, SelX);
 			SelY = MAX(0.0f, SelY);
-			SelX = (int)SelX;
-			SelY = (int)SelY;
+			SelX = (i32)SelX;
+			SelY = (i32)SelY;
 			
 			g_Map.PlayerSpawnX = SelX;
 			g_Map.PlayerSpawnY = SelY;
@@ -373,7 +372,7 @@ UpdateEditor(void)
 static void
 DrawBg(void)
 {
-	static uint8_t Cbg[] = CONF_COLOR_BG;
+	static u8 Cbg[] = CONF_COLOR_BG;
 	SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
 	SDL_RenderClear(g_Rend);
 }
@@ -383,7 +382,7 @@ DrawIndicators(void)
 {
 	// draw player spawn position.
 	{
-		static uint8_t Cp[] = CONF_COLOR_PLAYER;
+		static u8 Cp[] = CONF_COLOR_PLAYER;
 		
 		SDL_SetRenderDrawColor(g_Rend, Cp[0], Cp[1], Cp[2], 255);
 		
@@ -397,7 +396,7 @@ DrawIndicators(void)
 	
 	// draw hover / selection boundary.
 	{
-		static uint8_t Cb[] = CONF_COLOR_EDITOR_BOUNDARY;
+		static u8 Cb[] = CONF_COLOR_EDITOR_BOUNDARY;
 		
 		SDL_SetRenderDrawColor(
 			g_Rend,
@@ -412,15 +411,15 @@ DrawIndicators(void)
 		case EM_TILE_P:
 		case EM_PLAYER:
 		{
-			int MouseX, MouseY;
+			i32 MouseX, MouseY;
 			Mouse_Pos(&MouseX, &MouseY);
 			
-			float SelX, SelY;
+			f32 SelX, SelY;
 			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
 			SelX = MAX(0.0f, SelX);
 			SelY = MAX(0.0f, SelY);
-			SelX = (int)SelX;
-			SelY = (int)SelY;
+			SelX = (i32)SelX;
+			SelY = (i32)SelY;
 			
 			RelativeDrawRect(SelX, SelY, 1.0f, 1.0f);
 			
@@ -432,16 +431,16 @@ DrawIndicators(void)
 			if (DragOrigX == NO_DRAG_REGION)
 				break;
 			
-			int MouseX, MouseY;
+			i32 MouseX, MouseY;
 			Mouse_Pos(&MouseX, &MouseY);
 			
-			float DragX, DragY;
+			f32 DragX, DragY;
 			ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
 			
-			float Lbx = MIN(DragX, DragOrigX);
-			float Lby = MIN(DragY, DragOrigY);
-			float Ubx = MAX(DragX, DragOrigX);
-			float Uby = MAX(DragY, DragOrigY);
+			f32 Lbx = MIN(DragX, DragOrigX);
+			f32 Lby = MIN(DragY, DragOrigY);
+			f32 Ubx = MAX(DragX, DragOrigX);
+			f32 Uby = MAX(DragY, DragOrigY);
 			
 			RelativeDrawRect(Lbx, Lby, Ubx - Lbx, Uby - Lby);
 			
@@ -452,7 +451,7 @@ DrawIndicators(void)
 	
 	// draw editor bar.
 	{
-		static uint8_t Cbgs[] = CONF_COLOR_BG_SQUARE;
+		static u8 Cbgs[] = CONF_COLOR_BG_SQUARE;
 		
 		SDL_Rect r =
 		{
@@ -468,7 +467,7 @@ DrawIndicators(void)
 	
 	// draw current type indicator.
 	{
-		static uint8_t Co[] = CONF_COLOR_OUTLINE;
+		static u8 Co[] = CONF_COLOR_OUTLINE;
 		
 		SDL_Rect r =
 		{
@@ -483,14 +482,14 @@ DrawIndicators(void)
 		case EM_TILE_P:
 		case EM_TILE_F:
 		{
-			uint8_t const *Col = Map_TileColor(Type);
+			u8 const *Col = Map_TileColor(Type);
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			SDL_RenderFillRect(g_Rend, &r);
 			break;
 		}
 		case EM_TRIGGER:
 		{
-			uint8_t const *Col = Trigger_TypeColor(Type);
+			u8 const *Col = Trigger_TypeColor(Type);
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			SDL_RenderFillRect(g_Rend, &r);
 			break;
@@ -517,8 +516,8 @@ DrawIndicators(void)
 	
 	// draw save status indicator.
 	{
-		static uint8_t Ces[] = CONF_COLOR_EDITOR_SAVED;
-		static uint8_t Ceu[] = CONF_COLOR_EDITOR_UNSAVED;
+		static u8 Ces[] = CONF_COLOR_EDITOR_SAVED;
+		static u8 Ceu[] = CONF_COLOR_EDITOR_UNSAVED;
 		
 		if (Unsaved)
 			SDL_SetRenderDrawColor(g_Rend, Ceu[0], Ceu[1], Ceu[2], 255);

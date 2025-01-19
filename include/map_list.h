@@ -1,6 +1,8 @@
 #ifndef MAP_LIST_H
 #define MAP_LIST_H
 
+#include "util.h"
+
 enum MapListItem
 {
 	// custom map.
@@ -26,7 +28,7 @@ enum MapListItem
 };
 
 void MapList_Load(enum MapListItem Item);
-int MapList_LoadCustom(char const *Path);
+i32 MapList_LoadCustom(char const *Path);
 void MapList_HardReload(void);
 void MapList_SoftReload(void);
 void MapList_LoadNext(void);

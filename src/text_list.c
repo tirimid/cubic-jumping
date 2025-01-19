@@ -1,6 +1,5 @@
 #include "text_list.h"
 
-#include <stddef.h>
 #include <string.h>
 
 #include <SDL2/SDL.h>
@@ -8,6 +7,7 @@
 #include "conf.h"
 #include "options.h"
 #include "text.h"
+#include "util.h"
 
 #define QUEUED_MAX 64
 #define TEXT_TICKS 550
@@ -17,8 +17,8 @@ static void GenBoxText(enum TextListItem Item);
 static char BoxText[512];
 
 static enum TextListItem Queue[QUEUED_MAX];
-static unsigned QueueFrontTicks = 0;
-static size_t QueueLen = 0;
+static u32 QueueFrontTicks = 0;
+static u32 QueueLen = 0;
 
 void
 TextList_Term(void)

@@ -1,17 +1,14 @@
 #include "vfx.h"
 
-#include <stddef.h>
-#include <stdint.h>
 #include <string.h>
 
 #include <SDL2/SDL.h>
 #include <unistd.h>
 
 #include "conf.h"
-#include "util.h"
 #include "wnd.h"
 
-static size_t ParticleCnt = 0;
+static u32 ParticleCnt = 0;
 static struct Particle Particles[CONF_MAX_PARTICLES];
 
 void
@@ -21,7 +18,7 @@ Vfx_ClearParticles(void)
 }
 
 void
-Vfx_PutParticle(enum ParticleType Type, float x, float y)
+Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 {
 	if (ParticleCnt >= CONF_MAX_PARTICLES)
 		return;
@@ -65,7 +62,7 @@ Vfx_PutParticle(enum ParticleType Type, float x, float y)
 void
 Vfx_Update(void)
 {
-	for (ssize_t i = 0; i < ParticleCnt; ++i)
+	for (i32 i = 0; i < ParticleCnt; ++i)
 	{
 		if (Particles[i].Lifetime == 0)
 		{
@@ -102,18 +99,19 @@ Vfx_Update(void)
 void
 Vfx_Draw(void)
 {
-	for (size_t i = 0; i < ParticleCnt; ++i)
+	for (u32 i = 0; i < ParticleCnt; ++i)
 	{
 		// determine particle drawing parameters.
-		uint8_t const *Ca = NULL, *Cb = NULL;
-		float SizeA = 0.0f, SizeB = 0.0f;
-		unsigned MaxLifetime = 0;
+		u8 const *Ca = NULL, *Cb = NULL;
+		f32 SizeA = 0.0f, SizeB = 0.0f;
+		u32 MaxLifetime = 0;
+		
 		switch (Particles[i].Type)
 		{
 		case PT_PLAYER_TRACE:
 		{
-			static uint8_t Cpta[] = CONF_COLOR_PLAYER_TRACE_A;
-			static uint8_t Cptb[] = CONF_COLOR_PLAYER_TRACE_B;
+			static u8 Cpta[] = CONF_COLOR_PLAYER_TRACE_A;
+			static u8 Cptb[] = CONF_COLOR_PLAYER_TRACE_B;
 			
 			Ca = Cpta;
 			Cb = Cptb;
@@ -125,8 +123,8 @@ Vfx_Draw(void)
 		}
 		case PT_PLAYER_SHARD:
 		{
-			static uint8_t Cpsa[] = CONF_COLOR_PLAYER_SHARD_A;
-			static uint8_t Cpsb[] = CONF_COLOR_PLAYER_SHARD_B;
+			static u8 Cpsa[] = CONF_COLOR_PLAYER_SHARD_A;
+			static u8 Cpsb[] = CONF_COLOR_PLAYER_SHARD_B;
 			
 			Ca = Cpsa;
 			Cb = Cpsb;
@@ -138,7 +136,7 @@ Vfx_Draw(void)
 		}
 		case PT_AIR_PUFF:
 		{
-			static uint8_t Cap[] = CONF_COLOR_AIR_PUFF;
+			static u8 Cap[] = CONF_COLOR_AIR_PUFF;
 			
 			Ca = Cap;
 			Cb = Cap;
@@ -150,12 +148,12 @@ Vfx_Draw(void)
 		
 		// draw particles.
 		{
-			float RelLifetime = (float)(MaxLifetime - Particles[i].Lifetime) / MaxLifetime;
-			float Size = Lerp(SizeA, SizeB, RelLifetime);
+			f32 RelLifetime = (f32)(MaxLifetime - Particles[i].Lifetime) / MaxLifetime;
+			f32 Size = Lerp(SizeA, SizeB, RelLifetime);
 			
-			uint8_t r = Lerp(Ca[0], Cb[0], RelLifetime);
-			uint8_t g = Lerp(Ca[1], Cb[1], RelLifetime);
-			uint8_t b = Lerp(Ca[2], Cb[2], RelLifetime);
+			u8 r = Lerp(Ca[0], Cb[0], RelLifetime);
+			u8 g = Lerp(Ca[1], Cb[1], RelLifetime);
+			u8 b = Lerp(Ca[2], Cb[2], RelLifetime);
 			SDL_SetRenderDrawColor(g_Rend, r, g, b, 255);
 			
 			RelativeDrawRect(

@@ -2,8 +2,8 @@
 #define TRIGGERS_H
 
 #include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+
+#include "util.h"
 
 #define TRIGGERS_MAX 64
 
@@ -20,19 +20,19 @@ enum TriggerType
 
 struct Trigger
 {
-	float PosX, PosY;
-	float SizeX, SizeY;
-	uint32_t Arg; // type-dependent argument.
+	f32 PosX, PosY;
+	f32 SizeX, SizeY;
+	u32 Arg; // type-dependent argument.
 	bool SingleUse;
-	uint8_t Type;
+	u8 Type;
 };
 
 extern struct Trigger g_Triggers[TRIGGERS_MAX];
-extern size_t g_TriggerCnt;
+extern usize g_TriggerCnt;
 
-uint8_t const *Trigger_TypeColor(enum TriggerType Type);
+u8 const *Trigger_TypeColor(enum TriggerType Type);
 void Triggers_AddTrigger(struct Trigger const *Trigger);
-void Triggers_RmTrigger(size_t Idx);
+void Triggers_RmTrigger(usize Idx);
 void Triggers_Update(void);
 void Triggers_Draw(void);
 

@@ -24,10 +24,10 @@ IntroSequence(void)
 {
 	Sound_PlaySfx(SI_INTRO);
 	
-	unsigned RemTicks = CONF_INTRO_TICKS;
+	u32 RemTicks = CONF_INTRO_TICKS;
 	while (RemTicks > 0)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		Input_HandleEvents();
 		
@@ -45,8 +45,8 @@ IntroSequence(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		if (TickTimeLeft > 0)
 			SDL_Delay(TickTimeLeft);
 	}
@@ -57,7 +57,7 @@ CreditsSequence(void)
 {
 	struct UiButton BSkip = UiButton_Create(510, 550, "Skip credits", BtnSkipSequence);
 	
-	int Scroll = CONF_WND_HEIGHT + CONF_CREDITS_DELAY;
+	i32 Scroll = CONF_WND_HEIGHT + CONF_CREDITS_DELAY;
 	char const *Credits =
 		"CUBIC JUMPING\n"
 		"\n\n\n\n\n"
@@ -84,12 +84,12 @@ CreditsSequence(void)
 		"\n\n\n\n\n"
 		"And thank YOU for playing!\n"
 		"\n\n\n";
-	unsigned CreditsLines = CountLines(Credits);
+	u32 CreditsLines = CountLines(Credits);
 	
 	InSeq = true;
 	while (InSeq)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
  		Input_HandleEvents();
 		
@@ -111,8 +111,8 @@ CreditsSequence(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		if (TickTimeLeft > 0)
 			SDL_Delay(TickTimeLeft);
 	}
@@ -121,9 +121,9 @@ CreditsSequence(void)
 static void
 DrawBg(void)
 {
-	static uint8_t Csbg[] = CONF_COLOR_SEQUENCE_BG;
-	static uint8_t Cshl[] = CONF_COLOR_SEQUENCE_HL;
-	static int Scroll = 0;
+	static u8 Csbg[] = CONF_COLOR_SEQUENCE_BG;
+	static u8 Cshl[] = CONF_COLOR_SEQUENCE_HL;
+	static i32 Scroll = 0;
 	
 	// update background.
 	{
@@ -137,12 +137,12 @@ DrawBg(void)
 		SDL_SetRenderDrawColor(g_Rend, Csbg[0], Csbg[1], Csbg[2], 255);
 		SDL_RenderClear(g_Rend);
 		
-		int DrawLim = MAX(CONF_WND_WIDTH, CONF_WND_HEIGHT) - Scroll;
+		i32 DrawLim = MAX(CONF_WND_WIDTH, CONF_WND_HEIGHT) - Scroll;
 		SDL_SetRenderDrawColor(g_Rend, Cshl[0], Cshl[1], Cshl[2], 255);
-		for (int i = -DrawLim; i < DrawLim; i += CONF_SEQUENCE_BG_GAP)
+		for (i32 i = -DrawLim; i < DrawLim; i += CONF_SEQUENCE_BG_GAP)
 		{
-			int X0 = i, X1 = i + DrawLim;
-			int Y0 = 0, Y1 = DrawLim;
+			i32 X0 = i, X1 = i + DrawLim;
+			i32 Y0 = 0, Y1 = DrawLim;
 			SDL_RenderDrawLine(g_Rend, X0, Y0, X1, Y1);
 		}
 	}

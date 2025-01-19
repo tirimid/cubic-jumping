@@ -1,6 +1,5 @@
 #include "map_list.h"
 
-#include <stddef.h>
 #include <stdlib.h>
 
 #include "cam.h"
@@ -40,7 +39,7 @@ struct Item
 {
 	struct Map *Map;
 	struct Trigger *Triggers;
-	size_t TriggerCnt;
+	usize TriggerCnt;
 };
 
 static char const *CurCustom;
@@ -77,7 +76,7 @@ MapList_Load(enum MapListItem Item)
 		g_Map = *ItemData[Item].Map;
 		
 		g_TriggerCnt = 0;
-		for (size_t i = 0; i < ItemData[Item].TriggerCnt; ++i)
+		for (usize i = 0; i < ItemData[Item].TriggerCnt; ++i)
 			Triggers_AddTrigger(&ItemData[Item].Triggers[i]);
 		
 		g_PlayerState = PS_PLAYING;
@@ -114,7 +113,7 @@ MapList_Load(enum MapListItem Item)
 	}
 }
 
-int
+i32
 MapList_LoadCustom(char const *Path)
 {
 	// init gameplay elements.
@@ -195,7 +194,7 @@ MapList_LoadNext(void)
 		else if (CurItem == MLI_END__ - 1)
 		{
 			// TODO: uncomment when credits sequence is done.
-			//credits_sequence();
+			//CreditsSequence();
 			g_Game.Running = false;
 		}
 		else

@@ -1,6 +1,8 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
+#include "util.h"
+
 enum TextureId
 {
 	TI_GAMING_REI_BORDER = 0,
@@ -8,8 +10,8 @@ enum TextureId
 	TI_END__
 };
 
-int Textures_Init(void);
+i32 Textures_Init(void);
 void Textures_Quit(void);
-void Textures_Draw(enum TextureId Id, int x, int y, int w, int h);
+void Textures_Draw(enum TextureId Id, i32 x, i32 y, i32 w, i32 h);
 
 #endif

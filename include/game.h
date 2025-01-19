@@ -2,13 +2,14 @@
 #define GAME_H
 
 #include <stdbool.h>
-#include <stdint.h>
+
+#include "util.h"
 
 struct Game
 {
-	uint64_t IlTimeMs, TotalTimeMs;
-	unsigned OffSwitches;
-	unsigned IlDeaths, TotalDeaths;
+	u64 IlTimeMs, TotalTimeMs;
+	u32 OffSwitches;
+	u32 IlDeaths, TotalDeaths;
 	bool Running;
 };
 

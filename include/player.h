@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "map.h"
+#include "util.h"
 
 enum PlayerState
 {
@@ -31,18 +32,18 @@ struct PlayerCapMask
 struct Player
 {
 	// movement data.
-	float PosX, PosY;
-	float VelX, VelY;
+	f32 PosX, PosY;
+	f32 VelX, VelY;
 	bool AirControl;
 	
 	// collision handling data.
-	float DistLeft, DistRight, DistTop, DistBottom;
+	f32 DistLeft, DistRight, DistTop, DistBottom;
 	struct MapTile *NearLeft, *NearRight, *NearTop, *NearBottom;
 	bool ShortCircuit;
 	
 	// visual data.
-	unsigned TraceSpawnTicks;
-	unsigned DeadTicks;
+	u32 TraceSpawnTicks;
+	u32 DeadTicks;
 };
 
 extern struct Player g_Player;

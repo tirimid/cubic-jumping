@@ -1,12 +1,10 @@
 #include "textures.h"
 
-#include <stddef.h>
 #include <stdlib.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#include "util.h"
 #include "wnd.h"
 
 // compiled texture data.
@@ -20,8 +18,8 @@
 
 struct Texture
 {
-	unsigned char const *Data;
-	size_t Size;
+	u8 const *Data;
+	usize Size;
 	SDL_Texture *Tex;
 };
 
@@ -30,14 +28,14 @@ static struct Texture Textures[TI_END__] =
 	INCLUDE_TEXTURE(gaming_rei_border)
 };
 
-int
+i32
 Textures_Init(void)
 {
 	atexit(Textures_Quit);
 	
 	// allocate texture references.
 	{
-		for (size_t i = 0; i < TI_END__; ++i)
+		for (usize i = 0; i < TI_END__; ++i)
 		{
 			SDL_RWops *Rwops = SDL_RWFromConstMem(Textures[i].Data, Textures[i].Size);
 			if (!Rwops)
@@ -63,13 +61,13 @@ Textures_Quit(void)
 {
 	// free texture references.
 	{
-		for (size_t i = 0; i < TI_END__ && Textures[i].Tex; ++i)
+		for (usize i = 0; i < TI_END__ && Textures[i].Tex; ++i)
 			SDL_DestroyTexture(Textures[i].Tex);
 	}
 }
 
 void
-Textures_Draw(enum TextureId Id, int x, int y, int w, int h)
+Textures_Draw(enum TextureId Id, i32 x, i32 y, i32 w, i32 h)
 {
 	SDL_Rect r =
 	{

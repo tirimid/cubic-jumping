@@ -1,12 +1,9 @@
 #include "sound.h"
 
-#include <stddef.h>
 #include <stdlib.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-
-#include "util.h"
 
 // compiled sound data.
 #include "sounds/bounce_wav.h"
@@ -31,8 +28,8 @@
 
 struct Sound
 {
-	unsigned char const *Data;
-	size_t Size;
+	u8 const *Data;
+	usize Size;
 	Mix_Chunk *Chunk;
 };
 
@@ -50,7 +47,7 @@ static struct Sound SfxSounds[SI_END__] =
 	INCLUDE_SOUND(walljump)
 };
 
-int
+i32
 Sound_Init(void)
 {
 	// initialize SDL mixer resources.
@@ -66,7 +63,7 @@ Sound_Init(void)
 	
 	// allocate sound effect references.
 	{
-		for (size_t i = 0; i < SI_END__; ++i)
+		for (usize i = 0; i < SI_END__; ++i)
 		{
 			SDL_RWops *Rwops = SDL_RWFromConstMem(SfxSounds[i].Data, SfxSounds[i].Size);
 			if (!Rwops)
@@ -92,7 +89,7 @@ Sound_Quit(void)
 {
 	// free sound effect references.
 	{
-		for (size_t i = 0; i < SI_END__ && SfxSounds[i].Chunk; ++i)
+		for (usize i = 0; i < SI_END__ && SfxSounds[i].Chunk; ++i)
 			Mix_FreeChunk(SfxSounds[i].Chunk);
 	}
 	
@@ -103,7 +100,7 @@ Sound_Quit(void)
 }
 
 void
-Sound_SetSfxVolume(float Vol)
+Sound_SetSfxVolume(f32 Vol)
 {
 	Vol = CLAMP(0.0f, Vol, 1.0f);
 	Mix_Volume(-1, Vol * MIX_MAX_VOLUME);

@@ -5,6 +5,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "util.h"
+
 enum MouseButton
 {
 	MB_LEFT = 0,
@@ -33,6 +35,6 @@ void Mouse_PostUpdate(void);
 bool Mouse_Down(enum MouseButton b);
 bool Mouse_Pressed(enum MouseButton b);
 bool Mouse_Released(enum MouseButton b);
-void Mouse_Pos(int *OutX, int *OutY);
+void Mouse_Pos(i32 *OutX, i32 *OutY);
 
 #endif

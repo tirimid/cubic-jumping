@@ -39,7 +39,7 @@ static void BtnDetectKeyJump(void);
 static void BtnDetectKeyDashDown(void);
 static void BtnDetectKeyPowerjump(void);
 static void BtnDetectKeyMenu(void);
-static void SldrSfxVolume(float vol);
+static void SldrSfxVolume(f32 vol);
 static void BtnExitOptionsMenu(void);
 static void BtnReqNext(void);
 static void BtnReqRetry(void);
@@ -62,7 +62,7 @@ MainMenuLoop(void)
 	// "quit" the main menu.
 	for (;;)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
  		Input_HandleEvents();
 		
@@ -95,8 +95,8 @@ MainMenuLoop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -112,7 +112,7 @@ CustomLevelSelectMenuLoop(void)
 	InMenu = true;
 	while (InMenu)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		Input_HandleEvents();
 		
@@ -146,8 +146,8 @@ CustomLevelSelectMenuLoop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -163,7 +163,7 @@ LevelEndMenuLoop(void)
 	Req = MR_NONE;
 	while (InMenu)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
  		Input_HandleEvents();
 		
@@ -178,17 +178,17 @@ LevelEndMenuLoop(void)
 		
 		// draw level end menu.
 		{
-			static uint8_t Cbg[] = CONF_COLOR_LEVEL_END_BG;
+			static u8 Cbg[] = CONF_COLOR_LEVEL_END_BG;
 			
 			SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
 			SDL_RenderClear(g_Rend);
 			
 			// draw UI elements.
 			{
-				uint64_t IlTimeS = g_Game.IlTimeMs / 1000;
-				uint64_t IlTimeM = IlTimeS / 60;
-				uint64_t TotalTimeS = g_Game.TotalTimeMs / 1000;
-				uint64_t TotalTimeM = TotalTimeS / 60;
+				u64 IlTimeS = g_Game.IlTimeMs / 1000;
+				u64 IlTimeM = IlTimeS / 60;
+				u64 TotalTimeS = g_Game.TotalTimeMs / 1000;
+				u64 TotalTimeM = TotalTimeS / 60;
 				
 				static char TimeBuf[64];
 				sprintf(
@@ -224,8 +224,8 @@ LevelEndMenuLoop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 	
@@ -242,7 +242,7 @@ PauseMenuLoop(void)
 	InMenu = true;
 	while (InMenu)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		Input_HandleEvents();
 		
@@ -274,8 +274,8 @@ PauseMenuLoop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -295,7 +295,7 @@ OptionsMenuLoop(void)
 	InMenu = true;
 	while (InMenu)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		Input_HandleEvents();
 		
@@ -342,8 +342,8 @@ OptionsMenuLoop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -353,7 +353,7 @@ KeyDetectMenuLoop(void)
 {
 	for (;;)
 	{
-		uint64_t TickBegin = GetUnixTimeMs();
+		u64 TickBegin = GetUnixTimeMs();
 		
 		Input_HandleEvents();
 		
@@ -376,7 +376,7 @@ KeyDetectMenuLoop(void)
 		
 		// draw key detection menu.
 		{
-			static uint8_t Cawbg[] = CONF_COLOR_AWAITING_INPUT_BG;
+			static u8 Cawbg[] = CONF_COLOR_AWAITING_INPUT_BG;
 			SDL_SetRenderDrawColor(g_Rend, Cawbg[0], Cawbg[1], Cawbg[2], 255);
 			SDL_RenderClear(g_Rend);
 			
@@ -385,8 +385,8 @@ KeyDetectMenuLoop(void)
 			SDL_RenderPresent(g_Rend);
 		}
 		
-		uint64_t TickEnd = GetUnixTimeMs();
-		int64_t TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
@@ -401,12 +401,12 @@ MainDrawBg(void)
 	
 	// draw DVD screensaver.
 	{
-		static uint8_t Cbgda[] = CONF_COLOR_BG_DVD_A;
-		static uint8_t Cbgdb[] = CONF_COLOR_BG_DVD_B;
+		static u8 Cbgda[] = CONF_COLOR_BG_DVD_A;
+		static u8 Cbgdb[] = CONF_COLOR_BG_DVD_B;
 		
-		static int PosX = 0, PosY = 0;
-		static int SpeedX = CONF_BG_DVD_SPEED, SpeedY = CONF_BG_DVD_SPEED;
-		static float ColLerp = 0.0f, ColSpeed = CONF_BG_DVD_COL_SPEED;
+		static i32 PosX = 0, PosY = 0;
+		static i32 SpeedX = CONF_BG_DVD_SPEED, SpeedY = CONF_BG_DVD_SPEED;
+		static f32 ColLerp = 0.0f, ColSpeed = CONF_BG_DVD_COL_SPEED;
 		
 		PosX += SpeedX;
 		PosY += SpeedY;
@@ -429,7 +429,7 @@ MainDrawBg(void)
 			.h = CONF_BG_DVD_SIZE,
 		};
 		
-		uint8_t Col[3] =
+		u8 Col[3] =
 		{
 			Lerp(Cbgda[0], Cbgdb[0], ColLerp),
 			Lerp(Cbgda[1], Cbgdb[1], ColLerp),
@@ -444,9 +444,9 @@ MainDrawBg(void)
 static void
 PauseDrawBg(void)
 {
-	static uint8_t Cbg[] = CONF_COLOR_BG, Cbgs[] = CONF_COLOR_BG_SQUARE;
-	static float FirstSquareX = 0.0f;
-	static float FirstSquareY = 0.0f;
+	static u8 Cbg[] = CONF_COLOR_BG, Cbgs[] = CONF_COLOR_BG_SQUARE;
+	static f32 FirstSquareX = 0.0f;
+	static f32 FirstSquareY = 0.0f;
 	
 	// update square positions.
 	{
@@ -464,9 +464,9 @@ PauseDrawBg(void)
 	SDL_RenderClear(g_Rend);
 	
 	SDL_SetRenderDrawColor(g_Rend, Cbg[0], Cbg[1], Cbg[2], 255);
-	for (float x = FirstSquareX; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+	for (f32 x = FirstSquareX; x < CONF_WND_WIDTH; x += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 	{
-		for (float y = FirstSquareY; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
+		for (f32 y = FirstSquareY; y < CONF_WND_HEIGHT; y += CONF_BG_SQUARE_SIZE + CONF_BG_SQUARE_GAP)
 		{
 			SDL_Rect Square =
 			{
@@ -532,13 +532,13 @@ BtnEditCustomLevel(void)
 		// determine map name based on file path.
 		char Name[MAX_LEVEL_SEL_PATH_SIZE + 1] = {0};
 		{
-			size_t Len = strlen(CustomLevelPath);
+			usize Len = strlen(CustomLevelPath);
 			
-			size_t First = Len;
+			usize First = Len;
 			while (First > 0 && CustomLevelPath[First - 1] != '/')
 				--First;
 			
-			size_t Last = First;
+			usize Last = First;
 			while (Last < Len
 				&& strncmp(&CustomLevelPath[Last], ".hfm", 4))
 			{
@@ -625,7 +625,7 @@ BtnDetectKeyMenu(void)
 }
 
 static void
-SldrSfxVolume(float Vol)
+SldrSfxVolume(f32 Vol)
 {
 	g_Options.SfxVolume = Vol;
 	Sound_SetSfxVolume(Vol);

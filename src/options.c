@@ -2,11 +2,9 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <stddef.h>
 #include <stdio.h>
 
 #include "conf.h"
-#include "util.h"
 
 #define KEY_BUF_SIZE 64
 #define VAL_BUF_SIZE 64
@@ -14,9 +12,9 @@
 
 struct Options g_Options;
 
-static int Opts_GetRaw(FILE *Fp, char const *Key, char Out[]);
-static int Opts_GetKeycode(FILE *Fp, char const *Key, SDL_Keycode *Out);
-static int Opts_GetFloat(FILE *Fp, char const *Key, float *Out);
+static i32 Opts_GetRaw(FILE *Fp, char const *Key, char Out[]);
+static i32 Opts_GetKeycode(FILE *Fp, char const *Key, SDL_Keycode *Out);
+static i32 Opts_GetFloat(FILE *Fp, char const *Key, f32 *Out);
 
 void
 Options_ReturnToDefault(char const *Path)
@@ -42,7 +40,7 @@ Options_ReturnToDefault(char const *Path)
 	Options_WriteToFile(Path);
 }
 
-int
+i32
 Options_ReadFromFile(char const *Path)
 {
 	FILE *Fp = fopen(Path, "rb");
@@ -83,7 +81,7 @@ Options_ReadFromFile(char const *Path)
 	return 0;
 }
 
-int
+i32
 Options_WriteToFile(char const *Path)
 {
 	FILE *Fp = fopen(Path, "wb");
@@ -135,14 +133,14 @@ Options_WriteToFile(char const *Path)
 	return 0;
 }
 
-static int
+static i32
 Opts_GetRaw(FILE *Fp, char const *Key, char Out[])
 {
 	fseek(Fp, 0, SEEK_SET);
 	
-	for (size_t Line = 0; !feof(Fp) && !ferror(Fp); ++Line)
+	for (usize Line = 0; !feof(Fp) && !ferror(Fp); ++Line)
 	{
-		int Ch;
+		i32 Ch;
 		while ((Ch = fgetc(Fp)) != EOF && isspace(Ch))
 			;
 		
@@ -174,7 +172,7 @@ Opts_GetRaw(FILE *Fp, char const *Key, char Out[])
 	return 1;
 }
 
-static int
+static i32
 Opts_GetKeycode(FILE *Fp, char const *Key, SDL_Keycode *Out)
 {
 	char Buf[VAL_BUF_SIZE] = {0};
@@ -191,8 +189,8 @@ Opts_GetKeycode(FILE *Fp, char const *Key, SDL_Keycode *Out)
 	return 0;
 }
 
-static int
-Opts_GetFloat(FILE *Fp, char const *Key, float *Out)
+static i32
+Opts_GetFloat(FILE *Fp, char const *Key, f32 *Out)
 {
 	char Buf[VAL_BUF_SIZE] = {0};
 	if (Opts_GetRaw(Fp, Key, Buf))

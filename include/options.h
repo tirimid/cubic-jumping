@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "util.h"
+
 struct Options
 {
 	// keybind options.
@@ -11,13 +13,13 @@ struct Options
 	SDL_Keycode KEditorLeft, KEditorRight, KEditorUp, KEditorDown;
 	
 	// sound options.
-	float SfxVolume;
+	f32 SfxVolume;
 };
 
 extern struct Options g_Options;
 
 void Options_ReturnToDefault(char const *Path);
-int Options_ReadFromFile(char const *Path);
-int Options_WriteToFile(char const *Path);
+i32 Options_ReadFromFile(char const *Path);
+i32 Options_WriteToFile(char const *Path);
 
 #endif

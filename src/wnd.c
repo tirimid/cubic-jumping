@@ -1,15 +1,13 @@
 #include "wnd.h"
 
-#include <stddef.h>
 #include <stdlib.h>
 
 #include "conf.h"
-#include "util.h"
 
 SDL_Window *g_Wnd = NULL;
 SDL_Renderer *g_Rend = NULL;
 
-int
+i32
 Wnd_Init(void)
 {
 	atexit(Wnd_Quit);

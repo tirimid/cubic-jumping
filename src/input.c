@@ -1,6 +1,5 @@
 #include "input.h"
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -64,7 +63,7 @@ Keybd_SetKeyState(SDL_Event const *e, bool Pressed)
 void
 Keybd_RegisterTextInput(SDL_Event const *e)
 {
-	unsigned char Ch = e->text.text[0];
+	u8 Ch = e->text.text[0];
 	
 	// disregard non-ASCII input.
 	if (Ch & 0x80)
@@ -105,7 +104,7 @@ Keybd_Pressed(SDL_Keycode k)
 bool
 Keybd_TextInputReceived(char Ch)
 {
-	return KTextInputStates[(unsigned char)Ch];
+	return KTextInputStates[(u8)Ch];
 }
 
 bool
@@ -179,7 +178,7 @@ Mouse_Released(enum MouseButton b)
 }
 
 void
-Mouse_Pos(int *OutX, int *OutY)
+Mouse_Pos(i32 *OutX, i32 *OutY)
 {
 	SDL_GetMouseState(OutX, OutY);
 }
