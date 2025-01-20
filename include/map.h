@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "conf.h"
 #include "util.h"
 
 #define MAP_MAX_NAME_LEN 8
@@ -40,6 +41,12 @@ struct Map
 
 extern struct Map g_Map;
 
+// tables.
+extern u8 Map_TileColor[MTT_END__][3];
+extern bool Map_TileCollision[MTT_END__];
+extern bool Map_TileSlippery[MTT_END__];
+extern bool Map_TileClimbable[MTT_END__];
+
 // editor / custom map functionality.
 i32 Map_CreateFile(char const *File, char const *Name);
 i32 Map_LoadFromFile(char const *File);
@@ -48,10 +55,6 @@ void Map_RefitBounds(void);
 i32 Map_WriteToFile(char const *File);
 
 // game and base rendering functionality.
-u8 const *Map_TileColor(enum MapTileType Type);
-bool Map_TileCollision(enum MapTileType Type);
-bool Map_TileSlippery(enum MapTileType Type);
-bool Map_TileClimbable(enum MapTileType Type);
 void Map_Draw(void);
 void Map_DrawOutlines(void);
 struct MapTile *Map_Get(u32 x, u32 y);

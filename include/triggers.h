@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "conf.h"
 #include "util.h"
 
 #define TRIGGERS_MAX 64
@@ -30,7 +31,9 @@ struct Trigger
 extern struct Trigger g_Triggers[TRIGGERS_MAX];
 extern usize g_TriggerCnt;
 
-u8 const *Trigger_TypeColor(enum TriggerType Type);
+// tables.
+extern u8 Trigger_Color[TT_END__][3];
+
 void Triggers_AddTrigger(struct Trigger const *Trigger);
 void Triggers_RmTrigger(usize Idx);
 void Triggers_Update(void);

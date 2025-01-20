@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-// just assume that 1024 is a big enough array size.
-static bool KDownStates[1024], KPressStates[1024];
-static bool KTextInputStates[128];
-static bool MDownStates[MB_END__], MPressStates[MB_END__], MReleaseStates[MB_END__];
+// just assume that 1024 is big enough to fit all needed inputs.
+static u8 KDownStates[1024 / 8], KPressStates[1024 / 8];
+static u8 KTextInputStates[128 / 8];
+static u8 MDownStates[MB_END__], MPressStates[MB_END__], MReleaseStates[MB_END__];
 
 void
 Input_HandleEvents(void)
@@ -57,7 +57,14 @@ Keybd_SetKeyState(SDL_Event const *e, bool Pressed)
 		k &= ~(1 << 30);
 		k += 128;
 	}
-	KDownStates[k] = KPressStates[k] = Pressed;
+	
+	usize Byte = k / 8, Bit = k % 8;
+	
+	KDownStates[Byte] &= ~(1 << Bit);
+	KDownStates[Byte] |= Pressed << Bit;
+	
+	KPressStates[Byte] &= ~(1 << Bit);
+	KPressStates[Byte] |= Pressed << Bit;
 }
 
 void
@@ -69,7 +76,9 @@ Keybd_RegisterTextInput(SDL_Event const *e)
 	if (Ch & 0x80)
 		return;
 	
-	KTextInputStates[Ch] = true;
+	usize Byte = Ch / 8, Bit = Ch % 8;
+	
+	KTextInputStates[Byte] |= 1 << Bit;
 }
 
 void
@@ -87,7 +96,10 @@ Keybd_Down(SDL_Keycode k)
 		k &= ~(1 << 30);
 		k += 128;
 	}
-	return KDownStates[k];
+	
+	usize Byte = k / 8, Bit = k % 8;
+	
+	return KDownStates[Byte] & 1 << Bit;
 }
 
 bool
@@ -98,13 +110,17 @@ Keybd_Pressed(SDL_Keycode k)
 		k &= ~(1 << 30);
 		k += 128;
 	}
-	return KPressStates[k];
+	
+	usize Byte = k / 8, Bit = k % 8;
+	
+	return KPressStates[Byte] & 1 << Bit;
 }
 
 bool
 Keybd_TextInputReceived(char Ch)
 {
-	return KTextInputStates[(u8)Ch];
+	usize Byte = Ch / 8, Bit = Ch % 8;
+	return KTextInputStates[Byte] & 1 << Bit;
 }
 
 bool

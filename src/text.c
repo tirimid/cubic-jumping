@@ -32,7 +32,6 @@ static u32 Font[] =
 void
 Text_DrawCh(char Ch, i32 x, i32 y)
 {
-#if 1
 	static u8 Ct[] = CONF_COLOR_TEXT, Cto[] = CONF_COLOR_TEXT_OUTLINE;
 	
 	u32 FontChar = Font[(u8)Ch];
@@ -47,19 +46,19 @@ Text_DrawCh(char Ch, i32 x, i32 y)
 		.w = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE,
 		.h = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE
 	};
-	for (i32 Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
+	
+	for (i32 i = 0; i < TEXT_FONT_WIDTH * TEXT_FONT_HEIGHT; ++i)
 	{
-		for (i32 Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
+		if (i > 0 && i % TEXT_FONT_WIDTH == 0)
 		{
-			i32 Shift = Gy * TEXT_FONT_WIDTH + Gx;
-			if (FontChar & 1 << Shift)
-				SDL_RenderFillRect(Rend, &r);
-			
-			r.x += CONF_TEXT_SCALE;
+			r.x = x - CONF_TEXT_OUTLINE_SCALE;
+			r.y += CONF_TEXT_SCALE;
 		}
 		
-		r.x = x - CONF_TEXT_OUTLINE_SCALE;
-		r.y += CONF_TEXT_SCALE;
+		if (FontChar & 1 << i)
+			SDL_RenderFillRect(Rend, &r);
+		
+		r.x += CONF_TEXT_SCALE;
 	}
 	
 	// draw inside boxes.
@@ -71,65 +70,20 @@ Text_DrawCh(char Ch, i32 x, i32 y)
 		.w = CONF_TEXT_SCALE,
 		.h = CONF_TEXT_SCALE
 	};
-	for (i32 Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
+	
+	for (i32 i = 0; i < TEXT_FONT_WIDTH * TEXT_FONT_HEIGHT; ++i)
 	{
-		for (i32 Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
+		if (i > 0 && i % TEXT_FONT_WIDTH == 0)
 		{
-			int Shift = Gy * TEXT_FONT_WIDTH + Gx;
-			if (FontChar & 1 << Shift)
-				SDL_RenderFillRect(Rend, &r);
-			
-			r.x += CONF_TEXT_SCALE;
+			r.x = x;
+			r.y += CONF_TEXT_SCALE;
 		}
 		
-		r.x = x;
-		r.y += CONF_TEXT_SCALE;
+		if (FontChar & 1 << i)
+			SDL_RenderFillRect(Rend, &r);
+		
+		r.x += CONF_TEXT_SCALE;
 	}
-#else
-	static u8 Ct[] = CONF_COLOR_TEXT, Cto[] = CONF_COLOR_TEXT_OUTLINE;
-	
-	// draw outline boxes.
-	SDL_SetRenderDrawColor(g_Rend, Cto[0], Cto[1], Cto[2], 255);
-	for (i32 Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
-	{
-		for (i32 Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
-		{
-			i32 Shift = Gy * TEXT_FONT_WIDTH + Gx;
-			if (!(Font[(u8)Ch] & 1 << Shift))
-				continue;
-			
-			SDL_Rect Outline =
-			{
-				.x = x + CONF_TEXT_SCALE * Gx - CONF_TEXT_OUTLINE_SCALE,
-				.y = y + CONF_TEXT_SCALE * Gy - CONF_TEXT_OUTLINE_SCALE,
-				.w = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE,
-				.h = CONF_TEXT_SCALE + 2 * CONF_TEXT_OUTLINE_SCALE
-			};
-			SDL_RenderFillRect(g_Rend, &Outline);
-		}
-	}
-	
-	// draw inside boxes.
-	SDL_SetRenderDrawColor(g_Rend, Ct[0], Ct[1], Ct[2], 255);
-	for (i32 Gy = 0; Gy < TEXT_FONT_HEIGHT; ++Gy)
-	{
-		for (i32 Gx = 0; Gx < TEXT_FONT_WIDTH; ++Gx)
-		{
-			int Shift = Gy * TEXT_FONT_WIDTH + Gx;
-			if (!(Font[(u8)Ch] & 1 << Shift))
-				continue;
-			
-			SDL_Rect Main =
-			{
-				.x = x + CONF_TEXT_SCALE * Gx,
-				.y = y + CONF_TEXT_SCALE * Gy,
-				.w = CONF_TEXT_SCALE,
-				.h = CONF_TEXT_SCALE
-			};
-			SDL_RenderFillRect(g_Rend, &Main);
-		}
-	}
-#endif
 }
 
 void

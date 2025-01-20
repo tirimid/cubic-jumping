@@ -171,7 +171,7 @@ UpdatePlaying(void)
 				Vfx_PutParticle(
 					PT_AIR_PUFF,
 					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
-					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f
+					g_Player.PosY
 				);
 			}
 			Sound_PlaySfx(SI_DASH_DOWN);
@@ -182,6 +182,15 @@ UpdatePlaying(void)
 			&& Keybd_Down(g_Options.KJump))
 		{
 			g_Player.VelY = -CONF_PLAYER_JUMP_FORCE;
+			for (i32 i = 0; i < CONF_GROUND_PUFF_CNT_NORM; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_GROUND_PUFF,
+					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+					g_Player.PosY + CONF_PLAYER_SIZE,
+					&Map_TileColor[g_Player.NearBottom->Type][0]
+				);
+			}
 			Sound_PlaySfx(SI_JUMP);
 		}
 		else if (!g_PlayerCapMask.NoPowerjump
@@ -193,15 +202,24 @@ UpdatePlaying(void)
 			else if (g_Player.VelX < 0.0f)
 				g_Player.VelX = -CONF_PLAYER_POWERJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_POWERJUMP_FORCE_Y;
+			for (i32 i = 0; i < CONF_GROUND_PUFF_CNT_POWER; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_GROUND_PUFF,
+					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+					g_Player.PosY + CONF_PLAYER_SIZE,
+					&Map_TileColor[g_Player.NearBottom->Type][0]
+				);
+			}
 			Sound_PlaySfx(SI_POWERJUMP);
 		}
 		
 		if (!g_PlayerCapMask.NoWallslide
 			&& Player_WalledLeft()
 			&& Keybd_Down(g_Options.KLeft)
-			&& !Map_TileSlippery(g_Player.NearLeft->Type))
+			&& !Map_TileSlippery[g_Player.NearLeft->Type])
 		{
-			if (Map_TileClimbable(g_Player.NearLeft->Type))
+			if (Map_TileClimbable[g_Player.NearLeft->Type])
 				g_Player.VelY = -CONF_CLIMB_SPEED;
 			else
 				g_Player.VelY /= CONF_WALL_SLIDE_FRICTION;
@@ -210,9 +228,9 @@ UpdatePlaying(void)
 		if (!g_PlayerCapMask.NoWallslide
 			&& Player_WalledRight()
 			&& Keybd_Down(g_Options.KRight)
-			&& !Map_TileSlippery(g_Player.NearRight->Type))
+			&& !Map_TileSlippery[g_Player.NearRight->Type])
 		{
-			if (Map_TileClimbable(g_Player.NearRight->Type))
+			if (Map_TileClimbable[g_Player.NearRight->Type])
 				g_Player.VelY = -CONF_CLIMB_SPEED;
 			else
 				g_Player.VelY /= CONF_WALL_SLIDE_FRICTION;
@@ -221,20 +239,38 @@ UpdatePlaying(void)
 		if (!g_PlayerCapMask.NoWalljump
 			&& Player_WalledLeft()
 			&& Keybd_Down(g_Options.KJump)
-			&& !Map_TileSlippery(g_Player.NearLeft->Type))
+			&& !Map_TileSlippery[g_Player.NearLeft->Type])
 		{
 			g_Player.VelX = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_LEFT_WALL_PUFF,
+					g_Player.PosX,
+					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
+					&Map_TileColor[g_Player.NearLeft->Type][0]
+				);
+			}
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
 		
 		if (!g_PlayerCapMask.NoWalljump
 			&& Player_WalledRight()
 			&& Keybd_Down(g_Options.KJump)
-			&& !Map_TileSlippery(g_Player.NearRight->Type))
+			&& !Map_TileSlippery[g_Player.NearRight->Type])
 		{
 			g_Player.VelX = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_RIGHT_WALL_PUFF,
+					g_Player.PosX + CONF_PLAYER_SIZE,
+					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
+					&Map_TileColor[g_Player.NearRight->Type][0]
+				);
+			}
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
 	}
@@ -444,7 +480,7 @@ ComputeCollisionDistances(void)
 		for (Cxtl = g_Player.PosX; Cxtl >= 0; --Cxtl)
 		{
 			struct MapTile *Tile = Map_Get(Cxtl, g_Player.PosY);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CxtlTile = Tile;
 				break;
@@ -456,7 +492,7 @@ ComputeCollisionDistances(void)
 		for (Cxbl = g_Player.PosX; Cxbl >= 0; --Cxbl)
 		{
 			struct MapTile *Tile = Map_Get(Cxbl, g_Player.PosY + CONF_PLAYER_SIZE);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CxblTile = Tile;
 				break;
@@ -475,7 +511,7 @@ ComputeCollisionDistances(void)
 		for (Cxtr = g_Player.PosX + CONF_PLAYER_SIZE; Cxtr < g_Map.SizeX; ++Cxtr)
 		{
 			struct MapTile *Tile = Map_Get(Cxtr, g_Player.PosY);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CxtrTile = Tile;
 				break;
@@ -487,7 +523,7 @@ ComputeCollisionDistances(void)
 		for (Cxbr = g_Player.PosX + CONF_PLAYER_SIZE; Cxbr < g_Map.SizeX; ++Cxbr)
 		{
 			struct MapTile *Tile = Map_Get(Cxbr, g_Player.PosY + CONF_PLAYER_SIZE);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CxbrTile = Tile;
 				break;
@@ -506,7 +542,7 @@ ComputeCollisionDistances(void)
 		for (Cytl = g_Player.PosY; Cytl >= 0; --Cytl)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX, Cytl);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CytlTile = Tile;
 				break;
@@ -518,7 +554,7 @@ ComputeCollisionDistances(void)
 		for (Cytr = g_Player.PosY; Cytr >= 0; --Cytr)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, Cytr);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CytrTile = Tile;
 				break;
@@ -537,7 +573,7 @@ ComputeCollisionDistances(void)
 		for (Cybl = g_Player.PosY + CONF_PLAYER_SIZE; Cybl < g_Map.SizeY; ++Cybl)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX, Cybl);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CyblTile = Tile;
 				break;
@@ -549,7 +585,7 @@ ComputeCollisionDistances(void)
 		for (Cybr = g_Player.PosY + CONF_PLAYER_SIZE; Cybr < g_Map.SizeY; ++Cybr)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, Cybr);
-			if (Map_TileCollision(Tile->Type))
+			if (Map_TileCollision[Tile->Type])
 			{
 				CybrTile = Tile;
 				break;

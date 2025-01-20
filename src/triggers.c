@@ -5,7 +5,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "conf.h"
 #include "player.h"
 #include "text.h"
 #include "text_list.h"
@@ -15,22 +14,16 @@
 struct Trigger g_Triggers[TRIGGERS_MAX];
 usize g_TriggerCnt = 0;
 
-static void Collide(struct Trigger const *Trigger, usize Idx);
-
-u8 const *
-Trigger_TypeColor(enum TriggerType Type)
+u8 Trigger_Color[TT_END__][3] =
 {
-	static u8 Colors[TT_END__][3] =
-	{
-		CONF_COLOR_TRIGGER_MSG,
-		CONF_COLOR_TRIGGER_KILL,
-		CONF_COLOR_TRIGGER_MSG_TERM,
-		CONF_COLOR_TRIGGER_CAP_ENABLE,
-		CONF_COLOR_TRIGGER_CAP_DISABLE
-	};
-	
-	return Colors[Type];
-}
+	CONF_COLOR_TRIGGER_MSG,
+	CONF_COLOR_TRIGGER_KILL,
+	CONF_COLOR_TRIGGER_MSG_TERM,
+	CONF_COLOR_TRIGGER_CAP_ENABLE,
+	CONF_COLOR_TRIGGER_CAP_DISABLE
+};
+
+static void Collide(struct Trigger const *Trigger, usize Idx);
 
 void
 Triggers_AddTrigger(struct Trigger const *Trigger)
@@ -77,7 +70,7 @@ Triggers_Draw(void)
 		
 		// draw bounding box.
 		{
-			u8 const *Col = Trigger_TypeColor(t->Type);
+			u8 const *Col = &Trigger_Color[t->Type][0];
 			SDL_SetRenderDrawColor(
 				g_Rend,
 				Col[0],

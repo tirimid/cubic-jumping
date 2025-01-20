@@ -482,14 +482,14 @@ DrawIndicators(void)
 		case EM_TILE_P:
 		case EM_TILE_F:
 		{
-			u8 const *Col = Map_TileColor(Type);
+			u8 const *Col = Map_TileColor[Type];
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			SDL_RenderFillRect(g_Rend, &r);
 			break;
 		}
 		case EM_TRIGGER:
 		{
-			u8 const *Col = Trigger_TypeColor(Type);
+			u8 const *Col = &Trigger_Color[Type][0];
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			SDL_RenderFillRect(g_Rend, &r);
 			break;

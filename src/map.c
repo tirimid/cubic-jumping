@@ -5,11 +5,74 @@
 #include <SDL2/SDL.h>
 
 #include "cam.h"
-#include "conf.h"
 #include "triggers.h"
 #include "wnd.h"
 
 struct Map g_Map;
+
+u8 Map_TileColor[MTT_END__][3] =
+{
+	CONF_COLOR_BG,
+	CONF_COLOR_GROUND,
+	CONF_COLOR_KILL,
+	CONF_COLOR_BOUNCE,
+	CONF_COLOR_LAUNCH,
+	CONF_COLOR_END_ON,
+	CONF_COLOR_SWITCH_OFF,
+	CONF_COLOR_SWITCH_ON,
+	CONF_COLOR_END_OFF,
+	CONF_COLOR_SLIPPERY,
+	CONF_COLOR_GRIP,
+	CONF_COLOR_WALL
+};
+
+bool Map_TileCollision[MTT_END__] =
+{
+	false, // air.
+	true, // ground.
+	true, // kill.
+	true, // bounce.
+	true, // launch.
+	true, // end on.
+	true, // switch off.
+	true, // switch on.
+	true, // end off.
+	true, // slippery.
+	true, // grip.
+	false // wall.
+};
+
+bool Map_TileSlippery[MTT_END__] =
+{
+	false, // air.
+	false, // ground.
+	false, // kill.
+	false, // bounce.
+	false, // launch.
+	false, // end on.
+	false, // switch off.
+	false, // switch on.
+	false, // end off.
+	true, // slippery.
+	false, // grip.
+	false // wall.
+};
+
+bool Map_TileClimbable[MTT_END__] =
+{
+	false, // air.
+	false, // ground.
+	false, // kill.
+	false, // bounce.
+	false, // launch.
+	false, // end on.
+	false, // switch off.
+	false, // switch on.
+	false, // end off.
+	false, // slippery.
+	true, // grip.
+	false // wall.
+};
 
 static i32 RdUint8(u8 *Out, FILE *Fp);
 static i32 RdUint32(u32 *Out, FILE *Fp);
@@ -391,93 +454,6 @@ Map_WriteToFile(char const *File)
 	return 0;
 }
 
-u8 const *
-Map_TileColor(enum MapTileType Type)
-{
-	static u8 Colors[MTT_END__][3] =
-	{
-		CONF_COLOR_BG,
-		CONF_COLOR_GROUND,
-		CONF_COLOR_KILL,
-		CONF_COLOR_BOUNCE,
-		CONF_COLOR_LAUNCH,
-		CONF_COLOR_END_ON,
-		CONF_COLOR_SWITCH_OFF,
-		CONF_COLOR_SWITCH_ON,
-		CONF_COLOR_END_OFF,
-		CONF_COLOR_SLIPPERY,
-		CONF_COLOR_GRIP,
-		CONF_COLOR_WALL
-	};
-	
-	return Colors[Type];
-}
-
-bool
-Map_TileCollision(enum MapTileType Type)
-{
-	static bool Collision[MTT_END__] =
-	{
-		false, // air.
-		true, // ground.
-		true, // kill.
-		true, // bounce.
-		true, // launch.
-		true, // end on.
-		true, // switch off.
-		true, // switch on.
-		true, // end off.
-		true, // slippery.
-		true, // grip.
-		false // wall.
-	};
-	
-	return Collision[Type];
-}
-
-bool
-Map_TileSlippery(enum MapTileType Type)
-{
-	static bool Slippery[MTT_END__] =
-	{
-		false, // air.
-		false, // ground.
-		false, // kill.
-		false, // bounce.
-		false, // launch.
-		false, // end on.
-		false, // switch off.
-		false, // switch on.
-		false, // end off.
-		true, // slippery.
-		false // grip.
-	};
-	
-	return Slippery[Type];
-}
-
-bool
-Map_TileClimbable(enum MapTileType Type)
-{
-	static bool Climbable[MTT_END__] =
-	{
-		false, // air.
-		false, // ground.
-		false, // kill.
-		false, // bounce.
-		false, // launch.
-		false, // end on.
-		false, // switch off.
-		false, // switch on.
-		false, // end off.
-		false, // slippery.
-		true, // grip.
-		false // wall.
-	};
-	
-	return Climbable[Type];
-}
-
 void
 Map_Draw(void)
 {
@@ -499,7 +475,7 @@ Map_Draw(void)
 			if (Tile->Type == MTT_AIR)
 				continue;
 			
-			u8 const *Col = Map_TileColor(Tile->Type);
+			u8 const *Col = &Map_TileColor[Tile->Type][0];
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			RelativeDrawRect(x, y, 1.0f, 1.0f);
 		}
