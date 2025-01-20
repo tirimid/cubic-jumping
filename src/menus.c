@@ -39,7 +39,8 @@ static void BtnDetectKeyJump(void);
 static void BtnDetectKeyDashDown(void);
 static void BtnDetectKeyPowerjump(void);
 static void BtnDetectKeyMenu(void);
-static void SldrSfxVolume(f32 vol);
+static void SldrSfxVolume(f32 Vol);
+static void SldrMusicVolume(f32 Vol);
 static void BtnExitOptionsMenu(void);
 static void BtnReqNext(void);
 static void BtnReqRetry(void);
@@ -290,7 +291,8 @@ OptionsMenuLoop(void)
 	struct UiButton BKPowerjump = UiButton_Create(80, 300, "[Powerjump]", BtnDetectKeyPowerjump);
 	struct UiButton BKMenu = UiButton_Create(80, 340, "[Menu]", BtnDetectKeyMenu);
 	struct UiSlider SSfxVolume = UiSlider_Create(400, 390, 200, 20, g_Options.SfxVolume, SldrSfxVolume);
-	struct UiButton BBack = UiButton_Create(80, 420, "Back", BtnExitOptionsMenu);
+	struct UiSlider SMusicVolume = UiSlider_Create(400, 430, 200, 20, g_Options.MusicVolume, SldrMusicVolume);
+	struct UiButton BBack = UiButton_Create(80, 460, "Back", BtnExitOptionsMenu);
 	
 	InMenu = true;
 	while (InMenu)
@@ -308,6 +310,7 @@ OptionsMenuLoop(void)
 			UiButton_Update(&BKPowerjump);
 			UiButton_Update(&BKMenu);
 			UiSlider_Update(&SSfxVolume);
+			UiSlider_Update(&SMusicVolume);
 			UiButton_Update(&BBack);
 			
 			Input_PostUpdate();
@@ -328,6 +331,7 @@ OptionsMenuLoop(void)
 				UiButton_Draw(&BKPowerjump);
 				UiButton_Draw(&BKMenu);
 				UiSlider_Draw(&SSfxVolume);
+				UiSlider_Draw(&SMusicVolume);
 				UiButton_Draw(&BBack);
 				
 				Text_DrawStr(SDL_GetKeyName(g_Options.KLeft), 450, 140);
@@ -337,6 +341,7 @@ OptionsMenuLoop(void)
 				Text_DrawStr(SDL_GetKeyName(g_Options.KPowerjump), 450, 300);
 				Text_DrawStr(SDL_GetKeyName(g_Options.KMenu), 450, 340);
 				Text_DrawStr("SFX volume", 80, 385);
+				Text_DrawStr("Music volume", 80, 425);
 			}
 			
 			SDL_RenderPresent(g_Rend);
@@ -629,6 +634,13 @@ SldrSfxVolume(f32 Vol)
 {
 	g_Options.SfxVolume = Vol;
 	Sound_SetSfxVolume(Vol);
+}
+
+static void
+SldrMusicVolume(f32 Vol)
+{
+	g_Options.MusicVolume = Vol;
+	Sound_SetMusicVolume(Vol);
 }
 
 static void

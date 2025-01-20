@@ -34,7 +34,8 @@ Options_ReturnToDefault(char const *Path)
 		.KEditorDown = CONF_DEFAULT_K_EDITOR_DOWN,
 		
 		// sound options.
-		.SfxVolume = CONF_DEFAULT_SFX_VOLUME
+		.SfxVolume = CONF_DEFAULT_SFX_VOLUME,
+		.MusicVolume = CONF_DEFAULT_MUSIC_VOLUME
 	};
 	
 	Options_WriteToFile(Path);
@@ -70,7 +71,8 @@ Options_ReadFromFile(char const *Path)
 	
 	// read sound options.
 	{
-		if (Opts_GetFloat(Fp, "SfxVolume", &g_Options.SfxVolume))
+		if (Opts_GetFloat(Fp, "SfxVolume", &g_Options.SfxVolume)
+			|| Opts_GetFloat(Fp, "MusicVolume", &g_Options.MusicVolume))
 		{
 			fclose(Fp);
 			return 1;
@@ -124,8 +126,10 @@ Options_WriteToFile(char const *Path)
 		fprintf(
 			Fp,
 			"\n# sound options.\n"
-			"SfxVolume = %f\n",
-			g_Options.SfxVolume
+			"SfxVolume = %f\n"
+			"MusicVolume = %f\n",
+			g_Options.SfxVolume,
+			g_Options.MusicVolume
 		);
 	}
 	

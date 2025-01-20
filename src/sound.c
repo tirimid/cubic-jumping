@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-// compiled sound data.
+// compiled WAV sound data.
 #include "sounds/bounce_wav.h"
 #include "sounds/dash_down_wav.h"
 #include "sounds/death_wav.h"
@@ -17,34 +17,52 @@
 #include "sounds/switch_wav.h"
 #include "sounds/walljump_wav.h"
 
+// compiled MP3 sound data.
+#include "sounds/theme0_mp3.h"
+
 #define SOUND_FREQ 44100
 #define CHUNK_SIZE 2048
 
-#define INCLUDE_SOUND(Name) \
+#define INCLUDE_WAV(Name) \
 	{ \
 		.Data = Name##_wav, \
 		.Size = sizeof(Name##_wav) \
+	}
+
+#define INCLUDE_MP3(Name) \
+	{ \
+		.Data = Name##_mp3, \
+		.Size = sizeof(Name##_mp3) \
 	}
 
 struct Sound
 {
 	u8 const *Data;
 	usize Size;
-	Mix_Chunk *Chunk;
+	union
+	{
+		Mix_Chunk *Chunk;
+		Mix_Music *Music;
+	} MixData;
 };
 
 static struct Sound SfxSounds[SI_END__] =
 {
-	INCLUDE_SOUND(bounce),
-	INCLUDE_SOUND(dash_down),
-	INCLUDE_SOUND(death),
-	INCLUDE_SOUND(end),
-	INCLUDE_SOUND(intro),
-	INCLUDE_SOUND(jump),
-	INCLUDE_SOUND(launch),
-	INCLUDE_SOUND(powerjump),
-	INCLUDE_SOUND(switch),
-	INCLUDE_SOUND(walljump)
+	INCLUDE_WAV(bounce),
+	INCLUDE_WAV(dash_down),
+	INCLUDE_WAV(death),
+	INCLUDE_WAV(end),
+	INCLUDE_WAV(intro),
+	INCLUDE_WAV(jump),
+	INCLUDE_WAV(launch),
+	INCLUDE_WAV(powerjump),
+	INCLUDE_WAV(switch),
+	INCLUDE_WAV(walljump)
+};
+
+static struct Sound MusicSounds[MI_END__] =
+{
+	INCLUDE_MP3(theme0)
 };
 
 i32
@@ -72,10 +90,30 @@ Sound_Init(void)
 				return 1;
 			}
 			
-			SfxSounds[i].Chunk = Mix_LoadWAV_RW(Rwops, 1);
-			if (!SfxSounds[i].Chunk)
+			SfxSounds[i].MixData.Chunk = Mix_LoadWAV_RW(Rwops, 1);
+			if (!SfxSounds[i].MixData.Chunk)
 			{
 				LogErr("sound: failed to create Mix_Chunk - %s", Mix_GetError());
+				return 1;
+			}
+		}
+	}
+	
+	// allocate music references.
+	{
+		for (usize i = 0; i < MI_END__; ++i)
+		{
+			SDL_RWops *Rwops = SDL_RWFromConstMem(MusicSounds[i].Data, MusicSounds[i].Size);
+			if (!Rwops)
+			{
+				LogErr("sound: failed to create RWops - %s", SDL_GetError());
+				return 1;
+			}
+			
+			MusicSounds[i].MixData.Music = Mix_LoadMUS_RW(Rwops, 1);
+			if (!MusicSounds[i].MixData.Music)
+			{
+				LogErr("sound: failed to create Mix_Music - %s", Mix_GetError());
 				return 1;
 			}
 		}
@@ -87,10 +125,16 @@ Sound_Init(void)
 void
 Sound_Quit(void)
 {
+	// free music references.
+	{
+		for (usize i = 0; i < MI_END__ && MusicSounds[i].MixData.Music; ++i)
+			Mix_FreeMusic(MusicSounds[i].MixData.Music);
+	}
+	
 	// free sound effect references.
 	{
-		for (usize i = 0; i < SI_END__ && SfxSounds[i].Chunk; ++i)
-			Mix_FreeChunk(SfxSounds[i].Chunk);
+		for (usize i = 0; i < SI_END__ && SfxSounds[i].MixData.Chunk; ++i)
+			Mix_FreeChunk(SfxSounds[i].MixData.Chunk);
 	}
 	
 	// deinitialize SDL mixer resources.
@@ -107,7 +151,22 @@ Sound_SetSfxVolume(f32 Vol)
 }
 
 void
+Sound_SetMusicVolume(f32 Vol)
+{
+	Vol = CLAMP(0.0f, Vol, 1.0f);
+	Mix_VolumeMusic(Vol * MIX_MAX_VOLUME);
+}
+
+void
 Sound_PlaySfx(enum SfxId Id)
 {
-	Mix_PlayChannel(-1, SfxSounds[Id].Chunk, 0);
+	Mix_PlayChannel(-1, SfxSounds[Id].MixData.Chunk, 0);
+}
+
+void
+Sound_PlayMusic(enum MusicId Id)
+{
+	if (Mix_PlayingMusic())
+		Mix_HaltMusic();
+	Mix_PlayMusic(MusicSounds[Id].MixData.Music, -1);
 }

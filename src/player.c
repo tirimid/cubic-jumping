@@ -369,6 +369,15 @@ CollideLeft(void)
 		if (g_Player.VelX < -CONF_MIN_RESTITUTION_SPEED)
 		{
 			g_Player.VelX *= -CONF_RESTITUTION;
+			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_LEFT_WALL_PUFF,
+					g_Player.PosX,
+					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
+					&Map_TileColor[MTT_BOUNCE][0]
+				);
+			}
 			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
@@ -400,6 +409,15 @@ CollideRight(void)
 		if (g_Player.VelX > CONF_MIN_RESTITUTION_SPEED)
 		{
 			g_Player.VelX *= -CONF_RESTITUTION;
+			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_RIGHT_WALL_PUFF,
+					g_Player.PosX + CONF_PLAYER_SIZE,
+					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
+					&Map_TileColor[MTT_BOUNCE][0]
+				);
+			}
 			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
@@ -431,6 +449,15 @@ CollideBottom(void)
 		if (g_Player.VelY > CONF_MIN_RESTITUTION_SPEED)
 		{
 			g_Player.VelY *= -CONF_RESTITUTION;
+			for (i32 i = 0; i < CONF_GROUND_PUFF_CNT_NORM; ++i)
+			{
+				Vfx_PutOverrideParticle(
+					PT_GROUND_PUFF,
+					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+					g_Player.PosY + CONF_PLAYER_SIZE,
+					&Map_TileColor[MTT_BOUNCE][0]
+				);
+			}
 			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else

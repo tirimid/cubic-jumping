@@ -78,12 +78,14 @@ ENTRY_FN
 		if (Sound_Init())
 			return 1;
 		Sound_SetSfxVolume(g_Options.SfxVolume);
+		Sound_SetMusicVolume(g_Options.MusicVolume);
 		
 		if (Textures_Init())
 			return 1;
 	}
 	
 	IntroSequence();
+	Sound_PlayMusic(MI_THEME0);
 	MainMenuLoop();
 	
 	return 0;

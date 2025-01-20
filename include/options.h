@@ -13,7 +13,7 @@ struct Options
 	SDL_Keycode KEditorLeft, KEditorRight, KEditorUp, KEditorDown;
 	
 	// sound options.
-	f32 SfxVolume;
+	f32 SfxVolume, MusicVolume;
 };
 
 extern struct Options g_Options;
