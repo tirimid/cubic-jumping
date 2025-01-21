@@ -18,5 +18,6 @@ extern struct Game g_Game;
 void Game_Loop(void);
 void Game_DisableSwitches(void);
 void Game_EnableSwitch(void);
+u64 Game_CurrentTick(void);
 
 #endif

@@ -95,6 +95,8 @@ Player_Die(void)
 		);
 	}
 	
+	g_Cam.Shake = CONF_DEATH_SHAKE;
+	
 	Sound_PlaySfx(SI_DEATH);
 }
 

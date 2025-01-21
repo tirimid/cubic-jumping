@@ -24,9 +24,12 @@ static void DrawBg(void);
 static void FillOutOfBounds(void);
 static void DrawIndicators(void);
 
+static u64 CurTick;
+
 void
 Game_Loop(void)
 {
+	CurTick = 0;
 	while (g_Game.Running)
 	{
 		u64 TickBegin = GetUnixTimeMs();
@@ -72,6 +75,8 @@ Game_Loop(void)
 		u64 TickEnd = GetUnixTimeMs();
 		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
 		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
+		
+		++CurTick;
 	}
 }
 
@@ -112,6 +117,12 @@ Game_EnableSwitch(void)
 				g_Map.Data[i].Type = MTT_END_ON;
 		}
 	}
+}
+
+u64
+Game_CurrentTick(void)
+{
+	return CurTick;
 }
 
 static void
