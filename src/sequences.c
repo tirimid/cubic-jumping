@@ -47,8 +47,7 @@ IntroSequence(void)
 		
 		u64 TickEnd = GetUnixTimeMs();
 		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
-		if (TickTimeLeft > 0)
-			SDL_Delay(TickTimeLeft);
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 
@@ -113,8 +112,7 @@ CreditsSequence(void)
 		
 		u64 TickEnd = GetUnixTimeMs();
 		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
-		if (TickTimeLeft > 0)
-			SDL_Delay(TickTimeLeft);
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
 	}
 }
 

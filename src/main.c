@@ -14,6 +14,7 @@
 #include "conf.h"
 #include "menus.h"
 #include "options.h"
+#include "save.h"
 #include "sequences.h"
 #include "sound.h"
 #include "textures.h"
@@ -82,6 +83,15 @@ ENTRY_FN
 		
 		if (Textures_Init())
 			return 1;
+		
+		if (Save_ReadFromFile(CONF_SAVE_FILE))
+			Save_WriteToFile(CONF_SAVE_FILE);
+		
+		if (g_SaveData.Ver != SAVE_VER_NULL && Save_Validate())
+		{
+			memset(&g_SaveData, 0, sizeof(g_SaveData));
+			Save_WriteToFile(CONF_SAVE_FILE);
+		}
 	}
 	
 	IntroSequence();

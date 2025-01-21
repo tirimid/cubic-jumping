@@ -27,6 +27,7 @@ enum MapListItem
 	MLI_END__
 };
 
+enum MapListItem MapList_CurrentMap(void);
 void MapList_Load(enum MapListItem Item);
 i32 MapList_LoadCustom(char const *Path);
 void MapList_HardReload(void);

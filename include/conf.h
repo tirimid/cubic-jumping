@@ -11,6 +11,7 @@
 #define CONF_REND_FLAGS 0
 
 // default options.
+#define CONF_SAVE_FILE "save.cjsv"
 #define CONF_OPTIONS_FILE "options.conf"
 #define CONF_DEFAULT_K_LEFT SDLK_LEFT
 #define CONF_DEFAULT_K_RIGHT SDLK_RIGHT
@@ -104,6 +105,7 @@
 #define CONF_COLOR_SEQUENCE_BG {30, 30, 30}
 #define CONF_COLOR_SEQUENCE_HL {95, 95, 95}
 #define CONF_COLOR_AWAITING_INPUT_BG {0, 0, 0}
+#define CONF_COLOR_MESSAGE_BG {0, 0, 0}
 #define CONF_BG_SQUARE_SIZE 128
 #define CONF_BG_SQUARE_GAP 16
 #define CONF_BG_SQUARE_SPEED_X 0.2f

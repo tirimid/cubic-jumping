@@ -13,6 +13,7 @@
 #include "map.h"
 #include "map_list.h"
 #include "options.h"
+#include "save.h"
 #include "sound.h"
 #include "text.h"
 #include "triggers.h"
@@ -26,11 +27,13 @@ static void MainDrawBg(void);
 static void PauseDrawBg(void);
 static void BtnExitMenu(void);
 static void BtnExitToDesktop(void);
+static void BtnContinue(void);
 static void BtnPlayFromBeginning(void);
 static void BtnPlayEditCustomLevel(void);
 static void BtnPlayCustomLevel(void);
 static void BtnEditCustomLevel(void);
 static void BtnForceRetry(void);
+static void BtnSaveProgress(void);
 static void BtnMainMenu(void);
 static void BtnOptions(void);
 static void BtnDetectKeyLeft(void);
@@ -52,7 +55,7 @@ static char CustomLevelPath[MAX_LEVEL_SEL_PATH_SIZE];
 void
 MainMenuLoop(void)
 {
-	struct UiButton BContinue = UiButton_Create(80, 380, "Continue", NULL);
+	struct UiButton BContinue = UiButton_Create(80, 380, "Continue", BtnContinue);
 	struct UiButton BPlay = UiButton_Create(80, 420, "Play from beginning", BtnPlayFromBeginning);
 	struct UiButton BPlayCustom = UiButton_Create(80, 460, "Play or edit custom level", BtnPlayEditCustomLevel);
 	struct UiButton BEditor = UiButton_Create(80, 500, "Options", BtnOptions);
@@ -238,7 +241,8 @@ PauseMenuLoop(void)
 {
 	struct UiButton BResume = UiButton_Create(80, 380, "Resume", BtnExitMenu);
 	struct UiButton BRetry = UiButton_Create(80, 420, "Retry level", BtnForceRetry);
-	struct UiButton BMainMenu = UiButton_Create(80, 460, "Main menu", BtnMainMenu);
+	struct UiButton BSaveProgress = UiButton_Create(80, 460, "Save progress", BtnSaveProgress);
+	struct UiButton BMainMenu = UiButton_Create(80, 500, "Main menu", BtnMainMenu);
 	
 	InMenu = true;
 	while (InMenu)
@@ -254,6 +258,7 @@ PauseMenuLoop(void)
 			
 			UiButton_Update(&BResume);
 			UiButton_Update(&BRetry);
+			UiButton_Update(&BSaveProgress);
 			UiButton_Update(&BMainMenu);
 			
 			Input_PostUpdate();
@@ -269,6 +274,7 @@ PauseMenuLoop(void)
 				
 				UiButton_Draw(&BResume);
 				UiButton_Draw(&BRetry);
+				UiButton_Draw(&BSaveProgress);
 				UiButton_Draw(&BMainMenu);
 			}
 			
@@ -396,6 +402,43 @@ KeyDetectMenuLoop(void)
 	}
 }
 
+void
+MessageMenuLoop(char const *Msg)
+{
+	struct UiButton BBack = UiButton_Create(80, CONF_WND_HEIGHT - 80, "Back", BtnExitMenu);
+	
+	InMenu = true;
+	while (InMenu)
+	{
+		u64 TickBegin = GetUnixTimeMs();
+		
+		Input_HandleEvents();
+		
+		// update message menu.
+		{
+			UiButton_Update(&BBack);
+			
+			Input_PostUpdate();
+		}
+		
+		// draw message menu.
+		{
+			static u8 Cmbg[] = CONF_COLOR_MESSAGE_BG;
+			SDL_SetRenderDrawColor(g_Rend, Cmbg[0], Cmbg[1], Cmbg[2], 255);
+			SDL_RenderClear(g_Rend);
+			
+			Text_DrawStrBounded(Msg, 50, 50, CONF_WND_WIDTH - 100, CONF_WND_HEIGHT - 200);
+			UiButton_Draw(&BBack);
+			
+			SDL_RenderPresent(g_Rend);
+		}
+		
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
+	}
+}
+
 static void
 MainDrawBg(void)
 {
@@ -498,6 +541,22 @@ BtnExitToDesktop(void)
 }
 
 static void
+BtnContinue(void)
+{
+	if (g_SaveData.Ver == SAVE_VER_NULL)
+	{
+		MessageMenuLoop("Save file does not exist, so cannot be loaded!");
+		return;
+	}
+	
+	MapList_Load(g_SaveData.Map);
+	g_Game.TotalDeaths = g_SaveData.TotalDeaths;
+	g_Game.TotalTimeMs = g_SaveData.TotalTimeMs;
+	g_Game.Running = true;
+	Game_Loop();
+}
+
+static void
 BtnPlayFromBeginning(void)
 {
 	MapList_Load(MLI_C0E0);
@@ -578,6 +637,33 @@ BtnForceRetry(void)
 {
 	InMenu = false;
 	MapList_HardReload();
+}
+
+static void
+BtnSaveProgress(void)
+{
+	enum MapListItem CurMap = MapList_CurrentMap();
+	if (CurMap == MLI_CUSTOM)
+	{
+		MessageMenuLoop("Progress cannot be saved when playing a custom map!");
+		return;
+	}
+	
+	g_SaveData = (struct SaveData)
+	{
+		.TotalTimeMs = g_Game.TotalTimeMs,
+		.TotalDeaths = g_Game.TotalDeaths,
+		.Ver = SAVE_VER_CURRENT,
+		.Map = CurMap
+	};
+	
+	if (Save_WriteToFile(CONF_SAVE_FILE))
+	{
+		LogErr("menus: failed to write savedata to file - %s!", CONF_SAVE_FILE);
+		return;
+	}
+	
+	MessageMenuLoop("Progress saved!");
 }
 
 static void

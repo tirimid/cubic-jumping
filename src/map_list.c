@@ -7,6 +7,7 @@
 #include "map.h"
 #include "menus.h"
 #include "player.h"
+#include "save.h"
 #include "sequences.h"
 #include "text_list.h"
 #include "triggers.h"
@@ -67,6 +68,12 @@ static struct Item ItemData[MLI_END__] =
 	INCLUDE_MAP(c0e12),
 	INCLUDE_MAP(c0e13),
 };
+
+enum MapListItem
+MapList_CurrentMap(void)
+{
+	return CurItem;
+}
 
 void
 MapList_Load(enum MapListItem Item)
