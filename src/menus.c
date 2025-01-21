@@ -48,7 +48,7 @@ static void BtnExitOptionsMenu(void);
 static void BtnReqNext(void);
 static void BtnReqRetry(void);
 
-static bool InMenu = false;
+static u32 MenuDepth = 0;
 static enum MenuRequest Req = MR_NONE;
 static char CustomLevelPath[MAX_LEVEL_SEL_PATH_SIZE];
 
@@ -61,7 +61,7 @@ MainMenuLoop(void)
 	struct UiButton BEditor = UiButton_Create(80, 500, "Options", BtnOptions);
 	struct UiButton BExit = UiButton_Create(80, 540, "Exit to desktop", BtnExitToDesktop);
 	
-	// `InMenu` is irrelevant for the main menu since it is the main launch
+	// `MenuDepth` is irrelevant for the main menu since it is the main launch
 	// screen for game functionality, and it doesn't really make sense to
 	// "quit" the main menu.
 	for (;;)
@@ -113,8 +113,8 @@ CustomLevelSelectMenuLoop(void)
 	struct UiButton BEditLevel = UiButton_Create(80, 460, "Edit custom level", BtnEditCustomLevel);
 	struct UiButton BBack = UiButton_Create(80, 500, "Back", BtnExitMenu);
 	
-	InMenu = true;
-	while (InMenu)
+	u32 MinDepth = ++MenuDepth;
+	while (MenuDepth >= MinDepth)
 	{
 		u64 TickBegin = GetUnixTimeMs();
 		
@@ -123,7 +123,7 @@ CustomLevelSelectMenuLoop(void)
 		// update level select menu.
 		{
 			if (Keybd_Pressed(g_Options.KMenu))
-				InMenu = false;
+				--MenuDepth;
 			
 			UiTextField_Update(&TfPath);
 			UiButton_Update(&BPlayLevel);
@@ -163,9 +163,9 @@ LevelEndMenuLoop(void)
 	struct UiButton BRetry = UiButton_Create(80, 420, "Retry level", BtnReqRetry);
 	struct UiButton BMainMenu = UiButton_Create(80, 460, "Main menu", BtnMainMenu);
 	
-	InMenu = true;
+	u32 MinDepth = ++MenuDepth;
 	Req = MR_NONE;
-	while (InMenu)
+	while (MenuDepth >= MinDepth)
 	{
 		u64 TickBegin = GetUnixTimeMs();
 		
@@ -244,8 +244,8 @@ PauseMenuLoop(void)
 	struct UiButton BSaveProgress = UiButton_Create(80, 460, "Save progress", BtnSaveProgress);
 	struct UiButton BMainMenu = UiButton_Create(80, 500, "Main menu", BtnMainMenu);
 	
-	InMenu = true;
-	while (InMenu)
+	u32 MinDepth = ++MenuDepth;
+	while (MenuDepth >= MinDepth)
 	{
 		u64 TickBegin = GetUnixTimeMs();
 		
@@ -254,7 +254,7 @@ PauseMenuLoop(void)
 		// update pause menu.
 		{
 			if (Keybd_Pressed(g_Options.KMenu))
-				InMenu = false;
+				--MenuDepth;
 			
 			UiButton_Update(&BResume);
 			UiButton_Update(&BRetry);
@@ -300,8 +300,8 @@ OptionsMenuLoop(void)
 	struct UiSlider SMusicVolume = UiSlider_Create(400, 430, 200, 20, g_Options.MusicVolume, SldrMusicVolume);
 	struct UiButton BBack = UiButton_Create(80, 460, "Back", BtnExitOptionsMenu);
 	
-	InMenu = true;
-	while (InMenu)
+	u32 MinDepth = ++MenuDepth;
+	while (MenuDepth >= MinDepth)
 	{
 		u64 TickBegin = GetUnixTimeMs();
 		
@@ -309,6 +309,9 @@ OptionsMenuLoop(void)
 		
 		// update options menu.
 		{
+			if (Keybd_Pressed(g_Options.KMenu))
+				--MenuDepth;
+			
 			UiButton_Update(&BKLeft);
 			UiButton_Update(&BKRight);
 			UiButton_Update(&BKJump);
@@ -407,8 +410,8 @@ MessageMenuLoop(char const *Msg)
 {
 	struct UiButton BBack = UiButton_Create(80, CONF_WND_HEIGHT - 80, "Back", BtnExitMenu);
 	
-	InMenu = true;
-	while (InMenu)
+	u32 MinDepth = ++MenuDepth;
+	while (MenuDepth >= MinDepth)
 	{
 		u64 TickBegin = GetUnixTimeMs();
 		
@@ -416,6 +419,9 @@ MessageMenuLoop(char const *Msg)
 		
 		// update message menu.
 		{
+			if (Keybd_Pressed(g_Options.KMenu))
+				--MenuDepth;
+			
 			UiButton_Update(&BBack);
 			
 			Input_PostUpdate();
@@ -531,7 +537,7 @@ PauseDrawBg(void)
 static void
 BtnExitMenu(void)
 {
-	InMenu = false;
+	--MenuDepth;
 }
 
 static void
@@ -635,7 +641,7 @@ BtnEditCustomLevel(void)
 static void
 BtnForceRetry(void)
 {
-	InMenu = false;
+	--MenuDepth;
 	MapList_HardReload();
 }
 
@@ -669,7 +675,7 @@ BtnSaveProgress(void)
 static void
 BtnMainMenu(void)
 {
-	InMenu = false;
+	--MenuDepth;
 	g_Game.Running = false;
 }
 
@@ -733,19 +739,19 @@ static void
 BtnExitOptionsMenu(void)
 {
 	Options_WriteToFile(CONF_OPTIONS_FILE);
-	InMenu = false;
+	--MenuDepth;
 }
 
 static void
 BtnReqNext(void)
 {
-	InMenu = false;
+	--MenuDepth;
 	Req = MR_NEXT;
 }
 
 static void
 BtnReqRetry(void)
 {
-	InMenu = false;
+	--MenuDepth;
 	Req = MR_RETRY;
 }

@@ -27,12 +27,12 @@ Save_ReadFromFile(char const *Path)
 			|| RdUint32(&g_SaveData.TotalDeaths, Fp)
 			|| RdUint64(&g_SaveData.TotalTimeMs, Fp))
 		{
+			fclose(Fp);
 			return 1;
 		}
 	}
 	
 	fclose(Fp);
-	
 	return 0;
 }
 
@@ -52,7 +52,6 @@ Save_WriteToFile(char const *Path)
 	}
 	
 	fclose(Fp);
-	
 	return 0;
 }
 

@@ -46,10 +46,7 @@ Options_ReadFromFile(char const *Path)
 {
 	FILE *Fp = fopen(Path, "rb");
 	if (!Fp)
-	{
-		LogErr("options: could not read configuration - %s!", Path);
 		return 1;
-	}
 	
 	// read keybind options.
 	{
