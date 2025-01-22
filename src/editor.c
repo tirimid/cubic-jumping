@@ -9,6 +9,7 @@
 #include "input.h"
 #include "map.h"
 #include "options.h"
+#include "sound.h"
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
@@ -145,6 +146,7 @@ Editor_Loop(void)
 			}
 			
 			UpdateEditor();
+			Sound_UpdateMusic();
 			Input_PostUpdate();
 		}
 		

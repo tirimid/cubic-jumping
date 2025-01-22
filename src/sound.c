@@ -5,6 +5,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
+#include "conf.h"
+#include "options.h"
+
 // compiled WAV sound data.
 #include "sounds/bounce_wav.h"
 #include "sounds/dash_down_wav.h"
@@ -21,6 +24,7 @@
 // compiled MP3 sound data.
 #include "sounds/theme0_mp3.h"
 #include "sounds/theme1_mp3.h"
+#include "sounds/theme2_mp3.h"
 
 #define SOUND_FREQ 44100
 #define CHUNK_SIZE 2048
@@ -66,8 +70,12 @@ static struct Sound SfxSounds[SI_END__] =
 static struct Sound MusicSounds[MI_END__] =
 {
 	INCLUDE_MP3(theme0),
-	INCLUDE_MP3(theme1)
+	INCLUDE_MP3(theme1),
+	INCLUDE_MP3(theme2)
 };
+
+static usize CurMusic = 0;
+static f32 MusicFade = 0.0f;
 
 i32
 Sound_Init(void)
@@ -123,6 +131,11 @@ Sound_Init(void)
 		}
 	}
 	
+	// set initial sound parameters.
+	{
+		Mix_Volume(-1, g_Options.SfxVolume * MIX_MAX_VOLUME);
+	}
+	
 	return 0;
 }
 
@@ -155,13 +168,6 @@ Sound_SetSfxVolume(f32 Vol)
 }
 
 void
-Sound_SetMusicVolume(f32 Vol)
-{
-	Vol = CLAMP(0.0f, Vol, 1.0f);
-	Mix_VolumeMusic(Vol * MIX_MAX_VOLUME);
-}
-
-void
 Sound_PlaySfx(enum SfxId Id)
 {
 	Mix_PlayChannel(-1, SfxSounds[Id].MixData.Chunk, 0);
@@ -172,5 +178,26 @@ Sound_PlayMusic(enum MusicId Id)
 {
 	if (Mix_PlayingMusic())
 		Mix_HaltMusic();
-	Mix_PlayMusic(MusicSounds[Id].MixData.Music, -1);
+	
+	Mix_PlayMusic(MusicSounds[Id].MixData.Music, 0);
+	CurMusic = Id;
+	MusicFade = 0.0f;
+}
+
+void
+Sound_UpdateMusic(void)
+{
+	if (MusicFade < 1.0f)
+		MusicFade += CONF_MUSIC_FADE_SPEED;
+	MusicFade = CLAMP(0.0f, MusicFade, 1.0f);
+	Mix_VolumeMusic(MusicFade * g_Options.MusicVolume * MIX_MAX_VOLUME);
+	
+	if (Mix_PlayingMusic())
+		return;
+	
+	++CurMusic;
+	CurMusic = CurMusic % MI_END__;
+	
+	Mix_PlayMusic(MusicSounds[CurMusic].MixData.Music, 0);
+	MusicFade = 0.0f;
 }

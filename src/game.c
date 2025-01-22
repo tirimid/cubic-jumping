@@ -12,6 +12,7 @@
 #include "menus.h"
 #include "options.h"
 #include "player.h"
+#include "sound.h"
 #include "text.h"
 #include "text_list.h"
 #include "triggers.h"
@@ -50,6 +51,7 @@ Game_Loop(void)
 			Vfx_Update();
 			Cam_Update();
 			TextList_Update();
+			Sound_UpdateMusic();
 			
 			Input_PostUpdate();
 		}

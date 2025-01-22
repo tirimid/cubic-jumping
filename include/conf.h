@@ -27,7 +27,7 @@
 #define CONF_DEFAULT_K_EDITOR_UP SDLK_UP
 #define CONF_DEFAULT_K_EDITOR_DOWN SDLK_DOWN
 #define CONF_DEFAULT_SFX_VOLUME 0.5f
-#define CONF_DEFAULT_MUSIC_VOLUME 0.4f
+#define CONF_DEFAULT_MUSIC_VOLUME 0.25f
 
 // gamerule options.
 #define CONF_TICK_MS 10
@@ -169,6 +169,9 @@
 #define CONF_CAM_SHAKE_DAMPEN 0.95f
 #define CONF_DEATH_SHAKE 3.0f
 #define CONF_LAUNCH_SHAKE 1.5f
+
+// auditory options.
+#define CONF_MUSIC_FADE_SPEED 0.01f
 
 // editor options.
 #define CONF_EDITOR_CAM_ZOOM 0.06f

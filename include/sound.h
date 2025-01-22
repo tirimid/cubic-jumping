@@ -24,6 +24,7 @@ enum MusicId
 {
 	MI_THEME0 = 0,
 	MI_THEME1,
+	MI_THEME2,
 	
 	MI_END__
 };
@@ -31,8 +32,8 @@ enum MusicId
 i32 Sound_Init(void);
 void Sound_Quit(void);
 void Sound_SetSfxVolume(f32 Vol);
-void Sound_SetMusicVolume(f32 Vol);
 void Sound_PlaySfx(enum SfxId Id);
 void Sound_PlayMusic(enum MusicId Id);
+void Sound_UpdateMusic(void);
 
 #endif

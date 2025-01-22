@@ -74,6 +74,18 @@ Options_ReadFromFile(char const *Path)
 			fclose(Fp);
 			return 1;
 		}
+		
+		if (g_Options.SfxVolume > 1.0f)
+		{
+			fclose(Fp);
+			return 1;
+		}
+		
+		if (g_Options.MusicVolume > 1.0f)
+		{
+			fclose(Fp);
+			return 1;
+		}
 	}
 	
 	fclose(Fp);

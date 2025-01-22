@@ -78,6 +78,8 @@ MainMenuLoop(void)
 			UiButton_Update(&BEditor);
 			UiButton_Update(&BExit);
 			
+			Sound_UpdateMusic();
+			
 			Input_PostUpdate();
 		}
 		
@@ -132,6 +134,8 @@ CustomLevelSelectMenuLoop(void)
 			UiButton_Update(&BEditLevel);
 			UiButton_Update(&BBack);
 			
+			Sound_UpdateMusic();
+			
 			Input_PostUpdate();
 		}
 		
@@ -178,6 +182,8 @@ LevelEndMenuLoop(void)
 			UiButton_Update(&BNext);
 			UiButton_Update(&BRetry);
 			UiButton_Update(&BMainMenu);
+			
+			Sound_UpdateMusic();
 			
 			Input_PostUpdate();
 		}
@@ -263,6 +269,8 @@ PauseMenuLoop(void)
 			UiButton_Update(&BSaveProgress);
 			UiButton_Update(&BMainMenu);
 			
+			Sound_UpdateMusic();
+			
 			Input_PostUpdate();
 		}
 		
@@ -323,6 +331,8 @@ OptionsMenuLoop(void)
 			UiSlider_Update(&SSfxVolume);
 			UiSlider_Update(&SMusicVolume);
 			UiButton_Update(&BBack);
+			
+			Sound_UpdateMusic();
 			
 			Input_PostUpdate();
 		}
@@ -387,6 +397,8 @@ KeyDetectMenuLoop(void)
 					return (i - 128) | 1 << 30;
 			}
 			
+			Sound_UpdateMusic();
+			
 			Input_PostUpdate();
 		}
 		
@@ -425,6 +437,8 @@ MessageMenuLoop(char const *Msg)
 				--MenuDepth;
 			
 			UiButton_Update(&BBack);
+			
+			Sound_UpdateMusic();
 			
 			Input_PostUpdate();
 		}
@@ -734,7 +748,6 @@ static void
 SldrMusicVolume(f32 Vol)
 {
 	g_Options.MusicVolume = Vol;
-	Sound_SetMusicVolume(Vol);
 }
 
 static void
