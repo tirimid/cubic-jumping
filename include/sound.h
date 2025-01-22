@@ -23,6 +23,7 @@ enum SfxId
 enum MusicId
 {
 	MI_THEME0 = 0,
+	MI_THEME1,
 	
 	MI_END__
 };

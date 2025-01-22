@@ -3,6 +3,9 @@
 
 #include <SDL2/SDL.h>
 
+// program options.
+#define CONF_VERSION "0.0.1 dev playtest"
+
 // window options.
 #define CONF_WND_TITLE "Cubic Jumping"
 #define CONF_WND_WIDTH 800
@@ -24,7 +27,7 @@
 #define CONF_DEFAULT_K_EDITOR_UP SDLK_UP
 #define CONF_DEFAULT_K_EDITOR_DOWN SDLK_DOWN
 #define CONF_DEFAULT_SFX_VOLUME 0.5f
-#define CONF_DEFAULT_MUSIC_VOLUME 0.6f
+#define CONF_DEFAULT_MUSIC_VOLUME 0.4f
 
 // gamerule options.
 #define CONF_TICK_MS 10

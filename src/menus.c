@@ -87,13 +87,15 @@ MainMenuLoop(void)
 			
 			// draw UI.
 			{
-				Text_DrawStr("CUBIC JUMPING", 80, 60);
+				Text_DrawStr("CUBIC JUMPING", 260, 180);
 				
 				UiButton_Draw(&BContinue);
 				UiButton_Draw(&BPlay);
 				UiButton_Draw(&BPlayCustom);
 				UiButton_Draw(&BEditor);
 				UiButton_Draw(&BExit);
+				
+				Text_DrawStr(CONF_VERSION, 20, 20);
 			}
 			
 			SDL_RenderPresent(g_Rend);

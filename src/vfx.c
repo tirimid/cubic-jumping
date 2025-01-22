@@ -222,7 +222,7 @@ Vfx_Draw(void)
 				Data.ColorA[0] = Data.ColorB[0] = p->OverrideColor[0];
 			if (p->OverrideColor[1])
 				Data.ColorA[1] = Data.ColorB[1] = p->OverrideColor[1];
-			if (p->OverrideColor[0])
+			if (p->OverrideColor[2])
 				Data.ColorA[2] = Data.ColorB[2] = p->OverrideColor[2];
 		}
 		

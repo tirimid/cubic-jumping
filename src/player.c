@@ -26,6 +26,7 @@ static void CollideBottom(void);
 static void CollideTop(void);
 static void ComputeCollisionDistances(void);
 static void TestAndApplyCollisions(void);
+static void SpawnCollisionPuff(i32 n, enum ParticleType Type);
 
 void
 Player_Update(void)
@@ -184,15 +185,7 @@ UpdatePlaying(void)
 			&& Keybd_Down(g_Options.KJump))
 		{
 			g_Player.VelY = -CONF_PLAYER_JUMP_FORCE;
-			for (i32 i = 0; i < CONF_GROUND_PUFF_CNT_NORM; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_GROUND_PUFF,
-					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
-					g_Player.PosY + CONF_PLAYER_SIZE,
-					&Map_TileColor[g_Player.NearBottom->Type][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_NORM, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_JUMP);
 		}
 		else if (!g_PlayerCapMask.NoPowerjump
@@ -204,15 +197,7 @@ UpdatePlaying(void)
 			else if (g_Player.VelX < 0.0f)
 				g_Player.VelX = -CONF_PLAYER_POWERJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_POWERJUMP_FORCE_Y;
-			for (i32 i = 0; i < CONF_GROUND_PUFF_CNT_POWER; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_GROUND_PUFF,
-					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
-					g_Player.PosY + CONF_PLAYER_SIZE,
-					&Map_TileColor[g_Player.NearBottom->Type][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_POWER, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_POWERJUMP);
 		}
 		
@@ -245,15 +230,7 @@ UpdatePlaying(void)
 		{
 			g_Player.VelX = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
-			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_LEFT_WALL_PUFF,
-					g_Player.PosX,
-					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
-					&Map_TileColor[g_Player.NearLeft->Type][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_LEFT_WALL_PUFF);
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
 		
@@ -264,15 +241,7 @@ UpdatePlaying(void)
 		{
 			g_Player.VelX = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
-			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_RIGHT_WALL_PUFF,
-					g_Player.PosX + CONF_PLAYER_SIZE,
-					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
-					&Map_TileColor[g_Player.NearRight->Type][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_RIGHT_WALL_PUFF);
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
 	}
@@ -372,15 +341,7 @@ CollideLeft(void)
 		if (g_Player.VelX < -CONF_MIN_RESTITUTION_SPEED)
 		{
 			g_Player.VelX *= -CONF_RESTITUTION;
-			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_LEFT_WALL_PUFF,
-					g_Player.PosX,
-					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
-					&Map_TileColor[MTT_BOUNCE][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_LEFT_WALL_PUFF);
 			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
@@ -412,15 +373,7 @@ CollideRight(void)
 		if (g_Player.VelX > CONF_MIN_RESTITUTION_SPEED)
 		{
 			g_Player.VelX *= -CONF_RESTITUTION;
-			for (i32 i = 0; i < CONF_WALL_PUFF_CNT; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_RIGHT_WALL_PUFF,
-					g_Player.PosX + CONF_PLAYER_SIZE,
-					g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
-					&Map_TileColor[MTT_BOUNCE][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_RIGHT_WALL_PUFF);
 			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
@@ -452,15 +405,7 @@ CollideBottom(void)
 		if (g_Player.VelY > CONF_MIN_RESTITUTION_SPEED)
 		{
 			g_Player.VelY *= -CONF_RESTITUTION;
-			for (i32 i = 0; i < CONF_GROUND_PUFF_CNT_NORM; ++i)
-			{
-				Vfx_PutOverrideParticle(
-					PT_GROUND_PUFF,
-					g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
-					g_Player.PosY + CONF_PLAYER_SIZE,
-					&Map_TileColor[MTT_BOUNCE][0]
-				);
-			}
+			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_NORM, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_BOUNCE);
 		}
 		else
@@ -673,5 +618,48 @@ TestAndApplyCollisions(void)
 	{
 		Collide(g_Player.NearBottom);
 		CollideBottom();
+	}
+}
+
+static void
+SpawnCollisionPuff(i32 n, enum ParticleType Type)
+{
+	switch (Type)
+	{
+	case PT_LEFT_WALL_PUFF:
+		for (i32 i = 0; i < n; ++i)
+		{
+			Vfx_PutOverrideParticle(
+				PT_LEFT_WALL_PUFF,
+				g_Player.PosX + CONF_PLAYER_SIZE,
+				g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
+				&Map_TileColor[g_Player.NearLeft->Type][0]
+			);
+		}
+		break;
+	case PT_RIGHT_WALL_PUFF:
+		for (i32 i = 0; i < n; ++i)
+		{
+			Vfx_PutOverrideParticle(
+				PT_RIGHT_WALL_PUFF,
+				g_Player.PosX + CONF_PLAYER_SIZE / 2.0f,
+				g_Player.PosY + CONF_PLAYER_SIZE,
+				&Map_TileColor[g_Player.NearRight->Type][0]
+			);
+		}
+		break;
+	case PT_GROUND_PUFF:
+		for (i32 i = 0; i < n; ++i)
+		{
+			Vfx_PutOverrideParticle(
+				PT_GROUND_PUFF,
+				g_Player.PosX + CONF_PLAYER_SIZE,
+				g_Player.PosY + CONF_PLAYER_SIZE / 2.0f,
+				&Map_TileColor[g_Player.NearBottom->Type][0]
+			);
+		}
+		break;
+	default:
+		break;
 	}
 }
