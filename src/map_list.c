@@ -28,6 +28,9 @@
 #include "maps/c0e11.hfm"
 #include "maps/c0e12.hfm"
 #include "maps/c0e13.hfm"
+#include "maps/c0e14.hfm"
+#include "maps/c0e15.hfm"
+#include "maps/c0e16.hfm"
 
 #define INCLUDE_MAP(Name) \
 	{ \
@@ -67,6 +70,9 @@ static struct Item ItemData[MLI_END__] =
 	INCLUDE_MAP(c0e11),
 	INCLUDE_MAP(c0e12),
 	INCLUDE_MAP(c0e13),
+	INCLUDE_MAP(c0e14),
+	INCLUDE_MAP(c0e15),
+	INCLUDE_MAP(c0e16)
 };
 
 enum MapListItem

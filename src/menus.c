@@ -615,7 +615,7 @@ BtnEditCustomLevel(void)
 				++Last;
 			}
 			
-			strncpy(Name, &CustomLevelPath[First], Last - First + 1);
+			memcpy(Name, &CustomLevelPath[First], Last - First);
 		}
 		
 		if (!Name[0])

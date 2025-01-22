@@ -23,6 +23,9 @@ enum MapListItem
 	MLI_C0E11,
 	MLI_C0E12,
 	MLI_C0E13,
+	MLI_C0E14,
+	MLI_C0E15,
+	MLI_C0E16,
 	
 	MLI_END__
 };

@@ -340,6 +340,7 @@ Collide(struct MapTile *Tile)
 		Player_Die();
 		break;
 	case MTT_LAUNCH:
+		g_Cam.Shake = CONF_LAUNCH_SHAKE;
 		Sound_PlaySfx(SI_LAUNCH);
 		break;
 	case MTT_END_ON:

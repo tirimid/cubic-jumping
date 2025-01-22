@@ -6,6 +6,7 @@
 
 #include "conf.h"
 #include "options.h"
+#include "sound.h"
 #include "text.h"
 #include "util.h"
 
@@ -36,6 +37,7 @@ TextList_Enqueue(enum TextListItem Item)
 		{
 			GenBoxText(Item);
 			QueueFrontTicks = TEXT_TICKS;
+			Sound_PlaySfx(SI_TEXTBOX);
 		}
 		
 		Queue[QueueLen++] = Item;
@@ -67,6 +69,7 @@ TextList_Update(void)
 		{
 			GenBoxText(Queue[0]);
 			QueueFrontTicks = TEXT_TICKS;
+			Sound_PlaySfx(SI_TEXTBOX);
 		}
 		
 		return;
@@ -172,6 +175,11 @@ GenBoxText(enum TextListItem Item)
 		// c0e11.
 	case TLI_C0E11_GRIP_INTRO:
 		sprintf(BoxText, "Grip tiles are rougher than normal, allowing you to climb up them");
+		break;
+		
+		// c0e14.
+	case TLI_C0E14_TERMINATE_JUMP:
+		sprintf(BoxText, "Time a downwards dash to prematurely terminate a jump and initiate a new one");
 		break;
 		
 		// ignore.

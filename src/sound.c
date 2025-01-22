@@ -15,6 +15,7 @@
 #include "sounds/launch_wav.h"
 #include "sounds/powerjump_wav.h"
 #include "sounds/switch_wav.h"
+#include "sounds/textbox_wav.h"
 #include "sounds/walljump_wav.h"
 
 // compiled MP3 sound data.
@@ -57,6 +58,7 @@ static struct Sound SfxSounds[SI_END__] =
 	INCLUDE_WAV(launch),
 	INCLUDE_WAV(powerjump),
 	INCLUDE_WAV(switch),
+	INCLUDE_WAV(textbox),
 	INCLUDE_WAV(walljump)
 };
 
