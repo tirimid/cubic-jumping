@@ -26,9 +26,13 @@ enum MapListItem
 	MLI_C0E14,
 	MLI_C0E15,
 	MLI_C0E16,
+	MLI_C0E17,
 	
 	MLI_END__
 };
+
+// [0] = minutes, [1] = seconds, [2] = milliseconds.
+extern u16 MapList_ParTimes[MLI_END__][3];
 
 enum MapListItem MapList_CurrentMap(void);
 void MapList_Load(enum MapListItem Item);

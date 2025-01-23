@@ -202,7 +202,7 @@ LevelEndMenuLoop(void)
 				u64 TotalTimeS = g_Game.TotalTimeMs / 1000;
 				u64 TotalTimeM = TotalTimeS / 60;
 				
-				static char TimeBuf[64];
+				char TimeBuf[64] = {0};
 				sprintf(
 					TimeBuf,
 					"Time: %lu:%02lu.%02lu (%lu:%02lu.%02lu)",
@@ -214,7 +214,7 @@ LevelEndMenuLoop(void)
 					g_Game.TotalTimeMs % 1000 / 10
 				);
 				
-				static char DeathsBuf[64];
+				char DeathsBuf[64] = {0};
 				sprintf(
 					DeathsBuf,
 					"Deaths: %u (%u)",
@@ -227,6 +227,21 @@ LevelEndMenuLoop(void)
 				Text_DrawStr(g_Map.Name, 80, 140);
 				Text_DrawStr(TimeBuf, 80, 180);
 				Text_DrawStr(DeathsBuf, 80, 220);
+				
+				enum MapListItem CurMap = MapList_CurrentMap();
+				if (CurMap)
+				{
+					char ParBuf[64] = {0};
+					sprintf(
+						ParBuf,
+						"Par: %02u:%02u.%02u",
+						MapList_ParTimes[CurMap][0],
+						MapList_ParTimes[CurMap][1],
+						MapList_ParTimes[CurMap][2]
+					);
+					
+					Text_DrawStr(ParBuf, 80, 300);
+				}
 				
 				UiButton_Draw(&BNext);
 				UiButton_Draw(&BRetry);

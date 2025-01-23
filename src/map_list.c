@@ -31,6 +31,7 @@
 #include "maps/c0e14.hfm"
 #include "maps/c0e15.hfm"
 #include "maps/c0e16.hfm"
+#include "maps/c0e17.hfm"
 
 #define INCLUDE_MAP(Name) \
 	{ \
@@ -44,6 +45,32 @@ struct Item
 	struct Map *Map;
 	struct Trigger *Triggers;
 	usize TriggerCnt;
+};
+
+u16 MapList_ParTimes[MLI_END__][3] =
+{
+	// dummy: custom map.
+	{0, 0, 0},
+	
+	// chapter 0.
+	{0, 0, 0}, // c0e0.
+	{0, 0, 0}, // c0e1.
+	{0, 0, 0}, // c0e2.
+	{0, 0, 0}, // c0e3.
+	{0, 0, 0}, // c0e4.
+	{0, 0, 0}, // c0e5.
+	{0, 0, 0}, // c0e6.
+	{0, 0, 0}, // c0e7.
+	{0, 0, 0}, // c0e8.
+	{0, 0, 0}, // c0e9.
+	{0, 0, 0}, // c0e10.
+	{0, 0, 0}, // c0e11.
+	{0, 0, 0}, // c0e12.
+	{0, 0, 0}, // c0e13.
+	{0, 0, 0}, // c0e14.
+	{0, 0, 0}, // c0e15.
+	{0, 0, 0}, // c0e16.
+	{0, 0, 0} // c0e17.
 };
 
 static char const *CurCustom;
@@ -72,7 +99,8 @@ static struct Item ItemData[MLI_END__] =
 	INCLUDE_MAP(c0e13),
 	INCLUDE_MAP(c0e14),
 	INCLUDE_MAP(c0e15),
-	INCLUDE_MAP(c0e16)
+	INCLUDE_MAP(c0e16),
+	INCLUDE_MAP(c0e17)
 };
 
 enum MapListItem
