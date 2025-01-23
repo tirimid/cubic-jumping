@@ -53,8 +53,8 @@ u16 MapList_ParTimes[MLI_END__][3] =
 	{0, 0, 0},
 	
 	// chapter 0.
-	{0, 0, 0}, // c0e0.
-	{0, 0, 0}, // c0e1.
+	{0, 13, 59}, // c0e0.
+	{0, 7, 79}, // c0e1.
 	{0, 0, 0}, // c0e2.
 	{0, 0, 0}, // c0e3.
 	{0, 0, 0}, // c0e4.
@@ -234,8 +234,7 @@ MapList_LoadNext(void)
 			g_Game.Running = false;
 		else if (CurItem == MLI_END__ - 1)
 		{
-			// TODO: uncomment when credits sequence is done.
-			//CreditsSequence();
+			CreditsSequence();
 			g_Game.Running = false;
 		}
 		else

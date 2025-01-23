@@ -137,7 +137,7 @@ GenBoxText(enum TextListItem Item)
 		
 		// c0e4.
 	case TLI_C0E4_HOW_TO_AIR_CONTROL:
-		sprintf(BoxText, "Move in the opposite direction of your velocity to slow down mid-air");
+		sprintf(BoxText, "Bounce multiple times to reduce vertical bounce velocity over time");
 		break;
 	case TLI_C0E4_LAUNCH_INTRO:
 		sprintf(BoxText, "Launch tiles give you a sudden boost of velocity");
@@ -179,7 +179,7 @@ GenBoxText(enum TextListItem Item)
 		
 		// c0e14.
 	case TLI_C0E14_TERMINATE_JUMP:
-		sprintf(BoxText, "Time a downwards dash to prematurely terminate a jump and initiate a new one");
+		sprintf(BoxText, "Dash downwards while powerjumping to jump on platforms you would otherwise miss");
 		break;
 		
 		// ignore.

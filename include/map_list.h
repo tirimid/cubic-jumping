@@ -31,7 +31,7 @@ enum MapListItem
 	MLI_END__
 };
 
-// [0] = minutes, [1] = seconds, [2] = milliseconds.
+// par time will be '[0]:[1].[2]'.
 extern u16 MapList_ParTimes[MLI_END__][3];
 
 enum MapListItem MapList_CurrentMap(void);
