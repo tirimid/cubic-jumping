@@ -14,6 +14,8 @@
 #include "vfx.h"
 
 // compiled map data.
+
+// chapter 0.
 #include "maps/c0e0.hfm"
 #include "maps/c0e1.hfm"
 #include "maps/c0e2.hfm"
@@ -34,6 +36,11 @@
 #include "maps/c0e17.hfm"
 #include "maps/c0e18.hfm"
 #include "maps/c0e19.hfm"
+#include "maps/c0e20.hfm"
+#include "maps/c0e21.hfm"
+#include "maps/c0e22.hfm"
+#include "maps/c0e23.hfm"
+#include "maps/c0e24.hfm"
 
 #define INCLUDE_MAP(Name) \
 	{ \
@@ -74,7 +81,12 @@ u16 MapList_ParTimes[MLI_END__][3] =
 	{0, 0, 0}, // c0e16.
 	{0, 0, 0}, // c0e17.
 	{0, 0, 0}, // c0e18.
-	{0, 0, 0} // c0e19.
+	{0, 0, 0}, // c0e19.
+	{0, 0, 0}, // c0e20.
+	{0, 0, 0}, // c0e21.
+	{0, 0, 0}, // c0e22.
+	{0, 0, 0}, // c0e23.
+	{0, 0, 0} // c0e24.
 };
 
 static char const *CurCustom;
@@ -106,7 +118,12 @@ static struct Item ItemData[MLI_END__] =
 	INCLUDE_MAP(c0e16),
 	INCLUDE_MAP(c0e17),
 	INCLUDE_MAP(c0e18),
-	INCLUDE_MAP(c0e19)
+	INCLUDE_MAP(c0e19),
+	INCLUDE_MAP(c0e20),
+	INCLUDE_MAP(c0e21),
+	INCLUDE_MAP(c0e22),
+	INCLUDE_MAP(c0e23),
+	INCLUDE_MAP(c0e24)
 };
 
 enum MapListItem

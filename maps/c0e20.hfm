@@ -1,0 +1,23 @@
+//CJ6330653230000000000000010000000100000000000000000100000000
+#ifndef c0e20_HFM
+#define c0e20_HFM
+#include <stddef.h>
+#include "map.h"
+#include "triggers.h"
+#define c0e20_NTRIGGERS 0
+static struct MapTile c0e20_map_data[] =
+{
+{1},
+};
+static struct Map c0e20_map =
+{
+	.SizeX = 1,
+	.SizeY = 1,
+	.Data = c0e20_map_data,
+	.Name = "c0e20\0",
+};
+static struct Trigger c0e20_triggers[] =
+{
+{0.0f,0.0f,0.0f,0.0f,0,0,0}
+};
+#endif

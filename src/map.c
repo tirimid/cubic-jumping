@@ -139,7 +139,7 @@ Map_CreateFile(char const *File, char const *Name)
 			"{\n"
 			"\t.SizeX = 1,\n"
 			"\t.SizeY = 1,\n"
-			"\t.Data = %s_data,\n"
+			"\t.Data = %s_map_data,\n"
 			"\t.Name = \"%s\\0\",\n"
 			"};\n"
 			"static struct Trigger %s_triggers[] =\n"
