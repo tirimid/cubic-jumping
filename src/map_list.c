@@ -32,6 +32,8 @@
 #include "maps/c0e15.hfm"
 #include "maps/c0e16.hfm"
 #include "maps/c0e17.hfm"
+#include "maps/c0e18.hfm"
+#include "maps/c0e19.hfm"
 
 #define INCLUDE_MAP(Name) \
 	{ \
@@ -70,7 +72,9 @@ u16 MapList_ParTimes[MLI_END__][3] =
 	{0, 0, 0}, // c0e14.
 	{0, 0, 0}, // c0e15.
 	{0, 0, 0}, // c0e16.
-	{0, 0, 0} // c0e17.
+	{0, 0, 0}, // c0e17.
+	{0, 0, 0}, // c0e18.
+	{0, 0, 0} // c0e19.
 };
 
 static char const *CurCustom;
@@ -100,7 +104,9 @@ static struct Item ItemData[MLI_END__] =
 	INCLUDE_MAP(c0e14),
 	INCLUDE_MAP(c0e15),
 	INCLUDE_MAP(c0e16),
-	INCLUDE_MAP(c0e17)
+	INCLUDE_MAP(c0e17),
+	INCLUDE_MAP(c0e18),
+	INCLUDE_MAP(c0e19)
 };
 
 enum MapListItem
