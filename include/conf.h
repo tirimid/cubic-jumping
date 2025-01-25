@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 // program options.
-#define CONF_VERSION "0.0.4 dev playtest"
+#define CONF_VERSION "0.0.5"
 
 // window options.
 #define CONF_WND_TITLE "Cubic Jumping"
@@ -169,7 +169,7 @@
 #define CONF_INTRO_TICKS 200
 #define CONF_CAM_SHAKE_TICK 4
 #define CONF_CAM_SHAKE_DAMPEN 0.95f
-#define CONF_DEATH_SHAKE 3.0f
+#define CONF_DEATH_SHAKE 1.0f
 #define CONF_LAUNCH_SHAKE 1.5f
 
 // auditory options.

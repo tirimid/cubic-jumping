@@ -49,10 +49,10 @@ Player_Draw(void)
 	static u8 Cp[] = CONF_COLOR_PLAYER;
 	SDL_SetRenderDrawColor(g_Rend, Cp[0], Cp[1], Cp[2], 255);
 	RelativeDrawRect(
-		g_Player.PosX,
-		g_Player.PosY,
-		CONF_PLAYER_SIZE,
-		CONF_PLAYER_SIZE
+		g_Player.PosX - 0.01f,
+		g_Player.PosY - 0.01f,
+		CONF_PLAYER_SIZE + 0.02f,
+		CONF_PLAYER_SIZE + 0.02f
 	);
 }
 
