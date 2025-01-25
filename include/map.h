@@ -22,6 +22,7 @@ enum MapTileType
 	MTT_SLIPPERY,
 	MTT_GRIP,
 	MTT_WALL,
+	MTT_BEAM,
 	
 	MTT_END__
 };

@@ -50,6 +50,9 @@ enum TextListItem
 	// c0e14.
 	TLI_C0E14_TERMINATE_JUMP = 0x16,
 	
+	// c0e22.
+	TLI_C0E22_BEAM_INTRO = 0x17,
+	
 	TLI_END__
 };
 

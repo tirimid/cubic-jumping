@@ -23,7 +23,8 @@ u8 Map_TileColor[MTT_END__][3] =
 	CONF_COLOR_END_OFF,
 	CONF_COLOR_SLIPPERY,
 	CONF_COLOR_GRIP,
-	CONF_COLOR_WALL
+	CONF_COLOR_WALL,
+	CONF_COLOR_BEAM
 };
 
 bool Map_TileCollision[MTT_END__] =
@@ -39,7 +40,8 @@ bool Map_TileCollision[MTT_END__] =
 	true, // end off.
 	true, // slippery.
 	true, // grip.
-	false // wall.
+	false, // wall.
+	true // beam.
 };
 
 bool Map_TileSlippery[MTT_END__] =
@@ -55,7 +57,8 @@ bool Map_TileSlippery[MTT_END__] =
 	false, // end off.
 	true, // slippery.
 	false, // grip.
-	false // wall.
+	false, // wall.
+	true // beam.
 };
 
 bool Map_TileClimbable[MTT_END__] =
@@ -71,7 +74,8 @@ bool Map_TileClimbable[MTT_END__] =
 	false, // end off.
 	false, // slippery.
 	true, // grip.
-	false // wall.
+	false, // wall.
+	false // beam.
 };
 
 static i32 RdUint8(u8 *Out, FILE *Fp);

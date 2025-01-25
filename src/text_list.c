@@ -182,6 +182,11 @@ GenBoxText(enum TextListItem Item)
 		sprintf(BoxText, "Dash downwards while powerjumping to jump on platforms you would otherwise miss");
 		break;
 		
+		// c0e22.
+	case TLI_C0E22_BEAM_INTRO:
+		sprintf(BoxText, "Beam tiles will suck you in towards them at a constant speed");
+		break;
+		
 		// ignore.
 	case TLI_END__:
 		break;

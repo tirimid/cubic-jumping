@@ -182,7 +182,9 @@ UpdatePlaying(void)
 		
 		if (!g_PlayerCapMask.NoJump
 			&& Player_Grounded()
-			&& Keybd_Down(g_Options.KJump))
+			&& Keybd_Down(g_Options.KJump)
+			&& g_Player.NearBottom
+			&& !Map_TileSlippery[g_Player.NearBottom->Type])
 		{
 			g_Player.VelY = -CONF_PLAYER_JUMP_FORCE;
 			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_NORM, PT_GROUND_PUFF);
@@ -190,7 +192,9 @@ UpdatePlaying(void)
 		}
 		else if (!g_PlayerCapMask.NoPowerjump
 			&& Player_Grounded()
-			&& Keybd_Down(g_Options.KPowerjump))
+			&& Keybd_Down(g_Options.KPowerjump)
+			&& g_Player.NearBottom
+			&& !Map_TileSlippery[g_Player.NearBottom->Type])
 		{
 			if (g_Player.VelX > 0.0f)
 				g_Player.VelX = CONF_PLAYER_POWERJUMP_FORCE_X;
@@ -204,6 +208,7 @@ UpdatePlaying(void)
 		if (!g_PlayerCapMask.NoWallslide
 			&& Player_WalledLeft()
 			&& Keybd_Down(g_Options.KLeft)
+			&& g_Player.NearLeft
 			&& !Map_TileSlippery[g_Player.NearLeft->Type])
 		{
 			if (Map_TileClimbable[g_Player.NearLeft->Type])
@@ -215,6 +220,7 @@ UpdatePlaying(void)
 		if (!g_PlayerCapMask.NoWallslide
 			&& Player_WalledRight()
 			&& Keybd_Down(g_Options.KRight)
+			&& g_Player.NearRight
 			&& !Map_TileSlippery[g_Player.NearRight->Type])
 		{
 			if (Map_TileClimbable[g_Player.NearRight->Type])
@@ -226,6 +232,7 @@ UpdatePlaying(void)
 		if (!g_PlayerCapMask.NoWalljump
 			&& Player_WalledLeft()
 			&& Keybd_Down(g_Options.KJump)
+			&& g_Player.NearLeft
 			&& !Map_TileSlippery[g_Player.NearLeft->Type])
 		{
 			g_Player.VelX = CONF_PLAYER_WALLJUMP_FORCE_X;
@@ -237,6 +244,7 @@ UpdatePlaying(void)
 		if (!g_PlayerCapMask.NoWalljump
 			&& Player_WalledRight()
 			&& Keybd_Down(g_Options.KJump)
+			&& g_Player.NearRight
 			&& !Map_TileSlippery[g_Player.NearRight->Type])
 		{
 			g_Player.VelX = -CONF_PLAYER_WALLJUMP_FORCE_X;
@@ -251,6 +259,35 @@ UpdatePlaying(void)
 		g_Player.VelY += CONF_GRAVITY;
 		g_Player.VelX /= Player_Grounded() ? CONF_FRICTION : CONF_DRAG;
 		g_Player.VelY /= CONF_DRAG;
+		
+		f32 BeamSpeedX = 0.0f;
+		bool BeamActiveX = false;
+		if (g_Player.NearLeft && g_Player.NearLeft->Type == MTT_BEAM)
+		{
+			BeamSpeedX -= CONF_BEAM_SPEED;
+			BeamActiveX = true;
+		}
+		if (g_Player.NearRight && g_Player.NearRight->Type == MTT_BEAM)
+		{
+			BeamSpeedX += CONF_BEAM_SPEED;
+			BeamActiveX = true;
+		}
+		
+		f32 BeamSpeedY = 0.0f;
+		bool BeamActiveY = false;
+		if (g_Player.NearTop && g_Player.NearTop->Type == MTT_BEAM)
+		{
+			BeamSpeedY -= CONF_BEAM_SPEED;
+			BeamActiveY = true;
+		}
+		if (g_Player.NearBottom && g_Player.NearBottom->Type == MTT_BEAM)
+		{
+			BeamSpeedY += CONF_BEAM_SPEED;
+			BeamActiveY = true;
+		}
+		
+		g_Player.VelX = BeamActiveX ? BeamSpeedX : g_Player.VelX;
+		g_Player.VelY = BeamActiveY ? BeamSpeedY : g_Player.VelY;
 	}
 	
 	// need to also apply collsions after all velocity changes.

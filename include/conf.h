@@ -51,6 +51,7 @@
 #define CONF_WALL_LAUNCH_FORCE_X 0.6f
 #define CONF_WALL_LAUNCH_FORCE_Y 0.4f
 #define CONF_CLIMB_SPEED 0.1f
+#define CONF_BEAM_SPEED 0.15f
 
 // visual options.
 #define CONF_DRAW_SCALE 50
@@ -82,6 +83,7 @@
 #define CONF_COLOR_SLIPPERY {80, 180, 170}
 #define CONF_COLOR_GRIP {240, 80, 80}
 #define CONF_COLOR_WALL {215, 215, 215}
+#define CONF_COLOR_BEAM {190, 220, 0}
 #define CONF_COLOR_TEXT {255, 255, 255}
 #define CONF_COLOR_TEXT_OUTLINE {0, 0, 0}
 #define CONF_COLOR_TEXT_BOX {70, 70, 70}

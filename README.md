@@ -4,9 +4,7 @@
 
 Cubic Jumping is a platformer game. It's called "Cubic Jumping" because you play
 as a cube, who jumps - very creative... The game is made with the aim of having
-fun movement and level mechanics. Technically speaking, the game is quite
-primitive, but I've tried to make the basic features come together in
-interesting ways.
+fun movement and level mechanics.
 
 ## Dependencies
 
