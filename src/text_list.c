@@ -94,8 +94,13 @@ GenBoxText(enum TextListItem Item)
 		sprintf(BoxText, "Hello world");
 		break;
 	case TLI_HOW_TO_MOVE:
-		sprintf(BoxText, "Move left and right using [%s] and [%s]", SDL_GetKeyName(g_Options.KLeft), SDL_GetKeyName(g_Options.KRight));
+	{
+		char LeftName[32], RightName[32];
+		sprintf(LeftName, "%s", SDL_GetKeyName(g_Options.KLeft));
+		sprintf(RightName, "%s", SDL_GetKeyName(g_Options.KRight));
+		sprintf(BoxText, "Move left and right using [%s] and [%s]", LeftName, RightName);
 		break;
+	}
 	case TLI_HOW_TO_JUMP:
 		sprintf(BoxText, "Jump using [%s]", SDL_GetKeyName(g_Options.KJump));
 		break;

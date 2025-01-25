@@ -104,6 +104,22 @@ Options_WriteToFile(char const *Path)
 	
 	// write keybind options.
 	{
+		char LeftName[32], RightName[32], JumpName[32], DashDownName[32];
+		char PowerjumpName[32];
+		char MenuName[32];
+		char EditorLeftName[32], EditorRightName[32], EditorUpName[32], EditorDownName[32];
+		
+		sprintf(LeftName, "%s", SDL_GetKeyName(g_Options.KLeft));
+		sprintf(RightName, "%s", SDL_GetKeyName(g_Options.KRight));
+		sprintf(JumpName, "%s", SDL_GetKeyName(g_Options.KJump));
+		sprintf(DashDownName, "%s", SDL_GetKeyName(g_Options.KDashDown));
+		sprintf(PowerjumpName, "%s", SDL_GetKeyName(g_Options.KPowerjump));
+		sprintf(MenuName, "%s", SDL_GetKeyName(g_Options.KMenu));
+		sprintf(EditorLeftName, "%s", SDL_GetKeyName(g_Options.KEditorLeft));
+		sprintf(EditorRightName, "%s", SDL_GetKeyName(g_Options.KEditorRight));
+		sprintf(EditorUpName, "%s", SDL_GetKeyName(g_Options.KEditorUp));
+		sprintf(EditorDownName, "%s", SDL_GetKeyName(g_Options.KEditorDown));
+		
 		fprintf(
 			Fp,
 			"# keybind options.\n"
@@ -117,16 +133,16 @@ Options_WriteToFile(char const *Path)
 			"KEditorRight = %s\n"
 			"KEditorUp = %s\n"
 			"KEditorDown = %s\n",
-			SDL_GetKeyName(g_Options.KLeft),
-			SDL_GetKeyName(g_Options.KRight),
-			SDL_GetKeyName(g_Options.KJump),
-			SDL_GetKeyName(g_Options.KDashDown),
-			SDL_GetKeyName(g_Options.KPowerjump),
-			SDL_GetKeyName(g_Options.KMenu),
-			SDL_GetKeyName(g_Options.KEditorLeft),
-			SDL_GetKeyName(g_Options.KEditorRight),
-			SDL_GetKeyName(g_Options.KEditorUp),
-			SDL_GetKeyName(g_Options.KEditorDown)
+			LeftName,
+			RightName,
+			JumpName,
+			DashDownName,
+			PowerjumpName,
+			MenuName,
+			EditorLeftName,
+			EditorRightName,
+			EditorUpName,
+			EditorDownName
 		);
 	}
 	

@@ -28,6 +28,8 @@ static void ComputeCollisionDistances(void);
 static void TestAndApplyCollisions(void);
 static void SpawnCollisionPuff(i32 n, enum ParticleType Type);
 
+static bool BufferJump = false, BufferPowerjump = false;
+
 void
 Player_Update(void)
 {
@@ -127,6 +129,19 @@ Player_SetCapMask(enum PlayerCapId Id, bool State)
 static void
 UpdatePlaying(void)
 {
+	// gather buffered inputs.
+	{
+		if (Keybd_Pressed(g_Options.KJump))
+			BufferJump = true;
+		if (Keybd_Pressed(g_Options.KPowerjump))
+			BufferPowerjump = true;
+		
+		if (!Keybd_Down(g_Options.KJump))
+			BufferJump = false;
+		if (!Keybd_Down(g_Options.KPowerjump))
+			BufferPowerjump = false;
+	}
+	
 	// rectify player bounds in map.
 	{
 		if (g_Player.PosX < 0.0f)
@@ -182,17 +197,18 @@ UpdatePlaying(void)
 		
 		if (!g_PlayerCapMask.NoJump
 			&& Player_Grounded()
-			&& Keybd_Down(g_Options.KJump)
+			&& BufferJump
 			&& g_Player.NearBottom
 			&& !Map_TileSlippery[g_Player.NearBottom->Type])
 		{
 			g_Player.VelY = -CONF_PLAYER_JUMP_FORCE;
+			BufferJump = false;
 			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_NORM, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_JUMP);
 		}
 		else if (!g_PlayerCapMask.NoPowerjump
 			&& Player_Grounded()
-			&& Keybd_Down(g_Options.KPowerjump)
+			&& BufferPowerjump
 			&& g_Player.NearBottom
 			&& !Map_TileSlippery[g_Player.NearBottom->Type])
 		{
@@ -201,6 +217,7 @@ UpdatePlaying(void)
 			else if (g_Player.VelX < 0.0f)
 				g_Player.VelX = -CONF_PLAYER_POWERJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_POWERJUMP_FORCE_Y;
+			BufferPowerjump = false;
 			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_POWER, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_POWERJUMP);
 		}
@@ -231,24 +248,26 @@ UpdatePlaying(void)
 		
 		if (!g_PlayerCapMask.NoWalljump
 			&& Player_WalledLeft()
-			&& Keybd_Down(g_Options.KJump)
+			&& BufferJump
 			&& g_Player.NearLeft
 			&& !Map_TileSlippery[g_Player.NearLeft->Type])
 		{
 			g_Player.VelX = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			BufferJump = false;
 			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_LEFT_WALL_PUFF);
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
 		
 		if (!g_PlayerCapMask.NoWalljump
 			&& Player_WalledRight()
-			&& Keybd_Down(g_Options.KJump)
+			&& BufferJump
 			&& g_Player.NearRight
 			&& !Map_TileSlippery[g_Player.NearRight->Type])
 		{
 			g_Player.VelX = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
+			BufferJump = false;
 			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_RIGHT_WALL_PUFF);
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
