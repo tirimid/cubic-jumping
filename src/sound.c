@@ -26,6 +26,7 @@
 #include "sounds/theme1_mp3.h"
 #include "sounds/theme2_mp3.h"
 #include "sounds/theme3_mp3.h"
+#include "sounds/theme4_mp3.h"
 
 #define SOUND_FREQ 44100
 #define CHUNK_SIZE 2048
@@ -73,7 +74,8 @@ static struct Sound MusicSounds[MI_END__] =
 	INCLUDE_MP3(theme0),
 	INCLUDE_MP3(theme1),
 	INCLUDE_MP3(theme2),
-	INCLUDE_MP3(theme3)
+	INCLUDE_MP3(theme3),
+	INCLUDE_MP3(theme4)
 };
 
 static usize CurMusic = 0;

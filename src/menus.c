@@ -34,6 +34,7 @@ static void BtnPlayCustomLevel(void);
 static void BtnEditCustomLevel(void);
 static void BtnForceRetry(void);
 static void BtnSaveProgress(void);
+static void BtnSaveLevelEndProgress(void);
 static void BtnMainMenu(void);
 static void BtnOptions(void);
 static void BtnDetectKeyLeft(void);
@@ -166,8 +167,9 @@ enum MenuRequest
 LevelEndMenuLoop(void)
 {
 	struct UiButton BNext = UiButton_Create(80, 380, "Continue", BtnReqNext);
-	struct UiButton BRetry = UiButton_Create(80, 420, "Retry level", BtnReqRetry);
-	struct UiButton BMainMenu = UiButton_Create(80, 460, "Main menu", BtnMainMenu);
+	struct UiButton BSaveProgress = UiButton_Create(80, 420, "Save progress", BtnSaveLevelEndProgress);
+	struct UiButton BRetry = UiButton_Create(80, 460, "Retry level", BtnReqRetry);
+	struct UiButton BMainMenu = UiButton_Create(80, 500, "Main menu", BtnMainMenu);
 	
 	u32 MinDepth = ++MenuDepth;
 	Req = MR_NONE;
@@ -180,6 +182,7 @@ LevelEndMenuLoop(void)
 		// update level end menu.
 		{
 			UiButton_Update(&BNext);
+			UiButton_Update(&BSaveProgress);
 			UiButton_Update(&BRetry);
 			UiButton_Update(&BMainMenu);
 			
@@ -244,6 +247,7 @@ LevelEndMenuLoop(void)
 				}
 				
 				UiButton_Draw(&BNext);
+				UiButton_Draw(&BSaveProgress);
 				UiButton_Draw(&BRetry);
 				UiButton_Draw(&BMainMenu);
 			}
@@ -692,6 +696,39 @@ BtnSaveProgress(void)
 		.TotalDeaths = g_Game.TotalDeaths,
 		.Ver = SAVE_VER_CURRENT,
 		.Map = CurMap
+	};
+	
+	if (Save_WriteToFile(CONF_SAVE_FILE))
+	{
+		LogErr("menus: failed to write savedata to file - %s!", CONF_SAVE_FILE);
+		return;
+	}
+	
+	MessageMenuLoop("Progress saved!");
+}
+
+static void
+BtnSaveLevelEndProgress(void)
+{
+	enum MapListItem CurMap = MapList_CurrentMap();
+	if (CurMap == MLI_CUSTOM)
+	{
+		MessageMenuLoop("Progress cannot be saved when playing a custom map!");
+		return;
+	}
+	
+	if (CurMap + 1 >= MLI_END__)
+	{
+		MessageMenuLoop("Progress cannot be saved when playing the last level of the game!");
+		return;
+	}
+	
+	g_SaveData = (struct SaveData)
+	{
+		.TotalTimeMs = g_Game.TotalTimeMs,
+		.TotalDeaths = g_Game.TotalDeaths,
+		.Ver = SAVE_VER_CURRENT,
+		.Map = CurMap + 1
 	};
 	
 	if (Save_WriteToFile(CONF_SAVE_FILE))

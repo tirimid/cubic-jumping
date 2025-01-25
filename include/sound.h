@@ -26,6 +26,7 @@ enum MusicId
 	MI_THEME1,
 	MI_THEME2,
 	MI_THEME3,
+	MI_THEME4,
 	
 	MI_END__
 };
