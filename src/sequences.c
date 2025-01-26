@@ -68,6 +68,7 @@ CreditsSequence(void)
 		"\n\n\n\n\n"
 		"Playtesting\n"
 		"- Brinpos\n"
+		"- nimbus\n"
 		"- Platypus_Eradicator\n"
 		"- satsualex\n"
 		"- tirimid\n"
@@ -82,7 +83,7 @@ CreditsSequence(void)
 		"- azmr (header font creator)\n"
 		"\n\n\n\n\n"
 		"And thank YOU for playing!\n"
-		"\n\n\n";
+		"\n";
 	u32 CreditsLines = CountLines(Credits);
 	
 	InSeq = true;

@@ -184,6 +184,10 @@ UpdatePlaying(void)
 			&& Keybd_Pressed(g_Options.KDashDown))
 		{
 			g_Player.VelY = CONF_PLAYER_DASH_DOWN_SPEED;
+			if (Keybd_Down(g_Options.KJump))
+				BufferJump = true;
+			else if (Keybd_Down(g_Options.KPowerjump))
+				BufferPowerjump = true;
 			for (i32 i = 0; i < CONF_AIR_PUFF_CNT; ++i)
 			{
 				Vfx_PutParticle(
@@ -202,7 +206,7 @@ UpdatePlaying(void)
 			&& !Map_TileSlippery[g_Player.NearBottom->Type])
 		{
 			g_Player.VelY = -CONF_PLAYER_JUMP_FORCE;
-			BufferJump = false;
+			BufferJump = BufferPowerjump = false;
 			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_NORM, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_JUMP);
 		}
@@ -217,7 +221,7 @@ UpdatePlaying(void)
 			else if (g_Player.VelX < 0.0f)
 				g_Player.VelX = -CONF_PLAYER_POWERJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_POWERJUMP_FORCE_Y;
-			BufferPowerjump = false;
+			BufferJump = BufferPowerjump = false;
 			SpawnCollisionPuff(CONF_GROUND_PUFF_CNT_POWER, PT_GROUND_PUFF);
 			Sound_PlaySfx(SI_POWERJUMP);
 		}
@@ -254,7 +258,7 @@ UpdatePlaying(void)
 		{
 			g_Player.VelX = CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
-			BufferJump = false;
+			BufferJump = BufferPowerjump = false;
 			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_LEFT_WALL_PUFF);
 			Sound_PlaySfx(SI_WALLJUMP);
 		}
@@ -267,7 +271,7 @@ UpdatePlaying(void)
 		{
 			g_Player.VelX = -CONF_PLAYER_WALLJUMP_FORCE_X;
 			g_Player.VelY = -CONF_PLAYER_WALLJUMP_FORCE_Y;
-			BufferJump = false;
+			BufferJump = BufferPowerjump = false;
 			SpawnCollisionPuff(CONF_WALL_PUFF_CNT, PT_RIGHT_WALL_PUFF);
 			Sound_PlaySfx(SI_WALLJUMP);
 		}

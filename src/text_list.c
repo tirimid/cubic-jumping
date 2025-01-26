@@ -162,7 +162,7 @@ GenBoxText(enum TextListItem Item)
 		sprintf(BoxText, "Grip tiles are rougher than normal, allowing you to climb up them");
 		break;
 	case TLI_TERMINATE_JUMP:
-		sprintf(BoxText, "Dash downwards while powerjumping to jump on platforms you would otherwise miss");
+		sprintf(BoxText, "Dash downwards while powerjumping to rapidly initiate a new powerjump");
 		break;
 	case TLI_BEAM_INTRO:
 		sprintf(BoxText, "Beam tiles will suck you in towards them at a constant speed");
