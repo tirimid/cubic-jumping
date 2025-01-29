@@ -23,6 +23,8 @@ enum MapTileType
 	MTT_GRIP,
 	MTT_WALL,
 	MTT_BEAM,
+	MTT_SWAP_ON,
+	MTT_SWAP_OFF,
 	
 	MTT_END__
 };
@@ -56,6 +58,7 @@ void Map_RefitBounds(void);
 i32 Map_WriteToFile(char const *File);
 
 // game and base rendering functionality.
+void Map_Update(void);
 void Map_Draw(void);
 void Map_DrawOutlines(void);
 struct MapTile *Map_Get(u32 x, u32 y);

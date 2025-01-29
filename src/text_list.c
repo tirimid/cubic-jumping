@@ -170,6 +170,9 @@ GenBoxText(enum TextListItem Item)
 	case TLI_FALL_DIRECTIONS:
 		sprintf(BoxText, "Right, center, left, center, bounce!");
 		break;
+	case TLI_SWAP_INTRO:
+		sprintf(BoxText, "Swap tiles rhythmically alternate between active and inactive states");
+		break;
 	default:
 		break;
 	}

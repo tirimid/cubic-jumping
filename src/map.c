@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 
 #include "cam.h"
+#include "game.h"
 #include "triggers.h"
 #include "wnd.h"
 
@@ -24,7 +25,9 @@ u8 Map_TileColor[MTT_END__][3] =
 	CONF_COLOR_SLIPPERY,
 	CONF_COLOR_GRIP,
 	CONF_COLOR_WALL,
-	CONF_COLOR_BEAM
+	CONF_COLOR_BEAM,
+	CONF_COLOR_SWAP_ON,
+	CONF_COLOR_SWAP_OFF
 };
 
 bool Map_TileCollision[MTT_END__] =
@@ -41,7 +44,9 @@ bool Map_TileCollision[MTT_END__] =
 	true, // slippery.
 	true, // grip.
 	false, // wall.
-	true // beam.
+	true, // beam.
+	true, // swap on.
+	false // swap off.
 };
 
 bool Map_TileSlippery[MTT_END__] =
@@ -58,7 +63,9 @@ bool Map_TileSlippery[MTT_END__] =
 	true, // slippery.
 	false, // grip.
 	false, // wall.
-	true // beam.
+	true, // beam.
+	false, // swap on.
+	false // swap off.
 };
 
 bool Map_TileClimbable[MTT_END__] =
@@ -75,7 +82,9 @@ bool Map_TileClimbable[MTT_END__] =
 	false, // slippery.
 	true, // grip.
 	false, // wall.
-	false // beam.
+	false, // beam.
+	false, // swap on.
+	false // swap off.
 };
 
 static i32 RdUint8(u8 *Out, FILE *Fp);
@@ -456,6 +465,22 @@ Map_WriteToFile(char const *File)
 	fclose(Fp);
 	
 	return 0;
+}
+
+void
+Map_Update(void)
+{
+	// swap tile update.
+	if (Game_CurrentTick() % CONF_SWAP_TICKS == 0)
+	{
+		for (u64 i = 0; i < g_Map.SizeX * g_Map.SizeY; ++i)
+		{
+			if (g_Map.Data[i].Type == MTT_SWAP_ON)
+				g_Map.Data[i].Type = MTT_SWAP_OFF;
+			else if (g_Map.Data[i].Type == MTT_SWAP_OFF)
+				g_Map.Data[i].Type = MTT_SWAP_ON;
+		}
+	}
 }
 
 void

@@ -5,7 +5,9 @@
 
 #include <SDL2/SDL.h>
 
+#include "game.h"
 #include "player.h"
+#include "sound.h"
 #include "text.h"
 #include "text_list.h"
 #include "util.h"
@@ -17,7 +19,7 @@ usize g_TriggerCnt = 0;
 u8 Trigger_Color[TT_END__][3] =
 {
 	CONF_COLOR_TRIGGER_MSG,
-	CONF_COLOR_TRIGGER_KILL,
+	CONF_COLOR_TRIGGER_SWAP_REGION,
 	CONF_COLOR_TRIGGER_MSG_TERM,
 	CONF_COLOR_TRIGGER_CAP_ENABLE,
 	CONF_COLOR_TRIGGER_CAP_DISABLE
@@ -105,8 +107,11 @@ Collide(struct Trigger const *Trigger, usize Idx)
 		if (Trigger->Arg < TLI_END__)
 			TextList_Enqueue(Trigger->Arg);
 		break;
-	case TT_KILL:
-		Player_Die();
+	case TT_SWAP_REGION:
+		if (Game_CurrentTick() % CONF_SWAP_TICKS == 0)
+			Sound_PlaySfx(SI_SWAP_SWAP);
+		else if (Game_CurrentTick() % CONF_SWAP_BEAT_TICKS == 0)
+			Sound_PlaySfx(SI_SWAP_BEAT);
 		break;
 	case TT_MSG_TERM:
 		TextList_Term();

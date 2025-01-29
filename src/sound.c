@@ -17,6 +17,8 @@
 #include "sounds/jump_wav.h"
 #include "sounds/launch_wav.h"
 #include "sounds/powerjump_wav.h"
+#include "sounds/swap_beat_wav.h"
+#include "sounds/swap_swap_wav.h"
 #include "sounds/switch_wav.h"
 #include "sounds/textbox_wav.h"
 #include "sounds/walljump_wav.h"
@@ -64,6 +66,8 @@ static struct Sound SfxSounds[SI_END__] =
 	INCLUDE_WAV(jump),
 	INCLUDE_WAV(launch),
 	INCLUDE_WAV(powerjump),
+	INCLUDE_WAV(swap_beat),
+	INCLUDE_WAV(swap_swap),
 	INCLUDE_WAV(switch),
 	INCLUDE_WAV(textbox),
 	INCLUDE_WAV(walljump)

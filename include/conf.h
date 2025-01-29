@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 // program options.
-#define CONF_VERSION "0.1.1"
+#define CONF_VERSION "0.1.2"
 
 // window options.
 #define CONF_WND_TITLE "Cubic Jumping"
@@ -52,6 +52,7 @@
 #define CONF_WALL_LAUNCH_FORCE_Y 0.4f
 #define CONF_CLIMB_SPEED 0.1f
 #define CONF_BEAM_SPEED 0.15f
+#define CONF_SWAP_TICKS 150
 
 // visual options.
 #define CONF_DRAW_SCALE 50
@@ -62,11 +63,11 @@
 #define CONF_COLOR_BG_DVD_B {0, 230, 180}
 #define CONF_COLOR_PLAYER {255, 0, 0}
 #define CONF_COLOR_TRIGGER_MSG {255, 179, 0}
-#define CONF_COLOR_TRIGGER_KILL {210, 0, 0}
+#define CONF_COLOR_TRIGGER_SWAP_REGION {210, 0, 0}
 #define CONF_COLOR_TRIGGER_MSG_TERM {230, 0, 210}
 #define CONF_COLOR_TRIGGER_CAP_ENABLE {20, 200, 20}
 #define CONF_COLOR_TRIGGER_CAP_DISABLE {20, 20, 200}
-#define CONF_COLOR_TRIGGER_OPACITY 128
+#define CONF_COLOR_TRIGGER_OPACITY 90
 #define CONF_COLOR_PLAYER_TRACE_A {245, 164, 162}
 #define CONF_COLOR_PLAYER_TRACE_B {146, 100, 154}
 #define CONF_COLOR_PLAYER_SHARD_A {255, 0, 0}
@@ -84,6 +85,8 @@
 #define CONF_COLOR_GRIP {240, 80, 80}
 #define CONF_COLOR_WALL {215, 215, 215}
 #define CONF_COLOR_BEAM {190, 220, 0}
+#define CONF_COLOR_SWAP_ON {80, 80, 255}
+#define CONF_COLOR_SWAP_OFF {40, 40, 80}
 #define CONF_COLOR_TEXT {255, 255, 255}
 #define CONF_COLOR_TEXT_OUTLINE {0, 0, 0}
 #define CONF_COLOR_TEXT_BOX {70, 70, 70}
@@ -174,6 +177,7 @@
 
 // auditory options.
 #define CONF_MUSIC_FADE_SPEED 0.01f
+#define CONF_SWAP_BEAT_TICKS (CONF_SWAP_TICKS / 3)
 
 // editor options.
 #define CONF_EDITOR_CAM_ZOOM 0.06f

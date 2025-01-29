@@ -46,6 +46,7 @@ Game_Loop(void)
 		
 		// update game.
 		{
+			Map_Update();
 			Player_Update();
 			Triggers_Update();
 			Vfx_Update();
