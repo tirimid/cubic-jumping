@@ -234,7 +234,7 @@ UpdatePlaying(void)
 		{
 			if (Map_TileClimbable[g_Player.NearLeft->Type])
 				g_Player.VelY = -CONF_CLIMB_SPEED;
-			else
+			else if (g_Player.VelY > 0.0f)
 				g_Player.VelY /= CONF_WALL_SLIDE_FRICTION;
 		}
 		
@@ -246,7 +246,7 @@ UpdatePlaying(void)
 		{
 			if (Map_TileClimbable[g_Player.NearRight->Type])
 				g_Player.VelY = -CONF_CLIMB_SPEED;
-			else
+			else if (g_Player.VelY > 0.0f)
 				g_Player.VelY /= CONF_WALL_SLIDE_FRICTION;
 		}
 		
@@ -365,6 +365,7 @@ Collide(struct MapTile *Tile)
 	switch (Tile->Type)
 	{
 	case MTT_KILL:
+	case MTT_SWAP_KILL_ON:
 		g_Player.ShortCircuit = true;
 		Player_Die();
 		break;

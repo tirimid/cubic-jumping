@@ -25,6 +25,8 @@ enum MapTileType
 	MTT_BEAM,
 	MTT_SWAP_ON,
 	MTT_SWAP_OFF,
+	MTT_SWAP_KILL_ON,
+	MTT_SWAP_KILL_OFF,
 	
 	MTT_END__
 };

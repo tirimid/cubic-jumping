@@ -325,8 +325,8 @@ OptionsMenuLoop(void)
 	struct UiButton BKDashDown = UiButton_Create(80, 260, "[Dash down]", BtnDetectKeyDashDown);
 	struct UiButton BKPowerjump = UiButton_Create(80, 300, "[Powerjump]", BtnDetectKeyPowerjump);
 	struct UiButton BKMenu = UiButton_Create(80, 340, "[Menu]", BtnDetectKeyMenu);
-	struct UiSlider SSfxVolume = UiSlider_Create(400, 390, 200, 20, g_Options.SfxVolume, SldrSfxVolume);
-	struct UiSlider SMusicVolume = UiSlider_Create(400, 430, 200, 20, g_Options.MusicVolume, SldrMusicVolume);
+	struct UiSlider SSfxVolume = UiSlider_Create(450, 390, 200, 20, g_Options.SfxVolume, SldrSfxVolume);
+	struct UiSlider SMusicVolume = UiSlider_Create(450, 430, 200, 20, g_Options.MusicVolume, SldrMusicVolume);
 	struct UiButton BBack = UiButton_Create(80, 460, "Back", BtnExitOptionsMenu);
 	
 	u32 MinDepth = ++MenuDepth;

@@ -27,7 +27,9 @@ u8 Map_TileColor[MTT_END__][3] =
 	CONF_COLOR_WALL,
 	CONF_COLOR_BEAM,
 	CONF_COLOR_SWAP_ON,
-	CONF_COLOR_SWAP_OFF
+	CONF_COLOR_SWAP_OFF,
+	CONF_COLOR_SWAP_KILL_ON,
+	CONF_COLOR_SWAP_KILL_OFF
 };
 
 bool Map_TileCollision[MTT_END__] =
@@ -46,7 +48,9 @@ bool Map_TileCollision[MTT_END__] =
 	false, // wall.
 	true, // beam.
 	true, // swap on.
-	false // swap off.
+	false, // swap off.
+	true, // swap kill on.
+	false // swap kill off.
 };
 
 bool Map_TileSlippery[MTT_END__] =
@@ -65,7 +69,9 @@ bool Map_TileSlippery[MTT_END__] =
 	false, // wall.
 	true, // beam.
 	false, // swap on.
-	false // swap off.
+	false, // swap off.
+	false, // swap kill on.
+	false // swap kill off.
 };
 
 bool Map_TileClimbable[MTT_END__] =
@@ -84,7 +90,9 @@ bool Map_TileClimbable[MTT_END__] =
 	false, // wall.
 	false, // beam.
 	false, // swap on.
-	false // swap off.
+	false, // swap off.
+	false, // swap kill on.
+	false // swap kill off.
 };
 
 static i32 RdUint8(u8 *Out, FILE *Fp);
@@ -479,6 +487,10 @@ Map_Update(void)
 				g_Map.Data[i].Type = MTT_SWAP_OFF;
 			else if (g_Map.Data[i].Type == MTT_SWAP_OFF)
 				g_Map.Data[i].Type = MTT_SWAP_ON;
+			else if (g_Map.Data[i].Type == MTT_SWAP_KILL_ON)
+				g_Map.Data[i].Type = MTT_SWAP_KILL_OFF;
+			else if (g_Map.Data[i].Type == MTT_SWAP_KILL_OFF)
+				g_Map.Data[i].Type = MTT_SWAP_KILL_ON;
 		}
 	}
 }
