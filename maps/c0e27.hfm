@@ -1,0 +1,25 @@
+//CJ6330653237000000000000050000000500000002000000030101010101010000000101000000010100000001010101010100000000
+#ifndef c0e27_HFM
+#define c0e27_HFM
+#include <stddef.h>
+#include "map.h"
+#include "triggers.h"
+#define c0e27_NTRIGGERS 0
+static struct MapTile c0e27_map_data[] =
+{
+{1},{1},{1},{1},{1},{1},{0},{0},{0},{1},{1},{0},{0},{0},{1},{1},{0},{0},{0},{1},{1},{1},{1},{1},{1},
+};
+static struct Map c0e27_map =
+{
+	.SizeX = 5,
+	.SizeY = 5,
+	.Data = c0e27_map_data,
+	.PlayerSpawnX = 2,
+	.PlayerSpawnY = 3,
+	.Name = "c0e27\0",
+};
+static struct Trigger c0e27_triggers[] =
+{
+{0.0f,0.0f,0.0f,0.0f,0,0,0}
+};
+#endif
