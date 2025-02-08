@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 // program options.
-#define CONF_VERSION "0.1.4"
+#define CONF_VERSION "0.2.0"
 
 // window options.
 #define CONF_WND_TITLE "Cubic Jumping"
