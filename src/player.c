@@ -509,23 +509,13 @@ CollideTop(void)
 static void
 ComputeCollisionDistances(void)
 {
-	bool IgnorePt;
-	struct MapTile *Pt;
-	
 	// find nearest left edge.
 	{
 		i32 Cxtl;
 		struct MapTile *CxtlTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX, g_Player.PosY);
 		for (Cxtl = g_Player.PosX; Cxtl >= 0; --Cxtl)
 		{
 			struct MapTile *Tile = Map_Get(Cxtl, g_Player.PosY);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CxtlTile = Tile;
@@ -535,16 +525,9 @@ ComputeCollisionDistances(void)
 		
 		i32 Cxbl;
 		struct MapTile *CxblTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX, g_Player.PosY + CONF_PLAYER_SIZE);
 		for (Cxbl = g_Player.PosX; Cxbl >= 0; --Cxbl)
 		{
 			struct MapTile *Tile = Map_Get(Cxbl, g_Player.PosY + CONF_PLAYER_SIZE);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CxblTile = Tile;
@@ -561,16 +544,9 @@ ComputeCollisionDistances(void)
 	{
 		i32 Cxtr;
 		struct MapTile *CxtrTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, g_Player.PosY);
 		for (Cxtr = g_Player.PosX + CONF_PLAYER_SIZE; Cxtr < g_Map.SizeX; ++Cxtr)
 		{
 			struct MapTile *Tile = Map_Get(Cxtr, g_Player.PosY);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CxtrTile = Tile;
@@ -580,16 +556,9 @@ ComputeCollisionDistances(void)
 		
 		i32 Cxbr;
 		struct MapTile *CxbrTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, g_Player.PosY + CONF_PLAYER_SIZE);
 		for (Cxbr = g_Player.PosX + CONF_PLAYER_SIZE; Cxbr < g_Map.SizeX; ++Cxbr)
 		{
 			struct MapTile *Tile = Map_Get(Cxbr, g_Player.PosY + CONF_PLAYER_SIZE);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CxbrTile = Tile;
@@ -606,16 +575,9 @@ ComputeCollisionDistances(void)
 	{
 		i32 Cytl;
 		struct MapTile *CytlTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX, g_Player.PosY);
 		for (Cytl = g_Player.PosY; Cytl >= 0; --Cytl)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX, Cytl);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CytlTile = Tile;
@@ -625,16 +587,9 @@ ComputeCollisionDistances(void)
 		
 		i32 Cytr;
 		struct MapTile *CytrTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, g_Player.PosY);
 		for (Cytr = g_Player.PosY; Cytr >= 0; --Cytr)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, Cytr);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CytrTile = Tile;
@@ -651,16 +606,9 @@ ComputeCollisionDistances(void)
 	{
 		i32 Cybl;
 		struct MapTile *CyblTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX, g_Player.PosY + CONF_PLAYER_SIZE);
 		for (Cybl = g_Player.PosY + CONF_PLAYER_SIZE; Cybl < g_Map.SizeY; ++Cybl)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX, Cybl);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CyblTile = Tile;
@@ -670,16 +618,9 @@ ComputeCollisionDistances(void)
 		
 		i32 Cybr;
 		struct MapTile *CybrTile = NULL;
-		IgnorePt = true;
-		Pt = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, g_Player.PosY + CONF_PLAYER_SIZE);
 		for (Cybr = g_Player.PosY + CONF_PLAYER_SIZE; Cybr < g_Map.SizeY; ++Cybr)
 		{
 			struct MapTile *Tile = Map_Get(g_Player.PosX + CONF_PLAYER_SIZE, Cybr);
-			if (IgnorePt && Tile->Type == Pt->Type)
-				continue;
-			else
-				IgnorePt = false;
-			
 			if (Map_TileCollision[Tile->Type])
 			{
 				CybrTile = Tile;
