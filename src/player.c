@@ -447,6 +447,7 @@ CollideLeft(void)
 		break;
 	case MTT_LAUNCH:
 		g_Player.AirControl = false;
+		g_Player.ShortCircuit = true;
 		g_Player.VelX = CONF_WALL_LAUNCH_FORCE_X;
 		g_Player.VelY = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
@@ -478,6 +479,7 @@ CollideRight(void)
 		break;
 	case MTT_LAUNCH:
 		g_Player.AirControl = false;
+		g_Player.ShortCircuit = true;
 		g_Player.VelX = -CONF_WALL_LAUNCH_FORCE_X;
 		g_Player.VelY = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
