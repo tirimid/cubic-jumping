@@ -24,7 +24,7 @@ typedef double f64;
 
 void LogErr(char const *Fmt, ...);
 u64 GetUnixTimeMs(void);
-float Lerp(f32 a, f32 b, f32 t);
+f32 Lerp(f32 a, f32 b, f32 t);
 void RelativeDrawRect(f32 x, f32 y, f32 w, f32 h);
 void RelativeDrawHollowRect(f32 x, f32 y, f32 w, f32 h);
 f32 RandFloat(f32 Max); // ranges from [0, Max].

@@ -11,6 +11,7 @@ struct Options
 	SDL_Keycode KLeft, KRight, KJump, KDashDown, KPowerjump;
 	SDL_Keycode KMenu;
 	SDL_Keycode KEditorLeft, KEditorRight, KEditorUp, KEditorDown;
+	SDL_Keycode KEditorQuickSelect;
 	
 	// sound options.
 	f32 SfxVolume, MusicVolume;

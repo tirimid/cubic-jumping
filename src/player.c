@@ -12,6 +12,7 @@
 #include "wnd.h"
 
 #define COL_THRESHOLD 0.05f
+#define UNBOUND_THRESHOLD 0.1f
 
 struct Player g_Player;
 enum PlayerState g_PlayerState;
@@ -153,6 +154,42 @@ UpdatePlaying(void)
 			g_Player.PosX = g_Map.SizeX - CONF_PLAYER_SIZE;
 		if (g_Player.PosY > g_Map.SizeY - CONF_PLAYER_SIZE)
 			g_Player.PosY = g_Map.SizeY - CONF_PLAYER_SIZE;
+	}
+	
+	// kill unbound player.
+	{
+		// this approach will sometimes kill the player when they
+		// theoretically "shouldn't" die, e.g. launch tile with a ground
+		// tile above it, separated by one air tile.
+		// the alternative, more complete system, would be cause certain
+		// cases to outright hang the game.
+		// just design levels to never encounter these limitations.
+		
+		struct MapTile *Ttl = Map_Get(
+			g_Player.PosX + UNBOUND_THRESHOLD,
+			g_Player.PosY + UNBOUND_THRESHOLD
+		);
+		struct MapTile *Ttr = Map_Get(
+			g_Player.PosX + CONF_PLAYER_SIZE - UNBOUND_THRESHOLD,
+			g_Player.PosY + UNBOUND_THRESHOLD
+		);
+		struct MapTile *Tbl = Map_Get(
+			g_Player.PosX + UNBOUND_THRESHOLD,
+			g_Player.PosY + CONF_PLAYER_SIZE - UNBOUND_THRESHOLD
+		);
+		struct MapTile *Tbr = Map_Get(
+			g_Player.PosX + CONF_PLAYER_SIZE - UNBOUND_THRESHOLD,
+			g_Player.PosY + CONF_PLAYER_SIZE - UNBOUND_THRESHOLD
+		);
+		
+		if (Map_TileCollision[Ttl->Type]
+			|| Map_TileCollision[Ttr->Type]
+			|| Map_TileCollision[Tbl->Type]
+			|| Map_TileCollision[Tbr->Type])
+		{
+			Player_Die();
+			return;
+		}
 	}
 	
 	// need to initially check collisions prior to player movement being
@@ -313,7 +350,7 @@ UpdatePlaying(void)
 		g_Player.VelY = BeamActiveY ? BeamSpeedY : g_Player.VelY;
 	}
 	
-	// need to also apply collsions after all velocity changes.
+	// need to also apply collisions after all velocity changes.
 	{
 		TestAndApplyCollisions();
 	}
@@ -394,7 +431,7 @@ CollideLeft(void)
 	if (!g_Player.NearLeft)
 		return;
 	
-	g_Player.PosX -= g_Player.DistLeft - 0.001f;
+	g_Player.PosX -= g_Player.DistLeft - 0.005f;
 	
 	switch (g_Player.NearLeft->Type)
 	{
@@ -410,7 +447,6 @@ CollideLeft(void)
 		break;
 	case MTT_LAUNCH:
 		g_Player.AirControl = false;
-		g_Player.ShortCircuit = true;
 		g_Player.VelX = CONF_WALL_LAUNCH_FORCE_X;
 		g_Player.VelY = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
@@ -426,7 +462,7 @@ CollideRight(void)
 	if (!g_Player.NearRight)
 		return;
 	
-	g_Player.PosX += g_Player.DistRight - 0.001f;
+	g_Player.PosX += g_Player.DistRight - 0.005f;
 	
 	switch (g_Player.NearRight->Type)
 	{
@@ -442,7 +478,6 @@ CollideRight(void)
 		break;
 	case MTT_LAUNCH:
 		g_Player.AirControl = false;
-		g_Player.ShortCircuit = true;
 		g_Player.VelX = -CONF_WALL_LAUNCH_FORCE_X;
 		g_Player.VelY = -CONF_WALL_LAUNCH_FORCE_Y;
 		break;
@@ -458,7 +493,7 @@ CollideBottom(void)
 	if (!g_Player.NearBottom)
 		return;
 	
-	g_Player.PosY += g_Player.DistBottom - 0.001f;
+	g_Player.PosY += g_Player.DistBottom - 0.005f;
 	
 	switch (g_Player.NearBottom->Type)
 	{
@@ -487,7 +522,7 @@ CollideTop(void)
 	if (!g_Player.NearTop)
 		return;
 	
-	g_Player.PosY -= g_Player.DistTop - 0.001f;
+	g_Player.PosY -= g_Player.DistTop - 0.005f;
 	
 	switch (g_Player.NearTop->Type)
 	{
@@ -641,8 +676,7 @@ TestAndApplyCollisions(void)
 		return;
 	
 	ComputeCollisionDistances();
-	if (-g_Player.VelY >= g_Player.DistTop
-		&& g_Player.DistTop < g_Player.DistBottom)
+	if (g_Player.VelY < 0.0f && -g_Player.VelY >= g_Player.DistTop)
 	{
 		Collide(g_Player.NearTop);
 		CollideTop();
@@ -652,8 +686,7 @@ TestAndApplyCollisions(void)
 		return;
 	
 	ComputeCollisionDistances();
-	if (-g_Player.VelX >= g_Player.DistLeft
-		&& g_Player.DistLeft < g_Player.DistRight)
+	if (g_Player.VelX < 0.0f && -g_Player.VelX >= g_Player.DistLeft)
 	{
 		Collide(g_Player.NearLeft);
 		CollideLeft();
@@ -663,8 +696,7 @@ TestAndApplyCollisions(void)
 		return;
 	
 	ComputeCollisionDistances();
-	if (g_Player.VelX >= g_Player.DistRight
-		&& g_Player.DistRight < g_Player.DistLeft)
+	if (g_Player.VelX > 0.0f && g_Player.VelX >= g_Player.DistRight)
 	{
 		Collide(g_Player.NearRight);
 		CollideRight();
@@ -674,8 +706,7 @@ TestAndApplyCollisions(void)
 		return;
 	
 	ComputeCollisionDistances();
-	if (g_Player.VelY >= g_Player.DistBottom
-		&& g_Player.DistBottom < g_Player.DistTop)
+	if (g_Player.VelY > 0.0f && g_Player.VelY >= g_Player.DistBottom)
 	{
 		Collide(g_Player.NearBottom);
 		CollideBottom();

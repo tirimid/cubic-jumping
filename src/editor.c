@@ -71,8 +71,8 @@ Editor_Init(char const *File)
 	
 	// init camera state.
 	{
-		g_Cam.PosX = 0.0f;
-		g_Cam.PosY = 0.0f;
+		g_Cam.PosX = g_Map.PlayerSpawnX;
+		g_Cam.PosY = g_Map.PlayerSpawnY;
 		g_Cam.Zoom = CONF_CAM_MAX_ZOOM;
 	}
 	
@@ -368,6 +368,34 @@ UpdateEditor(void)
 		
 		break;
 	}
+	}
+	
+	// keyboard interaction based on mode.
+	switch (Mode)
+	{
+	case EM_TILE_P:
+	case EM_TILE_F:
+		if (Keybd_Pressed(g_Options.KEditorQuickSelect))
+		{
+			i32 MouseX, MouseY;
+			Mouse_Pos(&MouseX, &MouseY);
+			
+			f32 SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			
+			if (SelX < 0
+				|| SelX >= g_Map.SizeX
+				|| SelY < 0
+				|| SelY >= g_Map.SizeY)
+			{
+				break;
+			}
+			
+			Type = Map_Get(SelX, SelY)->Type;
+		}
+		break;
+	default:
+		break;
 	}
 }
 

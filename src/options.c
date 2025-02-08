@@ -32,6 +32,7 @@ Options_ReturnToDefault(char const *Path)
 		.KEditorRight = CONF_DEFAULT_K_EDITOR_RIGHT,
 		.KEditorUp = CONF_DEFAULT_K_EDITOR_UP,
 		.KEditorDown = CONF_DEFAULT_K_EDITOR_DOWN,
+		.KEditorQuickSelect = CONF_DEFAULT_K_EDITOR_QUICK_SELECT,
 		
 		// sound options.
 		.SfxVolume = CONF_DEFAULT_SFX_VOLUME,
@@ -59,7 +60,8 @@ Options_ReadFromFile(char const *Path)
 			|| Opts_GetKeycode(Fp, "KEditorLeft", &g_Options.KEditorLeft)
 			|| Opts_GetKeycode(Fp, "KEditorRight", &g_Options.KEditorRight)
 			|| Opts_GetKeycode(Fp, "KEditorUp", &g_Options.KEditorUp)
-			|| Opts_GetKeycode(Fp, "KEditorDown", &g_Options.KEditorDown))
+			|| Opts_GetKeycode(Fp, "KEditorDown", &g_Options.KEditorDown)
+			|| Opts_GetKeycode(Fp, "KEditorQuickSelect", &g_Options.KEditorQuickSelect))
 		{
 			fclose(Fp);
 			return 1;
@@ -108,6 +110,7 @@ Options_WriteToFile(char const *Path)
 		char PowerjumpName[32];
 		char MenuName[32];
 		char EditorLeftName[32], EditorRightName[32], EditorUpName[32], EditorDownName[32];
+		char EditorQuickSelectName[32];
 		
 		sprintf(LeftName, "%s", SDL_GetKeyName(g_Options.KLeft));
 		sprintf(RightName, "%s", SDL_GetKeyName(g_Options.KRight));
@@ -119,6 +122,7 @@ Options_WriteToFile(char const *Path)
 		sprintf(EditorRightName, "%s", SDL_GetKeyName(g_Options.KEditorRight));
 		sprintf(EditorUpName, "%s", SDL_GetKeyName(g_Options.KEditorUp));
 		sprintf(EditorDownName, "%s", SDL_GetKeyName(g_Options.KEditorDown));
+		sprintf(EditorQuickSelectName, "%s", SDL_GetKeyName(g_Options.KEditorQuickSelect));
 		
 		fprintf(
 			Fp,
@@ -132,7 +136,8 @@ Options_WriteToFile(char const *Path)
 			"KEditorLeft = %s\n"
 			"KEditorRight = %s\n"
 			"KEditorUp = %s\n"
-			"KEditorDown = %s\n",
+			"KEditorDown = %s\n"
+			"KEditorQuickSelect = %s\n",
 			LeftName,
 			RightName,
 			JumpName,
@@ -142,7 +147,8 @@ Options_WriteToFile(char const *Path)
 			EditorLeftName,
 			EditorRightName,
 			EditorUpName,
-			EditorDownName
+			EditorDownName,
+			EditorQuickSelectName
 		);
 	}
 	
