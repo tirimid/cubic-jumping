@@ -174,7 +174,7 @@ MapList_Load(enum MapListItem Item)
 		
 		TextList_Term();
 		
-		Vfx_ClearParticles();
+		Vfx_Clear();
 	}
 	
 	// register map list item as being loaded.
@@ -216,7 +216,7 @@ MapList_LoadCustom(char const *Path)
 		
 		TextList_Term();
 		
-		Vfx_ClearParticles();
+		Vfx_Clear();
 	}
 	
 	// register map list item as being loaded.

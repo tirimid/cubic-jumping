@@ -62,8 +62,10 @@ Game_Loop(void)
 			DrawBg();
 			FillOutOfBounds();
 			Map_Draw();
-			Vfx_Draw();
+			Vfx_DrawDecals(0);
+			Vfx_DrawParticles();
 			Player_Draw();
+			Vfx_DrawDecals(1);
 #if CONF_SHOW_TRIGGERS
 			Triggers_Draw();
 #endif

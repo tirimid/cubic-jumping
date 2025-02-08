@@ -69,10 +69,13 @@ static struct ParticleData ParticleData[PT_END__] =
 static u32 ParticleCnt = 0;
 static struct Particle Particles[CONF_MAX_PARTICLES];
 
+static u32 DecalCnt = 0;
+static struct Decal Decals[CONF_MAX_DECALS];
+
 void
-Vfx_ClearParticles(void)
+Vfx_Clear(void)
 {
-	ParticleCnt = 0;
+	DecalCnt = ParticleCnt = 0;
 }
 
 void
@@ -170,8 +173,24 @@ Vfx_PutOverrideParticle(enum ParticleType Type, f32 x, f32 y, u8 const *Color)
 }
 
 void
+Vfx_PutDecal(enum DecalType Type, f32 x, f32 y, u8 Layer)
+{
+	if (DecalCnt >= CONF_MAX_DECALS)
+		return;
+	
+	Decals[DecalCnt++] = (struct Decal)
+	{
+		.PosX = x,
+		.PosY = y,
+		.Layer = Layer,
+		.Type = Type
+	};
+}
+
+void
 Vfx_Update(void)
 {
+	// update particles.
 	for (i32 i = 0; i < ParticleCnt; ++i)
 	{
 		if (Particles[i].Lifetime == 0)
@@ -210,7 +229,7 @@ Vfx_Update(void)
 }
 
 void
-Vfx_Draw(void)
+Vfx_DrawParticles(void)
 {
 	for (u32 i = 0; i < ParticleCnt; ++i)
 	{
@@ -243,5 +262,17 @@ Vfx_Draw(void)
 				Size
 			);
 		}
+	}
+}
+
+void
+Vfx_DrawDecals(u8 Layer)
+{
+	for (u32 i = 0; i < DecalCnt; ++i)
+	{
+		if (Decals[i].Layer != Layer)
+			continue;
+		
+		// TODO: draw decal.
 	}
 }

@@ -13,6 +13,7 @@
 #include "text.h"
 #include "triggers.h"
 #include "ui.h"
+#include "vfx.h"
 #include "wnd.h"
 
 #define NO_DRAG_REGION 0.0f
@@ -155,6 +156,8 @@ Editor_Loop(void)
 			DrawBg();
 			Map_Draw();
 			Map_DrawOutlines();
+			Vfx_DrawDecals(0);
+			Vfx_DrawDecals(1);
 			Triggers_Draw();
 			DrawIndicators();
 			
