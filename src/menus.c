@@ -227,11 +227,15 @@ LevelEndMenuLoop(void)
 				
 				Text_DrawStr("Level complete", 80, 60);
 				
-				Text_DrawStr(g_Map.Name, 80, 140);
+				enum MapListItem CurMap = MapList_CurrentMap();
+				if (CurMap)
+					Text_DrawStr(MapList_Names[CurMap], 80, 140);
+				else
+					Text_DrawStr(g_Map.Name, 80, 140);
+				
 				Text_DrawStr(TimeBuf, 80, 180);
 				Text_DrawStr(DeathsBuf, 80, 220);
 				
-				enum MapListItem CurMap = MapList_CurrentMap();
 				if (CurMap)
 				{
 					char ParBuf[64] = {0};

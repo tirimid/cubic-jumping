@@ -62,19 +62,25 @@ Player_Draw(void)
 bool
 Player_Grounded(void)
 {
-	return g_Player.DistBottom < COL_THRESHOLD && !g_Player.ShortCircuit;
+	return !g_Player.ShortCircuit
+		&& !g_PlayerCapMask.NoCollide
+		&& g_Player.DistBottom < COL_THRESHOLD;
 }
 
 bool
 Player_WalledLeft(void)
 {
-	return g_Player.DistLeft < COL_THRESHOLD && !g_Player.ShortCircuit;
+	return !g_Player.ShortCircuit
+		&& !g_PlayerCapMask.NoCollide
+		&& g_Player.DistLeft < COL_THRESHOLD;
 }
 
 bool
 Player_WalledRight(void)
 {
-	return g_Player.DistRight < COL_THRESHOLD && !g_Player.ShortCircuit;
+	return !g_Player.ShortCircuit
+		&& !g_PlayerCapMask.NoCollide
+		&& g_Player.DistRight < COL_THRESHOLD;
 }
 
 void
@@ -124,6 +130,9 @@ Player_SetCapMask(enum PlayerCapId Id, bool State)
 	case PCI_DASH_DOWN:
 		g_PlayerCapMask.NoDashDown = State;
 		break;
+	case PCI_COLLIDE:
+		g_PlayerCapMask.NoCollide = State;
+		break;
 	}
 }
 
@@ -157,6 +166,7 @@ UpdatePlaying(void)
 	}
 	
 	// kill unbound player.
+	if (!g_PlayerCapMask.NoCollide)
 	{
 		// this approach will sometimes kill the player when they
 		// theoretically "shouldn't" die, e.g. launch tile with a ground
@@ -194,6 +204,7 @@ UpdatePlaying(void)
 	
 	// need to initially check collisions prior to player movement being
 	// applied in order to fix bug when you can jump on kill blocks.
+	if (!g_PlayerCapMask.NoCollide)
 	{
 		// the short circuit mechanism exists as a way to allow certain
 		// collision tiles to demand exclusive collision handling instead of
@@ -351,7 +362,12 @@ UpdatePlaying(void)
 	}
 	
 	// need to also apply collisions after all velocity changes.
+	if (!g_PlayerCapMask.NoCollide)
 	{
+		// two rounds of collision checks / resolutions are done in order to
+		// somewhat prevent player from being phantomly killed by some
+		// random corner or such.
+		TestAndApplyCollisions();
 		TestAndApplyCollisions();
 	}
 	

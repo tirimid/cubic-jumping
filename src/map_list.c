@@ -41,8 +41,6 @@
 #include "maps/c0e22.hfm"
 #include "maps/c0e23.hfm"
 #include "maps/c0e24.hfm"
-#include "maps/c0e25.hfm"
-#include "maps/c0e26.hfm"
 
 #define INCLUDE_MAP(Name) \
 	{ \
@@ -62,6 +60,7 @@ struct Item
 	usize DecalCnt;
 };
 
+// tables.
 u16 MapList_ParTimes[MLI_END__][3] =
 {
 	// dummy: custom map.
@@ -92,9 +91,40 @@ u16 MapList_ParTimes[MLI_END__][3] =
 	{0, 0, 0}, // c0e21.
 	{0, 0, 0}, // c0e22.
 	{0, 0, 0}, // c0e23.
-	{0, 0, 0}, // c0e24.
-	{0, 0, 0}, // c0e25.
-	{0, 0, 0} // c0e26.
+	{0, 0, 0} // c0e24.
+};
+
+char const *MapList_Names[MLI_END__] =
+{
+	// dummy: custom map.
+	NULL,
+	
+	// chapter 0.
+	"The basics", // c0e0.
+	"Kill tiles", // c0e1.
+	"Bounce tiles", // c0e2.
+	"Leap of faith", // c0e3.
+	"Launch tiles", // c0e4.
+	"Zoom", // c0e5.
+	"Switch tiles", // c0e6.
+	"Double-ended I", // c0e7.
+	"Downwards dash", // c0e8.
+	"Slippery tiles", // c0e9.
+	"Wave in a box", // c0e10.
+	"Grip tiles", // c0e11.
+	"Tide in a box", // c0e12.
+	"Dropper", // c0e13.
+	"Rapid powerjump", // c0e14.
+	"Perfect Dash", // c0e15.
+	"Double-ended II", // c0e16.
+	"Lopside Double", // c0e17.
+	"Cube accelerator", // c0e18.
+	"Switch tiles", // c0e19.
+	"Casette-based", // c0e20.
+	"Beam tiles", // c0e21.
+	"Double-ended III", // c0e22.
+	"Magnetic levitation", // c0e23.
+	"The deceit" // c0e24.
 };
 
 static char const *CurCustom;
@@ -131,9 +161,7 @@ static struct Item ItemData[MLI_END__] =
 	INCLUDE_MAP(c0e21),
 	INCLUDE_MAP(c0e22),
 	INCLUDE_MAP(c0e23),
-	INCLUDE_MAP(c0e24),
-	INCLUDE_MAP(c0e25),
-	INCLUDE_MAP(c0e26)
+	INCLUDE_MAP(c0e24)
 };
 
 enum MapListItem

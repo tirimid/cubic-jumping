@@ -17,16 +17,18 @@ enum PlayerState
 enum PlayerCapId
 {
 	PCI_JUMP = 0,
-	PCI_WALLJUMP,
-	PCI_WALLSLIDE,
-	PCI_POWERJUMP,
-	PCI_DASH_DOWN
+	PCI_WALLJUMP = 1,
+	PCI_WALLSLIDE = 2,
+	PCI_POWERJUMP = 3,
+	PCI_DASH_DOWN = 4,
+	PCI_COLLIDE = 5
 };
 
 struct PlayerCapMask
 {
 	bool NoJump, NoWalljump, NoWallslide;
 	bool NoPowerjump, NoDashDown;
+	bool NoCollide;
 };
 
 struct Player
