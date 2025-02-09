@@ -6,7 +6,8 @@
 #include "util.h"
 
 #define VFX_PARTICLES_MAX 256
-#define VFX_DECALS_MAX 128
+#define VFX_DECALS_MAX 512
+#define VFX_DECAL_SCALE 0.2f
 
 enum ParticleType
 {
@@ -25,6 +26,17 @@ enum DecalType
 	DT_CHAIN_LONG = 0,
 	DT_CHAIN_MED,
 	DT_CHAIN_SHORT,
+	DT_GRASS_MED,
+	DT_GRASS_SHORT,
+	DT_SIGN,
+	DT_ARROW_DOWN,
+	DT_ARROW_LEFT,
+	DT_ARROW_RIGHT,
+	DT_ARROW_UP,
+	DT_BAR_HORIZONTAL,
+	DT_BAR_VERTICAL,
+	DT_SKULL,
+	DT_PORTAL,
 	
 	DT_END__
 };
@@ -52,12 +64,6 @@ struct Decal
 	u8 Type;
 };
 
-struct DecalData
-{
-	f32 Width, Height;
-	u8 Texture;
-};
-
 extern struct Particle g_Particles[VFX_PARTICLES_MAX];
 extern usize g_ParticleCnt;
 
@@ -66,7 +72,7 @@ extern usize g_DecalCnt;
 
 // tables.
 extern struct ParticleData Vfx_ParticleData[PT_END__];
-extern struct DecalData Vfx_DecalData[DT_END__];
+extern u8 Vfx_DecalTextures[DT_END__];
 
 void Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y);
 void Vfx_PutOverrideParticle(enum ParticleType Type, f32 x, f32 y, u8 const *Color);

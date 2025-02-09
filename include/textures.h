@@ -5,9 +5,20 @@
 
 enum TextureId
 {
-	TI_DECAL_CHAIN_LONG = 0,
+	TI_DECAL_ARROW_DOWN = 0,
+	TI_DECAL_ARROW_LEFT,
+	TI_DECAL_ARROW_RIGHT,
+	TI_DECAL_ARROW_UP,
+	TI_DECAL_BAR_HORIZONTAL,
+	TI_DECAL_BAR_VERTICAL,
+	TI_DECAL_CHAIN_LONG,
 	TI_DECAL_CHAIN_MED,
 	TI_DECAL_CHAIN_SHORT,
+	TI_DECAL_GRASS_MED,
+	TI_DECAL_GRASS_SHORT,
+	TI_DECAL_PORTAL,
+	TI_DECAL_SIGN,
+	TI_DECAL_SKULL,
 	TI_GAMING_REI_BORDER,
 	
 	TI_END__
@@ -16,5 +27,6 @@ enum TextureId
 i32 Textures_Init(void);
 void Textures_Quit(void);
 void Textures_Draw(enum TextureId Id, i32 x, i32 y, i32 w, i32 h);
+void Textures_GetScale(enum TextureId Id, i32 *OutX, i32 *OutY);
 
 #endif

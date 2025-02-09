@@ -44,6 +44,7 @@ static void BtnSave(void);
 static void BtnArgAdd(void);
 static void BtnArgSub(void);
 static void BtnSingle(void);
+static void BtnHide(void);
 static void BtnExit(void);
 
 static char const *MapFile;
@@ -53,6 +54,7 @@ static bool Unsaved = false;
 static f32 DragOrigX = NO_DRAG_REGION, DragOrigY = NO_DRAG_REGION;
 static u32 Arg = 0;
 static bool SingleUse = true;
+static bool Hide = false;
 static bool Running;
 
 i32
@@ -99,7 +101,8 @@ Editor_Loop(void)
 	struct UiButton BSingle = UiButton_Create(575, 50, "Single", BtnSingle);
 	struct UiButton BTypeNext = UiButton_Create(320, 90, "Type>", BtnTypeNext);
 	struct UiButton BTypePrev = UiButton_Create(450, 90, "Type<", BtnTypePrev);
-	struct UiButton BExit = UiButton_Create(580, 90, "Exit", BtnExit);
+	struct UiButton BHide = UiButton_Create(580, 90, "Hide", BtnHide);
+	struct UiButton BExit = UiButton_Create(685, 90, "Exit", BtnExit);
 	
 	while (Running)
 	{
@@ -148,6 +151,7 @@ Editor_Loop(void)
 				UiButton_Update(&BArgAdd);
 				UiButton_Update(&BArgSub);
 				UiButton_Update(&BSingle);
+				UiButton_Update(&BHide);
 				UiButton_Update(&BExit);
 			}
 			
@@ -161,8 +165,11 @@ Editor_Loop(void)
 			DrawBg();
 			Map_Draw();
 			Map_DrawOutlines();
-			Vfx_DrawDecals(0, true);
-			Vfx_DrawDecals(1, true);
+			if (!Hide)
+			{
+				Vfx_DrawDecals(0, true);
+				Vfx_DrawDecals(1, true);
+			}
 			Triggers_Draw();
 			DrawIndicators();
 			
@@ -181,6 +188,7 @@ Editor_Loop(void)
 				UiButton_Draw(&BArgAdd);
 				UiButton_Draw(&BArgSub);
 				UiButton_Draw(&BSingle);
+				UiButton_Draw(&BHide);
 				UiButton_Draw(&BExit);
 			}
 			
@@ -403,12 +411,14 @@ UpdateEditor(void)
 			for (usize i = 0; i < g_DecalCnt; ++i)
 			{
 				struct Decal const *Decal = &g_Decals[i];
-				struct DecalData Data = Vfx_DecalData[Decal->Type];
+				
+				i32 TexW, TexH;
+				Textures_GetScale(Vfx_DecalTextures[Decal->Type], &TexW, &TexH);
 				
 				if (SelX >= Decal->PosX
-					&& SelX < Decal->PosX + Data.Width
+					&& SelX < Decal->PosX + VFX_DECAL_SCALE * TexW
 					&& SelY >= Decal->PosY
-					&& SelY < Decal->PosY + Data.Height)
+					&& SelY < Decal->PosY + VFX_DECAL_SCALE * TexH)
 				{
 					Vfx_RmDecal(i);
 					Unsaved = true;
@@ -534,11 +544,14 @@ DrawIndicators(void)
 			f32 SelX, SelY;
 			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
 			
+			i32 TexW, TexH;
+			Textures_GetScale(Vfx_DecalTextures[Type], &TexW, &TexH);
+			
 			RelativeDrawRect(
 				SelX,
 				SelY,
-				Vfx_DecalData[Type].Width,
-				Vfx_DecalData[Type].Height
+				VFX_DECAL_SCALE * TexW,
+				VFX_DECAL_SCALE * TexH
 			);
 			
 			break;
@@ -593,7 +606,7 @@ DrawIndicators(void)
 		}
 		case EM_DECAL:
 		{
-			Textures_Draw(Vfx_DecalData[Type].Texture, r.x, r.y, r.w, r.h);
+			Textures_Draw(Vfx_DecalTextures[Type], r.x, r.y, r.w, r.h);
 			break;
 		}
 		default:
@@ -754,6 +767,12 @@ static void
 BtnSingle(void)
 {
 	SingleUse = !SingleUse;
+}
+
+static void
+BtnHide(void)
+{
+	Hide = !Hide;
 }
 
 static void

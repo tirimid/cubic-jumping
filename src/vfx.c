@@ -69,28 +69,22 @@ struct ParticleData Vfx_ParticleData[PT_END__] =
 	}
 };
 
-struct DecalData Vfx_DecalData[DT_END__] =
+u8 Vfx_DecalTextures[DT_END__] =
 {
-	// chain long.
-	{
-		.Width = 1.0f,
-		.Height = 10.6f,
-		.Texture = TI_DECAL_CHAIN_LONG
-	},
-	
-	// chain med.
-	{
-		.Width = 1.0f,
-		.Height = 6.4f,
-		.Texture = TI_DECAL_CHAIN_MED
-	},
-	
-	// chain short.
-	{
-		.Width = 1.0f,
-		.Height = 3.4f,
-		.Texture = TI_DECAL_CHAIN_SHORT
-	}
+	TI_DECAL_CHAIN_LONG, // chain long.
+	TI_DECAL_CHAIN_MED, // chain med.
+	TI_DECAL_CHAIN_SHORT, // chain short.
+	TI_DECAL_GRASS_MED, // grass med.
+	TI_DECAL_GRASS_SHORT, // grass short.
+	TI_DECAL_SIGN, // sign.
+	TI_DECAL_ARROW_DOWN, // arrow down.
+	TI_DECAL_ARROW_LEFT, // arrow left.
+	TI_DECAL_ARROW_RIGHT, // arrow right.
+	TI_DECAL_ARROW_UP, // arrow up.
+	TI_DECAL_BAR_HORIZONTAL, // bar horizontal.
+	TI_DECAL_BAR_VERTICAL, // bar vertical.
+	TI_DECAL_SKULL, // skull.
+	TI_DECAL_PORTAL // portal.
 };
 
 void
@@ -300,7 +294,7 @@ Vfx_DrawDecals(u8 Layer, bool ShowLayer)
 	for (usize i = 0; i < g_DecalCnt; ++i)
 	{
 		struct Decal const *d = &g_Decals[i];
-		struct DecalData Data = Vfx_DecalData[d->Type];
+		enum TextureId Tex = Vfx_DecalTextures[d->Type];
 		
 		if (d->Layer != Layer)
 			continue;
@@ -308,12 +302,18 @@ Vfx_DrawDecals(u8 Layer, bool ShowLayer)
 		i32 ScrX, ScrY;
 		GameToScreenCoord(&ScrX, &ScrY, d->PosX, d->PosY);
 		
-		i32 ScrW = g_Cam.Zoom * CONF_DRAW_SCALE * Data.Width;
-		i32 ScrH = g_Cam.Zoom * CONF_DRAW_SCALE * Data.Height;
+		i32 TexW, TexH;
+		Textures_GetScale(Tex, &TexW, &TexH);
 		
 		// draw decal texture.
 		{
-			Textures_Draw(Data.Texture, ScrX, ScrY, ScrW, ScrH);
+			Textures_Draw(
+				Tex,
+				ScrX,
+				ScrY,
+				TexW * g_Cam.Zoom * CONF_DRAW_SCALE * VFX_DECAL_SCALE,
+				TexH * g_Cam.Zoom * CONF_DRAW_SCALE * VFX_DECAL_SCALE
+			);
 		}
 		
 		// draw decal layer.
