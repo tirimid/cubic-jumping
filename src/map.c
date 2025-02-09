@@ -7,10 +7,12 @@
 #include "cam.h"
 #include "game.h"
 #include "triggers.h"
+#include "vfx.h"
 #include "wnd.h"
 
 struct Map g_Map;
 
+// tables.
 u8 Map_TileColor[MTT_END__][3] =
 {
 	CONF_COLOR_BG,
@@ -142,6 +144,11 @@ Map_CreateFile(char const *File, char const *Name)
 		WrUint32(Fp, 0);
 	}
 	
+	// write out decal data for dummy map.
+	{
+		WrUint32(Fp, 0);
+	}
+	
 	// write out inclusion target header.
 	{
 		fprintf(
@@ -151,7 +158,9 @@ Map_CreateFile(char const *File, char const *Name)
 			"#include <stddef.h>\n"
 			"#include \"map.h\"\n"
 			"#include \"triggers.h\"\n"
+			"#include \"vfx.h\"\n"
 			"#define %s_NTRIGGERS 0\n"
+			"#define %s_NDECALS 0\n"
 			"static struct MapTile %s_map_data[] =\n"
 			"{\n"
 			"{1},\n"
@@ -167,7 +176,13 @@ Map_CreateFile(char const *File, char const *Name)
 			"{\n"
 			"{0.0f,0.0f,0.0f,0.0f,0,0,0}\n"
 			"};\n"
+			"static struct Decal %s_decals[] =\n"
+			"{\n"
+			"{0.0f,0.0f,0,0}\n"
+			"};\n"
 			"#endif\n",
+			Name,
+			Name,
 			Name,
 			Name,
 			Name,
@@ -262,6 +277,32 @@ Map_LoadFromFile(char const *File)
 			}
 			
 			Triggers_AddTrigger(&NewTrigger);
+		}
+	}
+	
+	// read decal data.
+	{
+		u32 DecalCnt;
+		if (RdUint32(&DecalCnt, Fp))
+			return 1;
+		
+		g_DecalCnt = 0;
+		for (u32 i = 0; i < DecalCnt; ++i)
+		{
+			f32 DPosX, DPosY;
+			u8 DLayer;
+			u8 DType;
+			
+			if (RdUint32((u32 *)&DPosX, Fp)
+				|| RdUint32((u32 *)&DPosY, Fp)
+				|| RdUint8(&DLayer, Fp)
+				|| RdUint8(&DType, Fp))
+			{
+				LogErr("map: failed to read one or more decals from file: %s!", File);
+				return 1;
+			}
+			
+			Vfx_PutDecal(DType, DPosX, DPosY, DLayer);
 		}
 	}
 	
@@ -399,6 +440,21 @@ Map_WriteToFile(char const *File)
 		}
 	}
 	
+	// write out decal data.
+	{
+		WrUint32(Fp, g_DecalCnt);
+		
+		for (usize i = 0; i < g_DecalCnt; ++i)
+		{
+			struct Decal const *Decal = &g_Decals[i];
+			
+			WrUint32(Fp, *(u32 *)&Decal->PosX);
+			WrUint32(Fp, *(u32 *)&Decal->PosY);
+			WrUint8(Fp, Decal->Layer);
+			WrUint8(Fp, Decal->Type);
+		}
+	}
+	
 	fprintf(Fp, "\n");
 	
 	// write out inclusion target header text.
@@ -410,13 +466,17 @@ Map_WriteToFile(char const *File)
 			"#include <stddef.h>\n"
 			"#include \"map.h\"\n"
 			"#include \"triggers.h\"\n"
+			"#include \"vfx.h\"\n"
 			"#define %s_NTRIGGERS %lu\n"
+			"#define %s_NDECALS %lu\n"
 			"static struct MapTile %s_map_data[] =\n"
 			"{\n",
 			g_Map.Name,
 			g_Map.Name,
 			g_Map.Name,
 			g_TriggerCnt,
+			g_Map.Name,
+			g_DecalCnt,
 			g_Map.Name
 		);
 		
@@ -465,6 +525,27 @@ Map_WriteToFile(char const *File)
 		fprintf(
 			Fp,
 			"{0.0f,0.0f,0.0f,0.0f,0,0,0}\n" // dummy trigger.
+			"};\n"
+			"static struct Decal %s_decals[] =\n"
+			"{\n",
+			g_Map.Name
+		);
+		
+		for (usize i = 0; i < g_DecalCnt; ++i)
+		{
+			fprintf(
+				Fp,
+				"{%ff,%ff,%u,%u},",
+				g_Decals[i].PosX,
+				g_Decals[i].PosY,
+				g_Decals[i].Layer,
+				g_Decals[i].Type
+			);
+		}
+		
+		fprintf(
+			Fp,
+			"{0.0f,0.0f,0,0}\n" // dummy decal.
 			"};\n"
 			"#endif\n"
 		);

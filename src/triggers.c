@@ -16,6 +16,7 @@
 struct Trigger g_Triggers[TRIGGERS_MAX];
 usize g_TriggerCnt = 0;
 
+// tables.
 u8 Trigger_Color[TT_END__][3] =
 {
 	CONF_COLOR_TRIGGER_MSG,
@@ -37,7 +38,7 @@ Triggers_AddTrigger(struct Trigger const *Trigger)
 void
 Triggers_RmTrigger(usize Idx)
 {
-	if (g_TriggerCnt == 0)
+	if (Idx >= g_TriggerCnt)
 		return;
 	
 	memmove(
@@ -80,7 +81,7 @@ Triggers_Draw(void)
 				Col[2],
 				CONF_COLOR_TRIGGER_OPACITY
 			);
-		
+			
 			RelativeDrawRect(t->PosX, t->PosY, t->SizeX, t->SizeY);
 		}
 		

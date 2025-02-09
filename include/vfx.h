@@ -1,7 +1,12 @@
 #ifndef VFX_H
 #define VFX_H
 
+#include <stdbool.h>
+
 #include "util.h"
+
+#define VFX_PARTICLES_MAX 256
+#define VFX_DECALS_MAX 128
 
 enum ParticleType
 {
@@ -17,6 +22,10 @@ enum ParticleType
 
 enum DecalType
 {
+	DT_CHAIN_LONG = 0,
+	DT_CHAIN_MED,
+	DT_CHAIN_SHORT,
+	
 	DT_END__
 };
 
@@ -29,6 +38,13 @@ struct Particle
 	u8 Type;
 };
 
+struct ParticleData
+{
+	f32 SizeA, SizeB;
+	u32 MaxLifetime;
+	u8 ColorA[3], ColorB[3];
+};
+
 struct Decal
 {
 	f32 PosX, PosY;
@@ -36,12 +52,28 @@ struct Decal
 	u8 Type;
 };
 
-void Vfx_Clear(void);
+struct DecalData
+{
+	f32 Width, Height;
+	u8 Texture;
+};
+
+extern struct Particle g_Particles[VFX_PARTICLES_MAX];
+extern usize g_ParticleCnt;
+
+extern struct Decal g_Decals[VFX_DECALS_MAX];
+extern usize g_DecalCnt;
+
+// tables.
+extern struct ParticleData Vfx_ParticleData[PT_END__];
+extern struct DecalData Vfx_DecalData[DT_END__];
+
 void Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y);
 void Vfx_PutOverrideParticle(enum ParticleType Type, f32 x, f32 y, u8 const *Color);
 void Vfx_PutDecal(enum DecalType Type, f32 x, f32 y, u8 Layer);
+void Vfx_RmDecal(usize Idx);
 void Vfx_Update(void);
 void Vfx_DrawParticles(void);
-void Vfx_DrawDecals(u8 Layer);
+void Vfx_DrawDecals(u8 Layer, bool ShowLayer);
 
 #endif

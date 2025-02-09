@@ -11,6 +11,7 @@
 #include "options.h"
 #include "sound.h"
 #include "text.h"
+#include "textures.h"
 #include "triggers.h"
 #include "ui.h"
 #include "vfx.h"
@@ -23,7 +24,8 @@ enum EditMode
 	EM_TILE_P = 0,
 	EM_TILE_F,
 	EM_TRIGGER,
-	EM_PLAYER
+	EM_PLAYER,
+	EM_DECAL
 };
 
 static void UpdateEditor(void);
@@ -33,6 +35,7 @@ static void BtnModeTileP(void);
 static void BtnModeTileF(void);
 static void BtnModeTrigger(void);
 static void BtnModePlayer(void);
+static void BtnModeDecal(void);
 static void BtnTypeNext(void);
 static void BtnTypePrev(void);
 static void BtnZoomIn(void);
@@ -83,10 +86,11 @@ Editor_Init(char const *File)
 void
 Editor_Loop(void)
 {
-	struct UiButton BModeTileP = UiButton_Create(10, 10, "Tile-P", BtnModeTileP);
-	struct UiButton BModeTileF = UiButton_Create(160, 10, "Tile-F", BtnModeTileF);
-	struct UiButton BModeTrigger = UiButton_Create(310, 10, "Trigger", BtnModeTrigger);
-	struct UiButton BModePlayer = UiButton_Create(480, 10, "Player", BtnModePlayer);
+	struct UiButton BModeTileP = UiButton_Create(10, 10, "TileP", BtnModeTileP);
+	struct UiButton BModeTileF = UiButton_Create(135, 10, "TileF", BtnModeTileF);
+	struct UiButton BModeTrigger = UiButton_Create(260, 10, "Trigger", BtnModeTrigger);
+	struct UiButton BModePlayer = UiButton_Create(430, 10, "Player", BtnModePlayer);
+	struct UiButton BModeDecal = UiButton_Create(580, 10, "Decal", BtnModeDecal);
 	struct UiButton BZoomIn = UiButton_Create(10, 50, "Zoom+", BtnZoomIn);
 	struct UiButton BZoomOut = UiButton_Create(135, 50, "Zoom-", BtnZoomOut);
 	struct UiButton BSave = UiButton_Create(260, 50, "Save", BtnSave);
@@ -135,6 +139,7 @@ Editor_Loop(void)
 				UiButton_Update(&BModeTileF);
 				UiButton_Update(&BModeTrigger);
 				UiButton_Update(&BModePlayer);
+				UiButton_Update(&BModeDecal);
 				UiButton_Update(&BZoomIn);
 				UiButton_Update(&BZoomOut);
 				UiButton_Update(&BTypeNext);
@@ -156,8 +161,8 @@ Editor_Loop(void)
 			DrawBg();
 			Map_Draw();
 			Map_DrawOutlines();
-			Vfx_DrawDecals(0);
-			Vfx_DrawDecals(1);
+			Vfx_DrawDecals(0, true);
+			Vfx_DrawDecals(1, true);
 			Triggers_Draw();
 			DrawIndicators();
 			
@@ -167,6 +172,7 @@ Editor_Loop(void)
 				UiButton_Draw(&BModeTileF);
 				UiButton_Draw(&BModeTrigger);
 				UiButton_Draw(&BModePlayer);
+				UiButton_Draw(&BModeDecal);
 				UiButton_Draw(&BZoomIn);
 				UiButton_Draw(&BZoomOut);
 				UiButton_Draw(&BTypeNext);
@@ -371,6 +377,47 @@ UpdateEditor(void)
 		
 		break;
 	}
+	case EM_DECAL:
+	{
+		i32 MouseX, MouseY;
+		Mouse_Pos(&MouseX, &MouseY);
+		
+		if (MouseY < CONF_EDITOR_BAR_SIZE)
+			break;
+		
+		if (Mouse_Pressed(MB_LEFT))
+		{
+			Unsaved = true;
+			
+			f32 SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			
+			Vfx_PutDecal(Type, SelX, SelY, Arg);
+		}
+		
+		if (Mouse_Down(MB_RIGHT))
+		{
+			f32 SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			
+			for (usize i = 0; i < g_DecalCnt; ++i)
+			{
+				struct Decal const *Decal = &g_Decals[i];
+				struct DecalData Data = Vfx_DecalData[Decal->Type];
+				
+				if (SelX >= Decal->PosX
+					&& SelX < Decal->PosX + Data.Width
+					&& SelY >= Decal->PosY
+					&& SelY < Decal->PosY + Data.Height)
+				{
+					Vfx_RmDecal(i);
+					Unsaved = true;
+				}
+			}
+		}
+		
+		break;
+	}
 	}
 	
 	// keyboard interaction based on mode.
@@ -479,6 +526,23 @@ DrawIndicators(void)
 			
 			break;
 		}
+		case EM_DECAL:
+		{
+			i32 MouseX, MouseY;
+			Mouse_Pos(&MouseX, &MouseY);
+			
+			f32 SelX, SelY;
+			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			
+			RelativeDrawRect(
+				SelX,
+				SelY,
+				Vfx_DecalData[Type].Width,
+				Vfx_DecalData[Type].Height
+			);
+			
+			break;
+		}
 		}
 	}
 	
@@ -525,6 +589,11 @@ DrawIndicators(void)
 			u8 const *Col = &Trigger_Color[Type][0];
 			SDL_SetRenderDrawColor(g_Rend, Col[0], Col[1], Col[2], 255);
 			SDL_RenderFillRect(g_Rend, &r);
+			break;
+		}
+		case EM_DECAL:
+		{
+			Textures_Draw(Vfx_DecalData[Type].Texture, r.x, r.y, r.w, r.h);
 			break;
 		}
 		default:
@@ -598,6 +667,13 @@ BtnModePlayer(void)
 }
 
 static void
+BtnModeDecal(void)
+{
+	Type = 0;
+	Mode = EM_DECAL;
+}
+
+static void
 BtnTypeNext(void)
 {
 	switch (Mode)
@@ -608,6 +684,9 @@ BtnTypeNext(void)
 		break;
 	case EM_TRIGGER:
 		Type = Type == TT_END__ - 1 ? 0 : Type + 1;
+		break;
+	case EM_DECAL:
+		Type = Type == DT_END__ - 1 ? 0 : Type + 1;
 		break;
 	default:
 		break;
@@ -625,6 +704,9 @@ BtnTypePrev(void)
 		break;
 	case EM_TRIGGER:
 		Type = Type == 0 ? TT_END__ - 1 : Type - 1;
+		break;
+	case EM_DECAL:
+		Type = Type == 0 ? DT_END__ - 1 : Type - 1;
 		break;
 	default:
 		break;

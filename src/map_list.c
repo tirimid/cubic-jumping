@@ -49,6 +49,8 @@
 		.Map = &Name##_map, \
 		.Triggers = Name##_triggers, \
 		.TriggerCnt = Name##_NTRIGGERS, \
+		.Decals = Name##_decals, \
+		.DecalCnt = Name##_NDECALS \
 	}
 
 struct Item
@@ -56,6 +58,8 @@ struct Item
 	struct Map *Map;
 	struct Trigger *Triggers;
 	usize TriggerCnt;
+	struct Decal *Decals;
+	usize DecalCnt;
 };
 
 u16 MapList_ParTimes[MLI_END__][3] =
@@ -174,7 +178,14 @@ MapList_Load(enum MapListItem Item)
 		
 		TextList_Term();
 		
-		Vfx_Clear();
+		g_ParticleCnt = 0;
+		
+		g_DecalCnt = 0;
+		for (usize i = 0; i < ItemData[Item].DecalCnt; ++i)
+		{
+			struct Decal const *d = &ItemData[Item].Decals[i];
+			Vfx_PutDecal(d->Type, d->PosX, d->PosY, d->Layer);
+		}
 	}
 	
 	// register map list item as being loaded.
@@ -216,7 +227,7 @@ MapList_LoadCustom(char const *Path)
 		
 		TextList_Term();
 		
-		Vfx_Clear();
+		g_ParticleCnt = 0;
 	}
 	
 	// register map list item as being loaded.

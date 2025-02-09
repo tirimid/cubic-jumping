@@ -5,17 +5,20 @@
 #include <SDL2/SDL.h>
 #include <unistd.h>
 
+#include "cam.h"
 #include "conf.h"
+#include "text.h"
+#include "textures.h"
 #include "wnd.h"
 
-struct ParticleData
-{
-	f32 SizeA, SizeB;
-	u32 MaxLifetime;
-	u8 ColorA[3], ColorB[3];
-};
+struct Particle g_Particles[VFX_PARTICLES_MAX];
+usize g_ParticleCnt = 0;
 
-static struct ParticleData ParticleData[PT_END__] =
+struct Decal g_Decals[VFX_DECALS_MAX];
+usize g_DecalCnt = 0;
+
+// tables.
+struct ParticleData Vfx_ParticleData[PT_END__] =
 {
 	// player trace.
 	{
@@ -66,28 +69,40 @@ static struct ParticleData ParticleData[PT_END__] =
 	}
 };
 
-static u32 ParticleCnt = 0;
-static struct Particle Particles[CONF_MAX_PARTICLES];
-
-static u32 DecalCnt = 0;
-static struct Decal Decals[CONF_MAX_DECALS];
-
-void
-Vfx_Clear(void)
+struct DecalData Vfx_DecalData[DT_END__] =
 {
-	DecalCnt = ParticleCnt = 0;
-}
+	// chain long.
+	{
+		.Width = 1.0f,
+		.Height = 10.6f,
+		.Texture = TI_DECAL_CHAIN_LONG
+	},
+	
+	// chain med.
+	{
+		.Width = 1.0f,
+		.Height = 6.4f,
+		.Texture = TI_DECAL_CHAIN_MED
+	},
+	
+	// chain short.
+	{
+		.Width = 1.0f,
+		.Height = 3.4f,
+		.Texture = TI_DECAL_CHAIN_SHORT
+	}
+};
 
 void
 Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 {
-	if (ParticleCnt >= CONF_MAX_PARTICLES)
+	if (g_ParticleCnt >= VFX_PARTICLES_MAX)
 		return;
 	
 	switch (Type)
 	{
 	case PT_PLAYER_TRACE:
-		Particles[ParticleCnt++] = (struct Particle)
+		g_Particles[g_ParticleCnt++] = (struct Particle)
 		{
 			.PosX = x,
 			.PosY = y,
@@ -96,7 +111,7 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 		};
 		break;
 	case PT_PLAYER_SHARD:
-		Particles[ParticleCnt++] = (struct Particle)
+		g_Particles[g_ParticleCnt++] = (struct Particle)
 		{
 			.PosX = x,
 			.PosY = y,
@@ -107,7 +122,7 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 		};
 		break;
 	case PT_AIR_PUFF:
-		Particles[ParticleCnt++] = (struct Particle)
+		g_Particles[g_ParticleCnt++] = (struct Particle)
 		{
 			.PosX = x,
 			.PosY = y,
@@ -118,7 +133,7 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 		};
 		break;
 	case PT_LEFT_WALL_PUFF:
-		Particles[ParticleCnt++] = (struct Particle)
+		g_Particles[g_ParticleCnt++] = (struct Particle)
 		{
 			.PosX = x,
 			.PosY = y,
@@ -129,7 +144,7 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 		};
 		break;
 	case PT_RIGHT_WALL_PUFF:
-		Particles[ParticleCnt++] = (struct Particle)
+		g_Particles[g_ParticleCnt++] = (struct Particle)
 		{
 			.PosX = x,
 			.PosY = y,
@@ -140,7 +155,7 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 		};
 		break;
 	case PT_GROUND_PUFF:
-		Particles[ParticleCnt++] = (struct Particle)
+		g_Particles[g_ParticleCnt++] = (struct Particle)
 		{
 			.PosX = x,
 			.PosY = y,
@@ -158,14 +173,14 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 void
 Vfx_PutOverrideParticle(enum ParticleType Type, f32 x, f32 y, u8 const *Color)
 {
-	if (ParticleCnt >= CONF_MAX_PARTICLES)
+	if (g_ParticleCnt >= VFX_PARTICLES_MAX)
 		return;
 	
 	Vfx_PutParticle(Type, x, y);
 	
 	// override particle color.
 	{
-		struct Particle *Last = &Particles[ParticleCnt - 1];
+		struct Particle *Last = &g_Particles[g_ParticleCnt - 1];
 		Last->OverrideColor[0] = Color[0];
 		Last->OverrideColor[1] = Color[1];
 		Last->OverrideColor[2] = Color[2];
@@ -175,10 +190,10 @@ Vfx_PutOverrideParticle(enum ParticleType Type, f32 x, f32 y, u8 const *Color)
 void
 Vfx_PutDecal(enum DecalType Type, f32 x, f32 y, u8 Layer)
 {
-	if (DecalCnt >= CONF_MAX_DECALS)
+	if (g_DecalCnt >= VFX_DECALS_MAX)
 		return;
 	
-	Decals[DecalCnt++] = (struct Decal)
+	g_Decals[g_DecalCnt++] = (struct Decal)
 	{
 		.PosX = x,
 		.PosY = y,
@@ -188,54 +203,68 @@ Vfx_PutDecal(enum DecalType Type, f32 x, f32 y, u8 Layer)
 }
 
 void
+Vfx_RmDecal(usize Idx)
+{
+	if (Idx >= g_DecalCnt)
+		return;
+	
+	memmove(
+		&g_Decals[Idx],
+		&g_Decals[Idx + 1],
+		sizeof(struct Decal) * (g_DecalCnt - Idx - 1)
+	);
+	--g_DecalCnt;
+}
+
+void
 Vfx_Update(void)
 {
 	// update particles.
-	for (i32 i = 0; i < ParticleCnt; ++i)
+	for (usize i = 0; i < g_ParticleCnt; ++i)
 	{
-		if (Particles[i].Lifetime == 0)
+		if (g_Particles[i].Lifetime == 0)
 		{
-			if (i < ParticleCnt - 1)
+			if (i < g_ParticleCnt - 1)
 			{
 				memmove(
-					&Particles[i],
-					&Particles[i + 1],
-					(ParticleCnt - i - 1) * sizeof(struct Particle)
+					&g_Particles[i],
+					&g_Particles[i + 1],
+					(g_ParticleCnt - i - 1) * sizeof(struct Particle)
 				);
 			}
 			
-			--ParticleCnt;
+			--g_ParticleCnt;
 			--i;
 			continue;
 		}
 		
-		--Particles[i].Lifetime;
+		--g_Particles[i].Lifetime;
 		
-		switch (Particles[i].Type)
+		switch (g_Particles[i].Type)
 		{
 		case PT_PLAYER_SHARD:
 		case PT_LEFT_WALL_PUFF:
 		case PT_RIGHT_WALL_PUFF:
 		case PT_GROUND_PUFF:
-			Particles[i].VelY += CONF_GRAVITY;
+			g_Particles[i].VelY += CONF_GRAVITY;
 			break;
 		default:
 			break;
 		}
 		
-		Particles[i].PosX += Particles[i].VelX;
-		Particles[i].PosY += Particles[i].VelY;
+		g_Particles[i].PosX += g_Particles[i].VelX;
+		g_Particles[i].PosY += g_Particles[i].VelY;
 	}
 }
 
 void
 Vfx_DrawParticles(void)
 {
-	for (u32 i = 0; i < ParticleCnt; ++i)
+	for (usize i = 0; i < g_ParticleCnt; ++i)
 	{
 		// determine particle drawing parameters.
-		struct Particle const *p = &Particles[i];
-		struct ParticleData Data = ParticleData[p->Type];
+		struct Particle const *p = &g_Particles[i];
+		struct ParticleData Data = Vfx_ParticleData[p->Type];
 		{
 			if (p->OverrideColor[0])
 				Data.ColorA[0] = Data.ColorB[0] = p->OverrideColor[0];
@@ -266,13 +295,34 @@ Vfx_DrawParticles(void)
 }
 
 void
-Vfx_DrawDecals(u8 Layer)
+Vfx_DrawDecals(u8 Layer, bool ShowLayer)
 {
-	for (u32 i = 0; i < DecalCnt; ++i)
+	for (usize i = 0; i < g_DecalCnt; ++i)
 	{
-		if (Decals[i].Layer != Layer)
+		struct Decal const *d = &g_Decals[i];
+		struct DecalData Data = Vfx_DecalData[d->Type];
+		
+		if (d->Layer != Layer)
 			continue;
 		
-		// TODO: draw decal.
+		i32 ScrX, ScrY;
+		GameToScreenCoord(&ScrX, &ScrY, d->PosX, d->PosY);
+		
+		i32 ScrW = g_Cam.Zoom * CONF_DRAW_SCALE * Data.Width;
+		i32 ScrH = g_Cam.Zoom * CONF_DRAW_SCALE * Data.Height;
+		
+		// draw decal texture.
+		{
+			Textures_Draw(Data.Texture, ScrX, ScrY, ScrW, ScrH);
+		}
+		
+		// draw decal layer.
+		if (ShowLayer)
+		{
+			static char Buf[32];
+			sprintf(Buf, "%x", d->Layer);
+			
+			Text_DrawStr(Buf, ScrX, ScrY);
+		}
 	}
 }

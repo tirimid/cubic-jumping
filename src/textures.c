@@ -8,6 +8,9 @@
 #include "wnd.h"
 
 // compiled texture data.
+#include "imgs/decal_chain_long_png.h"
+#include "imgs/decal_chain_med_png.h"
+#include "imgs/decal_chain_short_png.h"
 #include "imgs/gaming_rei_border_png.h"
 
 #define INCLUDE_TEXTURE(Name) \
@@ -25,6 +28,9 @@ struct Texture
 
 static struct Texture Textures[TI_END__] =
 {
+	INCLUDE_TEXTURE(decal_chain_long),
+	INCLUDE_TEXTURE(decal_chain_med),
+	INCLUDE_TEXTURE(decal_chain_short),
 	INCLUDE_TEXTURE(gaming_rei_border)
 };
 
