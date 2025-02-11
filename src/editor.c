@@ -1,5 +1,6 @@
 #include "editor.h"
 
+#include <math.h>
 #include <stdlib.h>
 
 #include <SDL2/SDL.h>
@@ -45,7 +46,9 @@ static void BtnArgAdd(void);
 static void BtnArgSub(void);
 static void BtnSingle(void);
 static void BtnHide(void);
+static void BtnSnap(void);
 static void BtnExit(void);
+static f32 SnapValue(f32 x);
 
 static char const *MapFile;
 static enum EditMode Mode = EM_TILE_P;
@@ -53,8 +56,7 @@ static i32 Type = 0;
 static bool Unsaved = false;
 static f32 DragOrigX = NO_DRAG_REGION, DragOrigY = NO_DRAG_REGION;
 static u32 Arg = 0;
-static bool SingleUse = true;
-static bool Hide = false;
+static bool SingleUse = true, Hide = false, Snap = true;
 static bool Running;
 
 i32
@@ -93,16 +95,17 @@ Editor_Loop(void)
 	struct UiButton BModeTrigger = UiButton_Create(260, 10, "Trigger", BtnModeTrigger);
 	struct UiButton BModePlayer = UiButton_Create(430, 10, "Player", BtnModePlayer);
 	struct UiButton BModeDecal = UiButton_Create(580, 10, "Decal", BtnModeDecal);
-	struct UiButton BZoomIn = UiButton_Create(10, 50, "Zoom+", BtnZoomIn);
-	struct UiButton BZoomOut = UiButton_Create(135, 50, "Zoom-", BtnZoomOut);
-	struct UiButton BSave = UiButton_Create(260, 50, "Save", BtnSave);
-	struct UiButton BArgAdd = UiButton_Create(365, 50, "Arg+", BtnArgAdd);
-	struct UiButton BArgSub = UiButton_Create(470, 50, "Arg-", BtnArgSub);
-	struct UiButton BSingle = UiButton_Create(575, 50, "Single", BtnSingle);
-	struct UiButton BTypeNext = UiButton_Create(320, 90, "Type>", BtnTypeNext);
-	struct UiButton BTypePrev = UiButton_Create(450, 90, "Type<", BtnTypePrev);
-	struct UiButton BHide = UiButton_Create(580, 90, "Hide", BtnHide);
-	struct UiButton BExit = UiButton_Create(685, 90, "Exit", BtnExit);
+	struct UiButton BZoomIn = UiButton_Create(10, 50, "Z+", BtnZoomIn);
+	struct UiButton BZoomOut = UiButton_Create(70, 50, "Z-", BtnZoomOut);
+	struct UiButton BArgAdd = UiButton_Create(130, 50, "A+", BtnArgAdd);
+	struct UiButton BArgSub = UiButton_Create(190, 50, "A-", BtnArgSub);
+	struct UiButton BTypeNext = UiButton_Create(250, 50, "T>", BtnTypeNext);
+	struct UiButton BTypePrev = UiButton_Create(310, 50, "T<", BtnTypePrev);
+	struct UiButton BHide = UiButton_Create(370, 50, "Hide", BtnHide);
+	struct UiButton BSnap = UiButton_Create(475, 50, "Snap", BtnSnap);
+	struct UiButton BSingle = UiButton_Create(580, 50, "Single", BtnSingle);
+	struct UiButton BSave = UiButton_Create(320, 90, "Save", BtnSave);
+	struct UiButton BExit = UiButton_Create(425, 90, "Exit", BtnExit);
 	
 	while (Running)
 	{
@@ -145,13 +148,14 @@ Editor_Loop(void)
 				UiButton_Update(&BModeDecal);
 				UiButton_Update(&BZoomIn);
 				UiButton_Update(&BZoomOut);
-				UiButton_Update(&BTypeNext);
-				UiButton_Update(&BTypePrev);
-				UiButton_Update(&BSave);
 				UiButton_Update(&BArgAdd);
 				UiButton_Update(&BArgSub);
-				UiButton_Update(&BSingle);
+				UiButton_Update(&BTypeNext);
+				UiButton_Update(&BTypePrev);
 				UiButton_Update(&BHide);
+				UiButton_Update(&BSnap);
+				UiButton_Update(&BSingle);
+				UiButton_Update(&BSave);
 				UiButton_Update(&BExit);
 			}
 			
@@ -182,13 +186,14 @@ Editor_Loop(void)
 				UiButton_Draw(&BModeDecal);
 				UiButton_Draw(&BZoomIn);
 				UiButton_Draw(&BZoomOut);
-				UiButton_Draw(&BTypeNext);
-				UiButton_Draw(&BTypePrev);
-				UiButton_Draw(&BSave);
 				UiButton_Draw(&BArgAdd);
 				UiButton_Draw(&BArgSub);
-				UiButton_Draw(&BSingle);
+				UiButton_Draw(&BTypeNext);
+				UiButton_Draw(&BTypePrev);
 				UiButton_Draw(&BHide);
+				UiButton_Draw(&BSnap);
+				UiButton_Draw(&BSingle);
+				UiButton_Draw(&BSave);
 				UiButton_Draw(&BExit);
 			}
 			
@@ -253,6 +258,11 @@ UpdateEditor(void)
 		
 		f32 DragX, DragY;
 		ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
+		if (Snap)
+		{
+			DragX = SnapValue(DragX);
+			DragY = SnapValue(DragY);
+		}
 		
 		if (Mouse_Pressed(MB_LEFT))
 		{
@@ -303,6 +313,11 @@ UpdateEditor(void)
 		
 		f32 DragX, DragY;
 		ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
+		if (Snap)
+		{
+			DragX = SnapValue(DragX);
+			DragY = SnapValue(DragY);
+		}
 		
 		if (Mouse_Pressed(MB_LEFT))
 		{
@@ -399,6 +414,11 @@ UpdateEditor(void)
 			
 			f32 SelX, SelY;
 			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			if (Snap)
+			{
+				SelX = SnapValue(SelX);
+				SelY = SnapValue(SelY);
+			}
 			
 			Vfx_PutDecal(Type, SelX, SelY, Arg);
 		}
@@ -526,6 +546,11 @@ DrawIndicators(void)
 			
 			f32 DragX, DragY;
 			ScreenToGameCoord(&DragX, &DragY, MouseX, MouseY);
+			if (Snap)
+			{
+				DragX = SnapValue(DragX);
+				DragY = SnapValue(DragY);
+			}
 			
 			f32 Lbx = MIN(DragX, DragOrigX);
 			f32 Lby = MIN(DragY, DragOrigY);
@@ -543,6 +568,11 @@ DrawIndicators(void)
 			
 			f32 SelX, SelY;
 			ScreenToGameCoord(&SelX, &SelY, MouseX, MouseY);
+			if (Snap)
+			{
+				SelX = SnapValue(SelX);
+				SelY = SnapValue(SelY);
+			}
 			
 			i32 TexW, TexH;
 			Textures_GetScale(Vfx_DecalTextures[Type], &TexW, &TexH);
@@ -776,7 +806,19 @@ BtnHide(void)
 }
 
 static void
+BtnSnap(void)
+{
+	Snap = !Snap;
+}
+
+static void
 BtnExit(void)
 {
 	Running = false;
+}
+
+static f32
+SnapValue(f32 x)
+{
+	return roundf(CONF_EDITOR_SNAP_ROUND * x) / CONF_EDITOR_SNAP_ROUND;
 }

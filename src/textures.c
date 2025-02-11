@@ -22,6 +22,9 @@
 #include "imgs/decal_portal_png.h"
 #include "imgs/decal_sign_png.h"
 #include "imgs/decal_skull_png.h"
+#include "imgs/decal_vines_long_png.h"
+#include "imgs/decal_vines_med_png.h"
+#include "imgs/decal_vines_short_png.h"
 #include "imgs/gaming_rei_border_png.h"
 
 #define INCLUDE_PNG(Name) \
@@ -53,6 +56,9 @@ static struct Texture Textures[TI_END__] =
 	INCLUDE_PNG(decal_portal),
 	INCLUDE_PNG(decal_sign),
 	INCLUDE_PNG(decal_skull),
+	INCLUDE_PNG(decal_vines_long),
+	INCLUDE_PNG(decal_vines_med),
+	INCLUDE_PNG(decal_vines_short),
 	INCLUDE_PNG(gaming_rei_border)
 };
 

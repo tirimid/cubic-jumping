@@ -100,31 +100,31 @@ char const *MapList_Names[MLI_END__] =
 	NULL,
 	
 	// chapter 0.
-	"The basics", // c0e0.
-	"Kill tiles", // c0e1.
-	"Bounce tiles", // c0e2.
-	"Leap of faith", // c0e3.
-	"Launch tiles", // c0e4.
-	"Zoom", // c0e5.
-	"Switch tiles", // c0e6.
-	"Double-ended I", // c0e7.
-	"Downwards dash", // c0e8.
-	"Slippery tiles", // c0e9.
-	"Wave in a box", // c0e10.
-	"Grip tiles", // c0e11.
-	"Tide in a box", // c0e12.
-	"Dropper", // c0e13.
-	"Rapid powerjump", // c0e14.
-	"Perfect Dash", // c0e15.
-	"Double-ended II", // c0e16.
-	"Lopside Double", // c0e17.
-	"Cube accelerator", // c0e18.
-	"Switch tiles", // c0e19.
-	"Casette-based", // c0e20.
-	"Beam tiles", // c0e21.
-	"Double-ended III", // c0e22.
-	"Magnetic levitation", // c0e23.
-	"The deceit" // c0e24.
+	"1-1/25 - The basics", // c0e0.
+	"1-2/25 - Kill tiles", // c0e1.
+	"1-3/25 - Bounce tiles", // c0e2.
+	"1-4/25 - Leap of faith", // c0e3.
+	"1-5/25 - Launch tiles", // c0e4.
+	"1-6/25 - Zoom", // c0e5.
+	"1-7/25 - Switch tiles", // c0e6.
+	"1-8/25 - Double-ended I", // c0e7.
+	"1-9/25 - Downwards dash", // c0e8.
+	"1-10/25 - Slippery tiles", // c0e9.
+	"1-11/25 - Wave in a box", // c0e10.
+	"1-12/25 - Grip tiles", // c0e11.
+	"1-13/25 - Tide in a box", // c0e12.
+	"1-14/25 - Dropper", // c0e13.
+	"1-15/25 - Rapid powerjump", // c0e14.
+	"1-16/25 - Perfect Dash", // c0e15.
+	"1-17/25 - Double-ended II", // c0e16.
+	"1-18/25 - Lopside Double", // c0e17.
+	"1-19/25 - Cube accelerator", // c0e18.
+	"1-20/25 - Switch tiles", // c0e19.
+	"1-21/25 - Casette-based", // c0e20.
+	"1-22/25 - Beam tiles", // c0e21.
+	"1-23/25 - Double-ended III", // c0e22.
+	"1-24/25 - Magnetic levitation", // c0e23.
+	"1-25/25 - The deceit" // c0e24.
 };
 
 static char const *CurCustom;

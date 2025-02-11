@@ -84,7 +84,10 @@ u8 Vfx_DecalTextures[DT_END__] =
 	TI_DECAL_BAR_HORIZONTAL, // bar horizontal.
 	TI_DECAL_BAR_VERTICAL, // bar vertical.
 	TI_DECAL_SKULL, // skull.
-	TI_DECAL_PORTAL // portal.
+	TI_DECAL_PORTAL, // portal.
+	TI_DECAL_VINES_SHORT, // vines short.
+	TI_DECAL_VINES_MED, // vines med.
+	TI_DECAL_VINES_LONG // vines long.
 };
 
 void

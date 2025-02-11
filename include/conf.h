@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 // program options.
-#define CONF_VERSION "0.3.2"
+#define CONF_VERSION "0.4.0"
 
 // window options.
 #define CONF_WND_TITLE "Cubic Jumping"
@@ -186,5 +186,6 @@
 #define CONF_EDITOR_TYPE_INDICATOR_SIZE 70
 #define CONF_EDITOR_BAR_SIZE 140
 #define CONF_EDITOR_SAVE_INDICATOR_SIZE 15
+#define CONF_EDITOR_SNAP_ROUND 2.0f
 
 #endif
