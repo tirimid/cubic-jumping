@@ -12,7 +12,8 @@
 #include "wnd.h"
 
 #define COL_THRESHOLD 0.05f
-#define UNBOUND_THRESHOLD 0.1f
+#define COL_OFFSET 0.005f
+#define UNBOUND_THRESHOLD 0.05f
 #define PREMOVE_COL_CHECKS 3
 
 struct Player g_Player;
@@ -445,7 +446,7 @@ CollideLeft(void)
 	if (!g_Player.NearLeft)
 		return;
 	
-	g_Player.PosX -= g_Player.DistLeft - 0.005f;
+	g_Player.PosX -= g_Player.DistLeft - COL_OFFSET;
 	ComputeCollisionDistances();
 	
 	switch (g_Player.NearLeft->Type)
@@ -478,7 +479,7 @@ CollideRight(void)
 	if (!g_Player.NearRight)
 		return;
 	
-	g_Player.PosX += g_Player.DistRight - 0.005f;
+	g_Player.PosX += g_Player.DistRight - COL_OFFSET;
 	ComputeCollisionDistances();
 	
 	switch (g_Player.NearRight->Type)
@@ -511,7 +512,7 @@ CollideBottom(void)
 	if (!g_Player.NearBottom)
 		return;
 	
-	g_Player.PosY += g_Player.DistBottom - 0.005f;
+	g_Player.PosY += g_Player.DistBottom - COL_OFFSET;
 	ComputeCollisionDistances();
 	
 	switch (g_Player.NearBottom->Type)
@@ -541,7 +542,7 @@ CollideTop(void)
 	if (!g_Player.NearTop)
 		return;
 	
-	g_Player.PosY -= g_Player.DistTop - 0.005f;
+	g_Player.PosY -= g_Player.DistTop - COL_OFFSET;
 	ComputeCollisionDistances();
 	
 	switch (g_Player.NearTop->Type)
@@ -694,40 +695,151 @@ TestAndApplyCollisions(void)
 {
 	ComputeCollisionDistances();
 	
-	if (g_Player.ShortCircuit)
-		return;
-	
-	if (g_Player.VelY < 0.0f && -g_Player.VelY >= g_Player.DistTop)
+	// resolve cornered collisions.
 	{
-		Collide(g_Player.NearTop);
-		CollideTop();
+		if (g_Player.ShortCircuit)
+			return;
+		
+		f32 ModX = g_Player.PosX;
+		ModX += (g_Player.VelX > 0.0f) * CONF_PLAYER_SIZE;
+		ModX += g_Player.VelX;
+		
+		f32 ModY = g_Player.PosY;
+		ModY += (g_Player.VelY > 0.0f) * CONF_PLAYER_SIZE;
+		ModY += g_Player.VelY;
+		
+		i64 ModTileX = ModX, ModTileY = ModY;
+		if (ModTileX < 0
+			|| ModTileY < 0
+			|| ModTileX >= g_Map.SizeX
+			|| ModTileY >= g_Map.SizeY)
+		{
+			goto DoneCorners;
+		}
+		
+		struct MapTile const *ModTile = Map_Get(ModTileX, ModTileY);
+		if (!Map_TileCollision[ModTile->Type])
+			goto DoneCorners;
+		
+		// bottom right.
+		if (g_Player.VelX < g_Player.DistRight
+			&& g_Player.VelY < g_Player.DistBottom
+			&& g_Player.VelX > 0.0f
+			&& g_Player.VelY > 0.0f)
+		{
+			if (g_Player.VelY < g_Player.VelX)
+			{
+				g_Player.PosY = ModTileY - CONF_PLAYER_SIZE - COL_OFFSET;
+				g_Player.VelY = 0.0f;
+			}
+			else
+			{
+				g_Player.PosX = ModTileX - CONF_PLAYER_SIZE - COL_OFFSET;
+				g_Player.VelX = 0.0f;
+			}
+			ComputeCollisionDistances();
+			goto DoneCorners;
+		}
+		
+		// bottom left.
+		if (-g_Player.VelX < g_Player.DistLeft
+			&& g_Player.VelY < g_Player.DistBottom
+			&& g_Player.VelX < 0.0f
+			&& g_Player.VelY > 0.0f)
+		{
+			if (g_Player.VelY < g_Player.VelX)
+			{
+				g_Player.PosY = ModTileY - CONF_PLAYER_SIZE - COL_OFFSET;
+				g_Player.VelY = 0.0f;
+			}
+			else
+			{
+				g_Player.PosX = ModTileX + 1.0f + COL_OFFSET;
+				g_Player.VelX = 0.0f;
+			}
+			ComputeCollisionDistances();
+			goto DoneCorners;
+		}
+		
+		// top right.
+		if (g_Player.VelX < g_Player.DistRight
+			&& -g_Player.VelY < g_Player.DistTop
+			&& g_Player.VelX > 0.0f
+			&& g_Player.VelY < 0.0f)
+		{
+			if (g_Player.VelY < g_Player.VelX)
+			{
+				g_Player.PosY = ModTileY + 1.0f + COL_OFFSET;
+				g_Player.VelY = 0.0f;
+			}
+			else
+			{
+				g_Player.PosX = ModTileX - CONF_PLAYER_SIZE - COL_OFFSET;
+				g_Player.VelX = 0.0f;
+			}
+			ComputeCollisionDistances();
+			goto DoneCorners;
+		}
+		
+		// top left.
+		if (-g_Player.VelX < g_Player.DistLeft
+			&& -g_Player.VelY < g_Player.DistTop
+			&& g_Player.VelX < 0.0f
+			&& g_Player.VelY < 0.0f)
+		{
+			if (g_Player.VelY < g_Player.VelX)
+			{
+				g_Player.PosY = ModTileY + 1.0f + COL_OFFSET;
+				g_Player.VelY = 0.0f;
+			}
+			else
+			{
+				g_Player.PosX -= ModTileX + 1.0f + COL_OFFSET;
+				g_Player.PosX = 0.0f;
+			}
+			ComputeCollisionDistances();
+			goto DoneCorners;
+		}
 	}
+DoneCorners:
 	
-	if (g_Player.ShortCircuit)
-		return;
-	
-	if (g_Player.VelX < 0.0f && -g_Player.VelX >= g_Player.DistLeft)
+	// resolve sided collisions.
 	{
-		Collide(g_Player.NearLeft);
-		CollideLeft();
-	}
-	
-	if (g_Player.ShortCircuit)
-		return;
-	
-	if (g_Player.VelX > 0.0f && g_Player.VelX >= g_Player.DistRight)
-	{
-		Collide(g_Player.NearRight);
-		CollideRight();
-	}
-	
-	if (g_Player.ShortCircuit)
-		return;
-	
-	if (g_Player.VelY > 0.0f && g_Player.VelY >= g_Player.DistBottom)
-	{
-		Collide(g_Player.NearBottom);
-		CollideBottom();
+		if (g_Player.ShortCircuit)
+			return;
+		
+		if (-g_Player.VelY >= g_Player.DistTop)
+		{
+			Collide(g_Player.NearTop);
+			CollideTop();
+		}
+		
+		if (g_Player.ShortCircuit)
+			return;
+		
+		if (-g_Player.VelX >= g_Player.DistLeft)
+		{
+			Collide(g_Player.NearLeft);
+			CollideLeft();
+		}
+		
+		if (g_Player.ShortCircuit)
+			return;
+		
+		if (g_Player.VelX >= g_Player.DistRight)
+		{
+			Collide(g_Player.NearRight);
+			CollideRight();
+		}
+		
+		if (g_Player.ShortCircuit)
+			return;
+		
+		if (g_Player.VelY >= g_Player.DistBottom)
+		{
+			Collide(g_Player.NearBottom);
+			CollideBottom();
+		}
 	}
 }
 
