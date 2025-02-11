@@ -13,6 +13,7 @@
 
 #define COL_THRESHOLD 0.05f
 #define UNBOUND_THRESHOLD 0.1f
+#define PREMOVE_COL_CHECKS 3
 
 struct Player g_Player;
 enum PlayerState g_PlayerState;
@@ -364,11 +365,8 @@ UpdatePlaying(void)
 	// need to also apply collisions after all velocity changes.
 	if (!g_PlayerCapMask.NoCollide)
 	{
-		// two rounds of collision checks / resolutions are done in order to
-		// somewhat prevent player from being phantomly killed by some
-		// random corner or such.
-		TestAndApplyCollisions();
-		TestAndApplyCollisions();
+		for (i32 i = 0; i < PREMOVE_COL_CHECKS; ++i)
+			TestAndApplyCollisions();
 	}
 	
 	// actually move player.
@@ -448,6 +446,7 @@ CollideLeft(void)
 		return;
 	
 	g_Player.PosX -= g_Player.DistLeft - 0.005f;
+	ComputeCollisionDistances();
 	
 	switch (g_Player.NearLeft->Type)
 	{
@@ -480,6 +479,7 @@ CollideRight(void)
 		return;
 	
 	g_Player.PosX += g_Player.DistRight - 0.005f;
+	ComputeCollisionDistances();
 	
 	switch (g_Player.NearRight->Type)
 	{
@@ -512,6 +512,7 @@ CollideBottom(void)
 		return;
 	
 	g_Player.PosY += g_Player.DistBottom - 0.005f;
+	ComputeCollisionDistances();
 	
 	switch (g_Player.NearBottom->Type)
 	{
@@ -541,6 +542,7 @@ CollideTop(void)
 		return;
 	
 	g_Player.PosY -= g_Player.DistTop - 0.005f;
+	ComputeCollisionDistances();
 	
 	switch (g_Player.NearTop->Type)
 	{
@@ -690,10 +692,11 @@ ComputeCollisionDistances(void)
 static void
 TestAndApplyCollisions(void)
 {
+	ComputeCollisionDistances();
+	
 	if (g_Player.ShortCircuit)
 		return;
 	
-	ComputeCollisionDistances();
 	if (g_Player.VelY < 0.0f && -g_Player.VelY >= g_Player.DistTop)
 	{
 		Collide(g_Player.NearTop);
@@ -703,7 +706,6 @@ TestAndApplyCollisions(void)
 	if (g_Player.ShortCircuit)
 		return;
 	
-	ComputeCollisionDistances();
 	if (g_Player.VelX < 0.0f && -g_Player.VelX >= g_Player.DistLeft)
 	{
 		Collide(g_Player.NearLeft);
@@ -713,7 +715,6 @@ TestAndApplyCollisions(void)
 	if (g_Player.ShortCircuit)
 		return;
 	
-	ComputeCollisionDistances();
 	if (g_Player.VelX > 0.0f && g_Player.VelX >= g_Player.DistRight)
 	{
 		Collide(g_Player.NearRight);
@@ -723,7 +724,6 @@ TestAndApplyCollisions(void)
 	if (g_Player.ShortCircuit)
 		return;
 	
-	ComputeCollisionDistances();
 	if (g_Player.VelY > 0.0f && g_Player.VelY >= g_Player.DistBottom)
 	{
 		Collide(g_Player.NearBottom);

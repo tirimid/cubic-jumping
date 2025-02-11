@@ -34,8 +34,8 @@ struct ParticleData Vfx_ParticleData[PT_END__] =
 		.SizeA = CONF_PLAYER_SHARD_SIZE_A,
 		.SizeB = CONF_PLAYER_SHARD_SIZE_B,
 		.MaxLifetime = CONF_PLAYER_SHARD_LIFETIME_RANGE,
-		.ColorA = CONF_COLOR_PLAYER_SHARD_A,
-		.ColorB = CONF_COLOR_PLAYER_SHARD_B
+		.ColorA = CONF_COLOR_PLAYER_SHARD,
+		.ColorB = CONF_COLOR_PLAYER_SHARD
 	},
 	
 	// air puff.
@@ -109,8 +109,8 @@ Vfx_PutParticle(enum ParticleType Type, f32 x, f32 y)
 		{
 			.PosX = x,
 			.PosY = y,
-			.VelX = RandFloat(CONF_PLAYER_SHARD_SPEED_X_RANGE) - CONF_PLAYER_SHARD_SPEED_X_RANGE / 2.0f,
-			.VelY = -RandFloat(CONF_PLAYER_SHARD_SPEED_Y_RANGE),
+			.VelX = RandFloat(CONF_PLAYER_SHARD_SPEED_RANGE) - CONF_PLAYER_SHARD_SPEED_RANGE / 2.0f,
+			.VelY = RandFloat(CONF_PLAYER_SHARD_SPEED_RANGE) - CONF_PLAYER_SHARD_SPEED_RANGE / 2.0f,
 			.Lifetime = RandInt(CONF_PLAYER_SHARD_LIFETIME_RANGE),
 			.Type = PT_PLAYER_SHARD
 		};
@@ -236,7 +236,6 @@ Vfx_Update(void)
 		
 		switch (g_Particles[i].Type)
 		{
-		case PT_PLAYER_SHARD:
 		case PT_LEFT_WALL_PUFF:
 		case PT_RIGHT_WALL_PUFF:
 		case PT_GROUND_PUFF:
