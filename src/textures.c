@@ -107,8 +107,8 @@ Textures_Draw(enum TextureId Id, i32 x, i32 y, i32 w, i32 h)
 	{
 		.x = x,
 		.y = y,
-		.w = w,
-		.h = h
+		.w = w + 1,
+		.h = h + 1
 	};
 	SDL_RenderCopy(g_Rend, Textures[Id].Tex, NULL, &r);
 }
