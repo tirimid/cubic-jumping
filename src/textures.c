@@ -17,6 +17,7 @@
 #include "imgs/decal_chain_long_png.h"
 #include "imgs/decal_chain_med_png.h"
 #include "imgs/decal_chain_short_png.h"
+#include "imgs/decal_grass_long_png.h"
 #include "imgs/decal_grass_med_png.h"
 #include "imgs/decal_grass_short_png.h"
 #include "imgs/decal_portal_png.h"
@@ -51,6 +52,7 @@ static struct Texture Textures[TI_END__] =
 	INCLUDE_PNG(decal_chain_long),
 	INCLUDE_PNG(decal_chain_med),
 	INCLUDE_PNG(decal_chain_short),
+	INCLUDE_PNG(decal_grass_long),
 	INCLUDE_PNG(decal_grass_med),
 	INCLUDE_PNG(decal_grass_short),
 	INCLUDE_PNG(decal_portal),

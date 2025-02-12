@@ -53,11 +53,14 @@ Player_Draw(void)
 	
 	static u8 Cp[] = CONF_COLOR_PLAYER;
 	SDL_SetRenderDrawColor(g_Rend, Cp[0], Cp[1], Cp[2], 255);
+	
+	// drawn a bit larger to fix janky effect where wallsliding player juts
+	// off from the wall by a bit.
 	RelativeDrawRect(
-		g_Player.PosX - 0.01f,
-		g_Player.PosY - 0.01f,
-		CONF_PLAYER_SIZE + 0.02f,
-		CONF_PLAYER_SIZE + 0.02f
+		g_Player.PosX - 0.005f,
+		g_Player.PosY - 0.005f,
+		CONF_PLAYER_SIZE + 0.01f,
+		CONF_PLAYER_SIZE + 0.01f
 	);
 }
 

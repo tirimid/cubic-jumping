@@ -71,11 +71,12 @@ struct ParticleData Vfx_ParticleData[PT_END__] =
 
 u8 Vfx_DecalTextures[DT_END__] =
 {
-	TI_DECAL_CHAIN_LONG, // chain long.
-	TI_DECAL_CHAIN_MED, // chain med.
 	TI_DECAL_CHAIN_SHORT, // chain short.
-	TI_DECAL_GRASS_MED, // grass med.
+	TI_DECAL_CHAIN_MED, // chain med.
+	TI_DECAL_CHAIN_LONG, // chain long.
 	TI_DECAL_GRASS_SHORT, // grass short.
+	TI_DECAL_GRASS_MED, // grass med.
+	TI_DECAL_GRASS_LONG, // grass long.
 	TI_DECAL_SIGN, // sign.
 	TI_DECAL_ARROW_DOWN, // arrow down.
 	TI_DECAL_ARROW_LEFT, // arrow left.
