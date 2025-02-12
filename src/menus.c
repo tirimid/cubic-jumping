@@ -270,9 +270,10 @@ LevelEndMenuLoop(void)
 void
 PauseMenuLoop(void)
 {
-	struct UiButton BResume = UiButton_Create(80, 380, "Resume", BtnExitMenu);
-	struct UiButton BRetry = UiButton_Create(80, 420, "Retry level", BtnForceRetry);
-	struct UiButton BSaveProgress = UiButton_Create(80, 460, "Save progress", BtnSaveProgress);
+	struct UiButton BResume = UiButton_Create(80, 340, "Resume", BtnExitMenu);
+	struct UiButton BRetry = UiButton_Create(80, 380, "Retry level", BtnForceRetry);
+	struct UiButton BSaveProgress = UiButton_Create(80, 420, "Save progress", BtnSaveProgress);
+	struct UiButton BOptions = UiButton_Create(80, 460, "Options", BtnOptions);
 	struct UiButton BMainMenu = UiButton_Create(80, 500, "Main menu", BtnMainMenu);
 	
 	u32 MinDepth = ++MenuDepth;
@@ -290,6 +291,7 @@ PauseMenuLoop(void)
 			UiButton_Update(&BResume);
 			UiButton_Update(&BRetry);
 			UiButton_Update(&BSaveProgress);
+			UiButton_Update(&BOptions);
 			UiButton_Update(&BMainMenu);
 			
 			Sound_UpdateMusic();
@@ -308,6 +310,7 @@ PauseMenuLoop(void)
 				UiButton_Draw(&BResume);
 				UiButton_Draw(&BRetry);
 				UiButton_Draw(&BSaveProgress);
+				UiButton_Draw(&BOptions);
 				UiButton_Draw(&BMainMenu);
 			}
 			

@@ -56,7 +56,7 @@ static i32 Type = 0;
 static bool Unsaved = false;
 static f32 DragOrigX = NO_DRAG_REGION, DragOrigY = NO_DRAG_REGION;
 static u32 Arg = 0;
-static bool SingleUse = true, Hide = false, Snap = true;
+static bool SingleUse = true, HideDecals = false, Snap = true;
 static bool Running;
 
 i32
@@ -169,7 +169,7 @@ Editor_Loop(void)
 			DrawBg();
 			Map_Draw();
 			Map_DrawOutlines();
-			if (!Hide)
+			if (!HideDecals)
 			{
 				Vfx_DrawDecals(0, true);
 				Vfx_DrawDecals(1, true);
@@ -802,7 +802,7 @@ BtnSingle(void)
 static void
 BtnHide(void)
 {
-	Hide = !Hide;
+	HideDecals = !HideDecals;
 }
 
 static void
