@@ -11,7 +11,7 @@
 #include "util.h"
 
 #define QUEUED_MAX 64
-#define TEXT_TICKS 550
+#define TEXT_TICKS 650
 
 static void GenBoxText(enum TextListItem Item);
 
@@ -162,7 +162,7 @@ GenBoxText(enum TextListItem Item)
 		sprintf(BoxText, "Grip tiles are rougher than normal, allowing you to climb up them");
 		break;
 	case TLI_TERMINATE_JUMP:
-		sprintf(BoxText, "Dash downwards while holding [%s] to rapidly initiate a new powerjump", SDL_GetKeyName(g_Options.KPowerjump));
+		sprintf(BoxText, "Powerjump, then press [%s] without releasing [%s] to rapidly initiate a new powerjump", SDL_GetKeyName(g_Options.KDashDown), SDL_GetKeyName(g_Options.KPowerjump));
 		break;
 	case TLI_BEAM_INTRO:
 		sprintf(BoxText, "Beam tiles will suck you in towards them at a constant speed");
@@ -172,6 +172,9 @@ GenBoxText(enum TextListItem Item)
 		break;
 	case TLI_SWAP_INTRO:
 		sprintf(BoxText, "Swap tiles rhythmically alternate between active and inactive states");
+		break;
+	case TLI_SMOOTH_MOTION:
+		sprintf(BoxText, "One smooth motion!");
 		break;
 	default:
 		break;

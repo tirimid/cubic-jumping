@@ -68,6 +68,7 @@ CreditsSequence(void)
 		"\n\n\n\n\n"
 		"Playtesting\n"
 		"- Brinpos\n"
+		"- Faris\n"
 		"- nimbus\n"
 		"- Platypus_Eradicator\n"
 		"- satsualex\n"
