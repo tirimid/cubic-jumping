@@ -299,14 +299,22 @@ MapList_LoadNext(void)
 	{
 	case MR_NEXT:
 		if (CurItem == MLI_CUSTOM)
+		{
 			g_Game.Running = false;
-		else if (CurItem == MLI_END__ - 1)
+			break;
+		}
+		
+		if (CurItem == MLI_C0E24)
+			ChapterEndMenuLoop();
+		
+		if (CurItem == MLI_END__ - 1)
 		{
 			CreditsSequence();
 			g_Game.Running = false;
 		}
 		else
 			MapList_Load(CurItem + 1);
+		
 		break;
 	case MR_RETRY:
 		MapList_HardReload();

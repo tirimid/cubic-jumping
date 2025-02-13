@@ -487,6 +487,65 @@ MessageMenuLoop(char const *Msg)
 	}
 }
 
+void
+ChapterEndMenuLoop(void)
+{
+	struct UiButton BContinue = UiButton_Create(80, 500, "Continue", BtnExitMenu);
+	
+	u32 MinDepth = ++MenuDepth;
+	while (MenuDepth >= MinDepth)
+	{
+		u64 TickBegin = GetUnixTimeMs();
+		
+		Input_HandleEvents();
+		
+		// update chapter end menu.
+		{
+			UiButton_Update(&BContinue);
+			
+			Sound_UpdateMusic();
+			
+			Input_PostUpdate();
+		}
+		
+		// draw chapter end menu.
+		{
+			MainDrawBg();
+			
+			// draw UI elements.
+			{
+				u64 TotalTimeS = g_Game.TotalTimeMs / 1000;
+				u64 TotalTimeM = TotalTimeS / 60;
+				
+				char TimeBuf[64] = {0};
+				sprintf(
+					TimeBuf,
+					"Time: %lu:%02lu.%02lu",
+					TotalTimeM,
+					TotalTimeS % 60,
+					g_Game.TotalTimeMs % 1000 / 10
+				);
+				
+				char DeathsBuf[64] = {0};
+				sprintf(DeathsBuf, "Deaths: %u", g_Game.TotalDeaths);
+				
+				Text_DrawStr("Chapter complete", 80, 60);
+				
+				Text_DrawStr(TimeBuf, 80, 180);
+				Text_DrawStr(DeathsBuf, 80, 220);
+				
+				UiButton_Draw(&BContinue);
+			}
+			
+			SDL_RenderPresent(g_Rend);
+		}
+		
+		u64 TickEnd = GetUnixTimeMs();
+		i64 TickTimeLeft = CONF_TICK_MS - TickEnd + TickBegin;
+		SDL_Delay(TickTimeLeft * (TickTimeLeft > 0));
+	}
+}
+
 static void
 MainDrawBg(void)
 {

@@ -18,5 +18,6 @@ void PauseMenuLoop(void);
 void OptionsMenuLoop(void);
 SDL_Keycode KeyDetectMenuLoop(void);
 void MessageMenuLoop(char const *Msg);
+void ChapterEndMenuLoop(void);
 
 #endif

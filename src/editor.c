@@ -74,6 +74,8 @@ Editor_Init(char const *File)
 		DragOrigX = DragOrigY = NO_DRAG_REGION;
 		Arg = 0;
 		SingleUse = true;
+		HideDecals = false;
+		Snap = true;
 		Running = true;
 	}
 	
