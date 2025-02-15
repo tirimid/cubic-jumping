@@ -10,6 +10,7 @@ fun movement and level mechanics.
 
 * Make (for build, optional)
 * mincbuild (for build, optional)
+* bin2header (for asset build, optional)
 * SDL2
 * SDL2 image
 * SDL2 mixer
