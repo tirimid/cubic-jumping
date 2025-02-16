@@ -13,8 +13,8 @@ unzip -o SDL2_mixer-2.8.0-win32-x64.zip
 unzip -o SDL2_image-2.8.2-win32-x64.zip
 cd ..
 
-# apply patches to the actual project itself.
-cd ..
-git apply windows-build/build.patch
-cp windows-build/sdl2-dll/*.dll .
-cp /usr/bin/msys-2.0.dll .
+# copy needed libraries.
+cp sdl2-dll/*.dll .
+
+# clean up.
+rm -rf sdl2-dll

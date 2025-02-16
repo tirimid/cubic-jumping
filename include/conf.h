@@ -1,7 +1,7 @@
 #ifndef CONF_H
 #define CONF_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 // program options.
 #define CONF_VERSION "1.0.1"

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "util.h"
 

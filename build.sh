@@ -36,4 +36,9 @@ then
 fi
 
 echo "build > link"
-$LD $LDFLAGS -o cubic-jumping lib/build_data.o lib/build_jumbo.o
+$LD -o cubic-jumping lib/build_data.o lib/build_jumbo.o $LDFLAGS
+if [ $? -ne 0 ]
+then
+	echo "err: build failed on link!" >&2
+	exit 1
+fi

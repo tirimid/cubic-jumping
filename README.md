@@ -13,15 +13,14 @@ fun movement and level mechanics.
 * SDL2
 * SDL2 image
 * SDL2 mixer
-* MSYS2 with MinGW64 (for windows build)
+* MSYS2/MinGW64 (for windows build)
 * wget (for windows build setup)
 * unzip (for windows build setup)
 
 ## Management
 
-* If on Windows, navigate to `windows-build/` and run `./setup.sh` under
-  MSYS2/MinGW64 in order to set up the build
-* To build the program, run `./build.sh all`
+* If on Windows, first run `./windows_setup.sh` under MSYS2/MinGW64
+* Then, to build the program, run `./build.sh all`
 
 ## Usage
 

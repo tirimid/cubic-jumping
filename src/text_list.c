@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "conf.h"
 #include "options.h"
@@ -162,8 +162,13 @@ GenBoxText(enum TextListItem Item)
 		sprintf(BoxText, "Grip tiles are rougher than normal, allowing you to climb up them");
 		break;
 	case TLI_TERMINATE_JUMP:
-		sprintf(BoxText, "Powerjump, then press [%s] without releasing [%s] to rapidly initiate a new powerjump", SDL_GetKeyName(g_Options.KDashDown), SDL_GetKeyName(g_Options.KPowerjump));
+	{
+		char DashDownName[32], PowerjumpName[32];
+		sprintf(DashDownName, "%s", SDL_GetKeyName(g_Options.KDashDown));
+		sprintf(PowerjumpName, "%s", SDL_GetKeyName(g_Options.KPowerjump));
+		sprintf(BoxText, "Powerjump, then press [%s] without releasing [%s] to rapidly initiate a new powerjump", DashDownName, PowerjumpName);
 		break;
+	}
 	case TLI_BEAM_INTRO:
 		sprintf(BoxText, "Beam tiles will suck you in towards them at a constant speed");
 		break;

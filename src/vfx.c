@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <unistd.h>
 
 #include "cam.h"

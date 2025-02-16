@@ -1,7 +1,7 @@
 #ifndef WND_H
 #define WND_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "util.h"
 

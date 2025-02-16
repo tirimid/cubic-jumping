@@ -1,7 +1,7 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "util.h"
 

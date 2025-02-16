@@ -3,9 +3,9 @@
 #include <string.h>
 #include <time.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #include "conf.h"
 #include "menus.h"
@@ -20,7 +20,7 @@
 #define INIT_IMG_FLAGS IMG_INIT_PNG
 
 int
-main(int Argc, char const *Argv[])
+main(int Argc, char *Argv[])
 {
 	// initialize non-game systems.
 	{

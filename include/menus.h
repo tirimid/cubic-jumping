@@ -1,7 +1,7 @@
 #ifndef MENUS_H
 #define MENUS_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 // used for communication between menus and sometimes their callers.
 enum MenuRequest
