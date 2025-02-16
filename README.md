@@ -8,8 +8,7 @@ fun movement and level mechanics.
 
 ## Dependencies
 
-* Make (for build, optional)
-* mincbuild (for build, optional)
+* Make (for asset build, optional)
 * bin2header (for asset build, optional)
 * SDL2
 * SDL2 image
@@ -22,7 +21,7 @@ fun movement and level mechanics.
 
 * If on Windows, navigate to `windows-build/` and run `./setup.sh` under
   MSYS2/MinGW64 in order to set up the build
-* To build the program, run `make` or `mincbuild`
+* To build the program, run `./build.sh all`
 
 ## Usage
 

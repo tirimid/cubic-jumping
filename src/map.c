@@ -99,8 +99,10 @@ bool Map_TileClimbable[MTT_END__] =
 
 static i32 RdUint8(u8 *Out, FILE *Fp);
 static i32 RdUint32(u32 *Out, FILE *Fp);
+static i32 RdFloat32(f32 *Out, FILE *Fp);
 static void WrUint8(FILE *Fp, u8 U8);
 static void WrUint32(FILE *Fp, u32 U32);
+static void WrFloat32(FILE *Fp, f32 F32);
 
 i32
 Map_CreateFile(char const *File, char const *Name)
@@ -264,11 +266,11 @@ Map_LoadFromFile(char const *File)
 		for (u32 i = 0; i < TriggerCnt; ++i)
 		{
 			struct Trigger NewTrigger;
-			if (RdUint32((u32 *)&NewTrigger.PosX, Fp)
-				|| RdUint32((u32 *)&NewTrigger.PosY, Fp)
-				|| RdUint32((u32 *)&NewTrigger.SizeX, Fp)
-				|| RdUint32((u32 *)&NewTrigger.SizeY, Fp)
-				|| RdUint32((u32 *)&NewTrigger.Arg, Fp)
+			if (RdFloat32(&NewTrigger.PosX, Fp)
+				|| RdFloat32(&NewTrigger.PosY, Fp)
+				|| RdFloat32(&NewTrigger.SizeX, Fp)
+				|| RdFloat32(&NewTrigger.SizeY, Fp)
+				|| RdUint32(&NewTrigger.Arg, Fp)
 				|| RdUint8((u8 *)&NewTrigger.SingleUse, Fp)
 				|| RdUint8(&NewTrigger.Type, Fp))
 			{
@@ -430,10 +432,10 @@ Map_WriteToFile(char const *File)
 		{
 			struct Trigger const *Trigger = &g_Triggers[i];
 			
-			WrUint32(Fp, *(u32 *)&Trigger->PosX);
-			WrUint32(Fp, *(u32 *)&Trigger->PosY);
-			WrUint32(Fp, *(u32 *)&Trigger->SizeX);
-			WrUint32(Fp, *(u32 *)&Trigger->SizeY);
+			WrFloat32(Fp, Trigger->PosX);
+			WrFloat32(Fp, Trigger->PosY);
+			WrFloat32(Fp, Trigger->SizeX);
+			WrFloat32(Fp, Trigger->SizeY);
 			WrUint32(Fp, Trigger->Arg);
 			WrUint8(Fp, Trigger->SingleUse);
 			WrUint8(Fp, Trigger->Type);
@@ -448,8 +450,8 @@ Map_WriteToFile(char const *File)
 		{
 			struct Decal const *Decal = &g_Decals[i];
 			
-			WrUint32(Fp, *(u32 *)&Decal->PosX);
-			WrUint32(Fp, *(u32 *)&Decal->PosY);
+			WrFloat32(Fp, Decal->PosX);
+			WrFloat32(Fp, Decal->PosY);
 			WrUint8(Fp, Decal->Layer);
 			WrUint8(Fp, Decal->Type);
 		}
@@ -684,6 +686,17 @@ RdUint32(u32 *Out, FILE *Fp)
 	return 0;
 }
 
+static i32
+RdFloat32(f32 *Out, FILE *Fp)
+{
+	u32 u;
+	if (RdUint32(&u, Fp))
+		return 1;
+	
+	memcpy(Out, &u, sizeof(u));
+	return 0;
+}
+
 static void
 WrUint8(FILE *Fp, u8 U8)
 {
@@ -708,4 +721,12 @@ WrUint32(FILE *Fp, u32 U32)
 	WrUint8(Fp, B2);
 	WrUint8(Fp, B1);
 	WrUint8(Fp, B0);
+}
+
+static void
+WrFloat32(FILE *Fp, f32 F32)
+{
+	u32 u;
+	memcpy(&u, &F32, sizeof(F32));
+	WrUint32(Fp, u);
 }

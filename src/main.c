@@ -7,10 +7,6 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
-#ifdef BUILD_TARGET_WINDOWS
-#include <Windows.h>
-#endif
-
 #include "conf.h"
 #include "menus.h"
 #include "options.h"
@@ -23,22 +19,8 @@
 
 #define INIT_IMG_FLAGS IMG_INIT_PNG
 
-#ifdef BUILD_TARGET_WINDOWS
-#define ENTRY_FN \
-	i32 APIENTRY \
-	WinMain( \
-		HINSTANCE HInst, \
-		HINSTANCE HPrevInst, \
-		LPSTR LpCmdLine, \
-		i32 NCmdShow \
-	)
-#else
-#define ENTRY_FN \
-	i32 \
-	main(void)
-#endif
-
-ENTRY_FN
+int
+main(int Argc, char const *Argv[])
 {
 	// initialize non-game systems.
 	{
